@@ -155,10 +155,7 @@ const PeriodsPage: React.FC = () => {
                       <Button size="sm" variant="primary" onClick={() => handleEdit(p)}>Edit</Button>{' '}
                       {user?.is_admin && (
                         <Button size="sm" variant="danger" onClick={() => handleDelete(p)}>Delete</Button>
-                      )}{' '}
-                      <Button size="sm" variant="secondary" disabled onClick={() => token && downloadPeriodPDF(p.periodId, token)}>
-                        Download PDF
-                      </Button>{' '}
+                      )}
                     </td>
                   </tr>
                 ))
