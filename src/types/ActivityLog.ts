@@ -11,9 +11,8 @@ export interface ActivityLog {
   org_id?: string;
   periodId: string;
   volunteerId: string;
-  timestamp?: string;
+  timestamp?: string; // Section 7
   action: string;
   location?: string;
-  details?: string;
-  // ...additional metadata fields as needed
+  details?: string; // Section 7
 }
