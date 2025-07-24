@@ -116,7 +116,7 @@ const ActivityLogPage: React.FC = () => {
                 value={selectedVolunteer}
                 onSelect={setSelectedVolunteer}
               />
-              <Button variant="success" disabled onClick={handleGenerateReport}>Generate Report</Button>
+              <Button variant="success" onClick={handleGenerateReport}>Generate Report</Button>
             </Col>
           </Row>
         </Card.Header>
@@ -155,6 +155,7 @@ const ActivityLogPage: React.FC = () => {
         onHide={() => setShowReportModal(false)}
         onSubmit={handleReportModalSubmit}
         initialPositionTitle={lastPositionTitle}
+        preparedByName={'' + (user?.name || '')}
       />
       <AppToast
         show={toast.show}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 
@@ -7,10 +7,15 @@ interface ReportModalProps {
   onHide: () => void;
   onSubmit: (report: { positionTitle: string }) => void;
   initialPositionTitle?: string;
+  preparedByName?: string;
 }
 
-const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initialPositionTitle }) => {
+const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initialPositionTitle, preparedByName }) => {
   const [positionTitle, setPositionTitle] = useState(initialPositionTitle || '');
+
+  useEffect(() => {
+    setPositionTitle(initialPositionTitle || '');
+  }, [initialPositionTitle, show]);
   const [validated, setValidated] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,8 +40,8 @@ const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initi
           <Modal.Title>Generate Report</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group controlId="positionTitle">
-            <Form.Label>Position Title</Form.Label>
+          <Form.Group controlId="positionTitle" className="mt-3">
+            <Form.Label>Position Title for <strong>{preparedByName || 'this user'}</strong></Form.Label>
             <Form.Control
               type="text"
               value={positionTitle}
