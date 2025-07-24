@@ -14,8 +14,10 @@ export interface Volunteer {
   org_id: string;
   name: string;
   contactInfo: string;
-  currentLocation: string;
-  notes: string;
+  currentLocation?: string;
+  notes?: string;
+  icsPosition?: string;
+  homeAgency?: string;
   status?: string;
   callsign?: string;
   radio?: string;
