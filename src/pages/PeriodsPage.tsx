@@ -5,7 +5,6 @@ import { AuthContext } from '../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import PeriodSelect from '../components/PeriodSelect';
 import { Period } from '../types/Period';
-import { downloadPeriodPDF } from '../api/api';
 import { formatLocalDateTime } from '../utils/dateFormat';
 import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
