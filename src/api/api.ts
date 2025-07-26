@@ -5,10 +5,12 @@ export async function apiFetch<T>(
   method: string = 'GET',
   body?: any,
   token?: string,
-  responseType: 'json' | 'blob' = 'json'
+  responseType: 'json' | 'blob' = 'json',
+  accept?: string
 ): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Accept': accept ? accept : 'application/json',
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const resp = await fetch(`${API_BASE_URL}${path}`, {

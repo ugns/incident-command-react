@@ -8,9 +8,10 @@ interface ReportModalProps {
   onSubmit: (report: { positionTitle: string }) => void;
   initialPositionTitle?: string;
   preparedByName?: string;
+  disableSubmit?: boolean;
 }
 
-const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initialPositionTitle, preparedByName }) => {
+const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initialPositionTitle, preparedByName, disableSubmit }) => {
   const [positionTitle, setPositionTitle] = useState(initialPositionTitle || '');
 
   useEffect(() => {
@@ -56,7 +57,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ show, onHide, onSubmit, initi
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleHide}>Cancel</Button>
-          <Button variant="primary" type="submit">Generate</Button>
+          <Button variant="primary" type="submit" disabled={!!disableSubmit} title={disableSubmit ? 'Required report type is not available.' : undefined}>Generate</Button>
         </Modal.Footer>
       </Form>
     </Modal>

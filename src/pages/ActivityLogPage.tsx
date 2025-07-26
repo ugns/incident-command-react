@@ -10,8 +10,10 @@ import VolunteerSelect from '../components/VolunteerSelect';
 import { Volunteer } from '../types/Volunteer';
 import { ActivityLog } from '../types/ActivityLog';
 import { Report } from '../types/Report';
+import { ReportType } from '../types/ReportType';
 import { AuthContext } from '../context/AuthContext';
 import reportService from '../services/reportService';
+
 
 const ActivityLogPage: React.FC = () => {
 
@@ -23,11 +25,34 @@ const ActivityLogPage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [lastPositionTitle, setLastPositionTitle] = useState<string>('');
+  const [generating, setGenerating] = useState(false);
+  const [availableReportTypes, setAvailableReportTypes] = useState<ReportType[]>([]);
+  const [toast, setToast] = useState<{ show: boolean; message: string; bg: 'info' | 'danger' | 'success' }>({ show: false, message: '', bg: 'info' });
+
+  // The required report type and media type for this page
+  const requiredReportType = 'ics214';
+  // Find if the required report type is available
+  const availableTypeObj = availableReportTypes.find(rt => rt.type === requiredReportType);
+  const isReportTypeAvailable = !!availableTypeObj;
+
+  useEffect(() => {
+    // Fetch available report types/media from backend
+    const fetchReportTypes = async () => {
+      if (!token) return;
+      try {
+        const types = await reportService.listTypes(token);
+        console.log('raw types:', types);
+        setAvailableReportTypes(types.reports);
+      } catch (e) {
+        setAvailableReportTypes([]);
+      }
+    };
+    fetchReportTypes();
+  }, [token]);
+
   const handleGenerateReport = () => {
     setShowReportModal(true);
   };
-
-  const [toast, setToast] = useState<{ show: boolean; message: string; bg: 'info' | 'danger' | 'success' }>({ show: false, message: '', bg: 'info' });
 
   const handleReportModalSubmit = async ({ positionTitle }: { positionTitle: string }) => {
     setLastPositionTitle(positionTitle);
@@ -36,29 +61,36 @@ const ActivityLogPage: React.FC = () => {
       setToast({ show: true, message: 'Missing required information to generate report.', bg: 'danger' });
       return;
     }
-    // Find referenced volunteers and count log entries per volunteer
-    const logCounts: Record<string, number> = {};
-    for (const log of activityLogs) {
-      if (log.volunteerId) {
-        logCounts[log.volunteerId] = (logCounts[log.volunteerId] || 0) + 1;
-      }
+    if (!isReportTypeAvailable) {
+      setToast({ show: true, message: 'Required report type is not available.', bg: 'danger' });
+      return;
     }
-    // Sort volunteerIds by log count descending, take top 8
-    const topVolunteerIds = Object.entries(logCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([id]) => id);
-    const referencedVolunteers = volunteers.filter(v => topVolunteerIds.includes(v.volunteerId));
-
-    const report: Report = {
-      period: selectedPeriod,
-      activityLogs,
-      volunteers: referencedVolunteers,
-      preparedBy: user,
-      positionTitle,
-    };
+    setGenerating(true);
     try {
-      const blob = await reportService.generate(report, token);
+      // Find referenced volunteers and count log entries per volunteer
+      const logCounts: Record<string, number> = {};
+      for (const log of activityLogs) {
+        if (log.volunteerId) {
+          logCounts[log.volunteerId] = (logCounts[log.volunteerId] || 0) + 1;
+        }
+      }
+      // Sort volunteerIds by log count descending, take top 8
+      const topVolunteerIds = Object.entries(logCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([id]) => id);
+      const referencedVolunteers = volunteers.filter(v => topVolunteerIds.includes(v.volunteerId));
+
+      const report: Report = {
+        period: selectedPeriod,
+        activityLogs,
+        volunteers: referencedVolunteers,
+        preparedBy: user,
+        positionTitle,
+      };
+      // Use the available mediaType from backend
+      const mediaType = availableTypeObj.mediaType || 'application/pdf';
+      const blob = await reportService.generate(report, token, requiredReportType, mediaType);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -70,6 +102,8 @@ const ActivityLogPage: React.FC = () => {
       setToast({ show: true, message: 'Report generated and downloaded successfully.', bg: 'success' });
     } catch (err: any) {
       setToast({ show: true, message: 'Failed to generate report: ' + (err.message || err), bg: 'danger' });
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -104,6 +138,8 @@ const ActivityLogPage: React.FC = () => {
     return <Alert variant="warning">No operating period selected.</Alert>;
   }
 
+  console.log('availableReportTypes:', availableReportTypes);
+
   return (
     <Container>
       <Card>
@@ -116,7 +152,14 @@ const ActivityLogPage: React.FC = () => {
                 value={selectedVolunteer}
                 onSelect={setSelectedVolunteer}
               />
-              <Button variant="success" onClick={handleGenerateReport}>Generate Report</Button>
+              <Button
+                variant="success"
+                onClick={handleGenerateReport}
+                disabled={generating || !isReportTypeAvailable}
+                title={!isReportTypeAvailable ? 'Required report type is not available.' : undefined}
+              >
+                Generate Report
+              </Button>
             </Col>
           </Row>
         </Card.Header>
@@ -156,6 +199,7 @@ const ActivityLogPage: React.FC = () => {
         onSubmit={handleReportModalSubmit}
         initialPositionTitle={lastPositionTitle}
         preparedByName={'' + (user?.name || '')}
+        disableSubmit={!isReportTypeAvailable}
       />
       <AppToast
         show={toast.show}
