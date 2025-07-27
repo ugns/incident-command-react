@@ -91,7 +91,7 @@ const DispatchPage: React.FC = () => {
         <Col xs={12} md={8} lg={6}>
           <Card>
             <Card.Header className="d-flex justify-content-between align-items-center">
-              <span>Roster for {selectedPeriod.description}</span>
+              <span>Volunteers for {selectedPeriod.description}</span>
             </Card.Header>
             <Card.Body>
               <Form>

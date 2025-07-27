@@ -10,8 +10,7 @@ import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import VolunteersPage from './pages/VolunteersPage';
 import PeriodsPage from './pages/PeriodsPage';
-import RosterPage from './pages/RosterPage';
-import RadiosPage from './pages/RadiosPage';
+import ResourcesPage from './pages/ResourcesPage';
 import ActivityLogPage from './pages/ActivityLogPage';
 
 
@@ -27,8 +26,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<MainPage />} />
           <Route path="/volunteers" element={<VolunteersPage />} />
           <Route path="/periods" element={<PeriodsPage />} />
-          <Route path="/roster" element={<RosterPage />} />
-          <Route path="/radios" element={<RadiosPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
         </Routes>
       ) : (

@@ -23,8 +23,7 @@ const AppNavbar: React.FC = () => {
           {user && (
             <>
               <Nav className="me-auto">
-                <Nav.Link as={Link} to="/roster">Roster</Nav.Link>
-                <Nav.Link as={Link} to="/radios">Radios</Nav.Link>
+                <Nav.Link as={Link} to="/resources">Resources</Nav.Link>
                 <Nav.Link as={Link} to="/activity-log">Activity Log</Nav.Link>
                 <Nav.Link onClick={() => setShowCanvas(true)}>Admin</Nav.Link>
               </Nav>
