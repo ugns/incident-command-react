@@ -21,7 +21,15 @@ export async function apiFetch<T>(
   if (!resp.ok) throw new Error(await resp.text());
   if (resp.status === 204) return null as T; // No content
   if (responseType === 'blob') {
-    return resp.blob() as Promise<T>;
+    const blob = await resp.blob();
+    let filename: string | undefined;
+    const disposition = resp.headers.get('Content-Disposition');
+    console.log('Content-Disposition:', disposition);
+    if (disposition) {
+      const match = disposition.match(/filename="?([^";]+)"?/);
+      if (match) filename = match[1];
+    }
+    return { blob, filename } as T;
   }
   return resp.json();
 }

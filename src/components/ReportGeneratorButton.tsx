@@ -63,12 +63,12 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
     try {
       const report = buildReportData(formData);
       const mediaType = availableTypeObj.mediaType || 'application/pdf';
-      const blob = await reportService.generate(report, token, requiredReportType, mediaType);
+      const { blob, filename } = await reportService.generate(report, token, requiredReportType, mediaType);
       if (onReportGenerated) onReportGenerated(blob);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${requiredReportType}.pdf`;
+      a.download = filename || `${requiredReportType}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
