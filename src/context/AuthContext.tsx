@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect } from 'react';
 import { User } from '../types/User';
 
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (token: string, user: User) => void;

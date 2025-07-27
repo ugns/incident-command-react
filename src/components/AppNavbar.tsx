@@ -20,22 +20,22 @@ const AppNavbar: React.FC = () => {
         <Navbar.Brand as={Link} to="/">Incident Command</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/roster">Roster</Nav.Link>
-            <Nav.Link as={Link} to="/radios">Radios</Nav.Link>
-            <Nav.Link as={Link} to="/activity-log">Activity Log</Nav.Link>
-            {user?.is_admin && (
-              <Nav.Link onClick={() => setShowCanvas(true)}>Admin</Nav.Link>
-            )}
-          </Nav>
           {user && (
-            <div className="d-flex align-items-center ms-auto">
-              <Button variant="outline-light" className="me-2" onClick={() => setShowPeriodModal(true)} title="Select Operating Period">
-                <GearFill />
-              </Button>
-              <Navbar.Text className="me-2">{user.name}</Navbar.Text>
-              <Button variant="outline-light" onClick={logout}>Logout</Button>
-            </div>
+            <>
+              <Nav className="me-auto">
+                <Nav.Link as={Link} to="/roster">Roster</Nav.Link>
+                <Nav.Link as={Link} to="/radios">Radios</Nav.Link>
+                <Nav.Link as={Link} to="/activity-log">Activity Log</Nav.Link>
+                <Nav.Link onClick={() => setShowCanvas(true)}>Admin</Nav.Link>
+              </Nav>
+              <div className="d-flex align-items-center ms-auto">
+                <Button variant="outline-light" className="me-2" onClick={() => setShowPeriodModal(true)} title="Select Operating Period">
+                  <GearFill />
+                </Button>
+                <Navbar.Text className="me-2">{user.name}</Navbar.Text>
+                <Button variant="outline-light" onClick={logout}>Logout</Button>
+              </div>
+            </>
           )}
         </Navbar.Collapse>
       </Container>

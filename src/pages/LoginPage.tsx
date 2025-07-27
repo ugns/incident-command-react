@@ -2,25 +2,18 @@ import React, { useContext } from 'react';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
-const BACKEND_AUTH_URL = `${API_BASE_URL}/auth/login`;
+import authService from '../services/authService';
 
 const LoginPage: React.FC = () => {
   const { login } = useContext(AuthContext);
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!credentialResponse.credential) return;
-    // Send Google token to backend to get JWT
-    const resp = await fetch(BACKEND_AUTH_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: credentialResponse.credential }),
-    });
-    if (resp.ok) {
-      const data = await resp.json();
+    try {
+      const data = await authService.loginWithGoogle(credentialResponse.credential) as { token: string; user: any };
+      console.log('Login user object:', data.user); // Debug: check hd claim
       login(data.token, data.user);
-    } else {
+    } catch (e: any) {
       alert('Login failed');
     }
   };
