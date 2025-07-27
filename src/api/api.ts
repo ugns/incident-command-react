@@ -24,7 +24,6 @@ export async function apiFetch<T>(
     const blob = await resp.blob();
     let filename: string | undefined;
     const disposition = resp.headers.get('Content-Disposition');
-    console.log('Content-Disposition:', disposition);
     if (disposition) {
       const match = disposition.match(/filename="?([^";]+)"?/);
       if (match) filename = match[1];

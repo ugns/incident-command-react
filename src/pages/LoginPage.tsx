@@ -11,7 +11,6 @@ const LoginPage: React.FC = () => {
     if (!credentialResponse.credential) return;
     try {
       const data = await authService.loginWithGoogle(credentialResponse.credential) as { token: string; user: any };
-      console.log('Login user object:', data.user); // Debug: check hd claim
       login(data.token, data.user);
     } catch (e: any) {
       alert('Login failed');
