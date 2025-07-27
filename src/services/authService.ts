@@ -4,9 +4,14 @@ import { AuthContextType } from '../context/AuthContext';
 type LoginResponse = Pick<AuthContextType, 'token' | 'user'>;
 
 const authService = {
-  loginWithGoogle: async (googleToken: string): Promise<LoginResponse> => {
+  loginWithGoogle: async (googleToken: string, onAuthError?: () => void): Promise<LoginResponse> => {
     // Returns { token, user } or throws
-    return apiFetch<LoginResponse>('/auth/login', 'POST', { token: googleToken, provider: 'google' });
+    return apiFetch<LoginResponse>({
+      path: '/auth/login',
+      method: 'POST',
+      body: { token: googleToken, provider: 'google' },
+      onAuthError,
+    });
   },
   // Future: add loginWithOtherProvider, etc.
 };

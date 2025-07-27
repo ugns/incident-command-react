@@ -2,20 +2,52 @@ import { Volunteer } from '../types/Volunteer';
 import { apiFetch } from '../api/api';
 
 const volunteerService = {
-  async list(token: string): Promise<Volunteer[]> {
-    return apiFetch('/volunteers', 'GET', undefined, token);
+  async list(token: string, onAuthError?: () => void): Promise<Volunteer[]> {
+    return apiFetch<Volunteer[]>({
+      path: '/volunteers',
+      method: 'GET',
+      token,
+      responseType: 'json',
+      onAuthError,
+    });
   },
 
-  async create(data: Partial<Volunteer>, token: string): Promise<Volunteer> {
-    return apiFetch('/volunteers', 'POST', data, token);
+  async get(id: string, token: string, onAuthError?: () => void): Promise<Volunteer> {
+    return apiFetch<Volunteer>({
+      path: `/volunteers/${id}`,
+      method: 'GET',
+      token,
+      onAuthError,
+    });
   },
 
-  async update(id: string, data: Partial<Volunteer>, token: string): Promise<Volunteer> {
-    return apiFetch(`/volunteers/${id}`, 'PUT', data, token);
+  async create(data: Partial<Volunteer>, token: string, onAuthError?: () => void): Promise<Volunteer> {
+    return apiFetch<Volunteer>({
+      path: '/volunteers',
+      method: 'POST',
+      body: data,
+      token,
+      onAuthError,
+    });
   },
 
-  async delete(id: string, token: string): Promise<void> {
-    await apiFetch(`/volunteers/${id}`, 'DELETE', undefined, token);
+  async update(id: string, data: Partial<Volunteer>, token: string, onAuthError?: () => void): Promise<Volunteer> {
+    return apiFetch<Volunteer>({
+      path: `/volunteers/${id}`,
+      method: 'PUT',
+      body: data,
+      token,
+      onAuthError,
+    });
+  },
+  
+  async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
+    await apiFetch<void>({
+      path: `/volunteers/${id}`,
+      method: 'DELETE',
+      token,
+      onAuthError,
+    });
   },
 };
 

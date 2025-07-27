@@ -5,13 +5,26 @@ import { apiFetch } from '../api/api';
 
 
 const reportService = {
-  async generate(report: Report, token: string, reportType: string, mediaType: string): Promise<{ blob: Blob; filename?: string }> {
-    const response = await apiFetch<{ blob: Blob; filename?: string }>(`/reports/${reportType}`, 'POST', report, token, 'blob', mediaType);
-    return response;
+  async generate(report: Report, token: string, reportType: string, mediaType: string, onAuthError?: () => void): Promise<{ blob: Blob; filename?: string }> {
+    return apiFetch<{ blob: Blob; filename?: string }>({
+      path: `/reports/${reportType}`,
+      method: 'POST',
+      body: report,
+      token,
+      responseType: 'blob',
+      accept: mediaType,
+      onAuthError,
+    });
   },
 
-  async listTypes(token: string): Promise<{ reports: ReportType[] }> {
-    return apiFetch('/reports', 'GET', undefined, token);
+  async listTypes(token: string, onAuthError?: () => void): Promise<{ reports: ReportType[] }> {
+    return apiFetch<{ reports: ReportType[] }>({
+      path: '/reports',
+      method: 'GET',
+      token,
+      responseType: 'json',
+      onAuthError,
+    });
   },
 };
 

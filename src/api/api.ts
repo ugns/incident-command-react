@@ -1,13 +1,23 @@
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
-export async function apiFetch<T>(
-  path: string,
-  method: string = 'GET',
-  body?: any,
-  token?: string,
-  responseType: 'json' | 'blob' = 'json',
-  accept?: string
-): Promise<T> {
+export async function apiFetch<T>(options: {
+  path: string;
+  method?: string;
+  body?: any;
+  token?: string;
+  responseType?: 'json' | 'blob';
+  accept?: string;
+  onAuthError?: () => void;
+}): Promise<T> {
+  const {
+    path,
+    method = 'GET',
+    body,
+    token,
+    responseType = 'json',
+    accept,
+    onAuthError,
+  } = options;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': accept ? accept : 'application/json',
@@ -18,7 +28,12 @@ export async function apiFetch<T>(
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!resp.ok) throw new Error(await resp.text());
+  if (!resp.ok) {
+    if (resp.status === 403 && onAuthError) {
+      onAuthError();
+    }
+    throw new Error(await resp.text());
+  }
   if (resp.status === 204) return null as T; // No content
   if (responseType === 'blob') {
     const blob = await resp.blob();

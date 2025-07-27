@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Volunteer } from '../types/Volunteer';
 import volunteerService from '../services/volunteerService';
+import { AuthContext } from './AuthContext';
 
 interface VolunteerContextType {
   volunteers: Volunteer[];
@@ -24,33 +25,34 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { logout } = useContext(AuthContext);
 
   // Fetch volunteers from API
-  const refresh = async () => {
+  const refresh = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('token') || '';
-      const data = await volunteerService.list(token);
+      const data = await volunteerService.list(token, logout);
       setVolunteers(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch volunteers');
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   // Initial fetch
   useEffect(() => {
     refresh();
-  }, []);
+  }, [refresh]);
 
   const addVolunteer = async (data: Partial<Volunteer>) => {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('token') || '';
-      const newVolunteer = await volunteerService.create(data, token);
+      const newVolunteer = await volunteerService.create(data, token, logout);
       await refresh();
       return newVolunteer;
     } catch (err: any) {
@@ -66,7 +68,7 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setError(null);
     try {
       const token = localStorage.getItem('token') || '';
-      const updated = await volunteerService.update(id, data, token);
+      const updated = await volunteerService.update(id, data, token, logout);
       await refresh();
       return updated;
     } catch (err: any) {
@@ -82,7 +84,7 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setError(null);
     try {
       const token = localStorage.getItem('token') || '';
-      await volunteerService.delete(id, token);
+      await volunteerService.delete(id, token, logout);
       await refresh();
     } catch (err: any) {
       setError(err.message || 'Failed to delete volunteer');

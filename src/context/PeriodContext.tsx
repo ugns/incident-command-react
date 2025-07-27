@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Period } from '../types/Period';
 import periodService from '../services/periodService';
+import { AuthContext } from './AuthContext';
 
 interface PeriodContextType {
   periods: Period[];
@@ -27,28 +28,28 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const stored = localStorage.getItem('selectedPeriod');
     return stored ? JSON.parse(stored) : null;
   });
+  const { logout } = useContext(AuthContext);
 
   // Fetch periods from API
-  const refreshPeriods = async () => {
+  const refreshPeriods = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // You may want to get the token from context or props if needed
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No auth token');
-      const data = await periodService.list(token);
+      const data = await periodService.list(token, logout);
       setPeriods(data);
     } catch (e: any) {
       setError(e.message || 'Failed to fetch periods');
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   // Initial fetch
   useEffect(() => {
     refreshPeriods();
-  }, []);
+  }, [refreshPeriods, logout]);
 
   // Update localStorage whenever selectedPeriod changes
   useEffect(() => {
