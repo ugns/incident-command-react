@@ -5,16 +5,13 @@ const periodService = {
   async list(token: string, onAuthError?: () => void): Promise<Period[]> {
     return apiFetch<Period[]>({
       path: '/periods',
-      method: 'GET',
       token,
-      responseType: 'json',
       onAuthError,
     });
   },
   async get(id: string, token: string, onAuthError?: () => void): Promise<Period> {
     return apiFetch<Period>({
       path: `/periods/${id}`,
-      method: 'GET',
       token,
       onAuthError,
     });

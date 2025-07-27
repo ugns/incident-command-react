@@ -5,18 +5,14 @@ const activityLogService = {
   async list(token: string, onAuthError?: () => void): Promise<ActivityLog[]> {
     return apiFetch<ActivityLog[]>({
       path: '/activity-log',
-      method: 'GET',
       token,
-      responseType: 'json',
       onAuthError,
     });
   },
   async listByVolunteer(id: string, token: string, onAuthError?: () => void): Promise<ActivityLog[]> {
     return apiFetch<ActivityLog[]>({
       path: `/activity-log/volunteer/${id}`,
-      method: 'GET',
       token,
-      responseType: 'json',
       onAuthError,
     });
   },

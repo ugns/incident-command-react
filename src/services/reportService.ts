@@ -20,9 +20,7 @@ const reportService = {
   async listTypes(token: string, onAuthError?: () => void): Promise<{ reports: ReportType[] }> {
     return apiFetch<{ reports: ReportType[] }>({
       path: '/reports',
-      method: 'GET',
       token,
-      responseType: 'json',
       onAuthError,
     });
   },

@@ -5,9 +5,7 @@ const volunteerService = {
   async list(token: string, onAuthError?: () => void): Promise<Volunteer[]> {
     return apiFetch<Volunteer[]>({
       path: '/volunteers',
-      method: 'GET',
       token,
-      responseType: 'json',
       onAuthError,
     });
   },
@@ -15,7 +13,6 @@ const volunteerService = {
   async get(id: string, token: string, onAuthError?: () => void): Promise<Volunteer> {
     return apiFetch<Volunteer>({
       path: `/volunteers/${id}`,
-      method: 'GET',
       token,
       onAuthError,
     });
