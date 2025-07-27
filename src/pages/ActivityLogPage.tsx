@@ -65,6 +65,8 @@ const ActivityLogPage: React.FC = () => {
                 requiredReportType="ics214"
                 token={token || ''}
                 user={user}
+                buttonText="Generate ICS-214"
+                disabled={!selectedPeriod || activityLogs.length === 0}
                 buildReportData={({ positionTitle }) => {
                   // ICS-214 report payload builder
                   // Find referenced volunteers and count log entries per volunteer

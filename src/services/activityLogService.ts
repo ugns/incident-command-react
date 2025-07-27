@@ -4,21 +4,21 @@ import { apiFetch } from '../api/api';
 const activityLogService = {
   async list(token: string, onAuthError?: () => void): Promise<ActivityLog[]> {
     return apiFetch<ActivityLog[]>({
-      path: '/activity-log',
+      path: '/activitylogs',
       token,
       onAuthError,
     });
   },
   async listByVolunteer(id: string, token: string, onAuthError?: () => void): Promise<ActivityLog[]> {
     return apiFetch<ActivityLog[]>({
-      path: `/activity-log/volunteer/${id}`,
+      path: `/activitylogs/volunteer/${id}`,
       token,
       onAuthError,
     });
   },
   async create(data: Partial<ActivityLog>, token: string, onAuthError?: () => void): Promise<ActivityLog> {
     return apiFetch<ActivityLog>({
-      path: '/activity-log',
+      path: '/activitylogs',
       method: 'POST',
       body: data,
       token,

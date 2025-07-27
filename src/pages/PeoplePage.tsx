@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import VolunteerSelect from '../components/VolunteerSelect';
 import { Volunteer, VolunteerStatus, RadioStatus } from '../types/Volunteer';
 import { ActivityLog, ActivityLogAction } from '../types/ActivityLog';
@@ -7,9 +7,10 @@ import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'r
 import { Broadcast } from 'react-bootstrap-icons';
 import { usePeriod } from '../context/PeriodContext';
 import { useVolunteers } from '../context/VolunteerContext';
+import { AuthContext } from '../context/AuthContext';
 import AppToast from '../components/AppToast';
 
-const DispatchPage: React.FC = () => {
+const PeoplePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [toastBg, setToastBg] = useState<'info' | 'danger' | 'success'>('info');
@@ -17,6 +18,7 @@ const DispatchPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { volunteers, loading: volunteersLoading, updateVolunteer, refresh } = useVolunteers();
   const { selectedPeriod } = usePeriod();
+  const { user } = useContext(AuthContext);
 
   const token = localStorage.getItem('token') || '';
   const isCheckedIn = selectedVolunteer?.status === VolunteerStatus.CheckedIn;
@@ -38,7 +40,7 @@ const DispatchPage: React.FC = () => {
         org_id: selectedPeriod.org_id,
         volunteerId: selectedVolunteer.volunteerId,
         action: ActivityLogAction.CheckIn,
-        details: `${selectedVolunteer.name} checked in`,
+        details: `${selectedVolunteer.name} ${(selectedVolunteer.callsign ? ` (${selectedVolunteer.callsign})` : '')} checked in with ${user?.name}`,
       };
       await activityLogService.create(log, token);
       setMessage(`${selectedVolunteer.name} checked in successfully.`);
@@ -67,7 +69,7 @@ const DispatchPage: React.FC = () => {
         org_id: selectedPeriod.org_id,
         volunteerId: selectedVolunteer.volunteerId,
         action: ActivityLogAction.CheckOut,
-        details: `${selectedVolunteer.name} checked out`,
+        details: `${selectedVolunteer.name} ${(selectedVolunteer.callsign ? ` (${selectedVolunteer.callsign})` : '')} checked out with ${user?.name}`,
       };
       await activityLogService.create(log, token);
       setMessage(`${selectedVolunteer.name} checked out successfully.`);
@@ -145,7 +147,7 @@ const DispatchPage: React.FC = () => {
   );
 };
 
-export default DispatchPage;
+export default PeoplePage;
 
 const CheckedInVolunteers: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
   const checkedIn = volunteers.filter(v => v.status === VolunteerStatus.CheckedIn);

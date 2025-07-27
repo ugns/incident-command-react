@@ -17,14 +17,14 @@ const AppNavbar: React.FC = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <Navbar.Brand as={Link} to="/">Incident Command</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">EventCoord</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           {user && (
             <>
               <Nav className="me-auto">
                 <Nav.Link as={Link} to="/resources">Resources</Nav.Link>
-                <Nav.Link as={Link} to="/activity-log">Activity Log</Nav.Link>
+                <Nav.Link as={Link} to="/activity" disabled>Log Activity</Nav.Link>
                 <Nav.Link onClick={() => setShowCanvas(true)}>Admin</Nav.Link>
               </Nav>
               <div className="d-flex align-items-center ms-auto">
@@ -47,6 +47,7 @@ const AppNavbar: React.FC = () => {
           <Nav className="flex-column">
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/volunteers'); }}>Manage Volunteers</Nav.Link>
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/periods'); }}>Manage Operating Periods</Nav.Link>
+            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/activity-log'); }}>Activity Logs</Nav.Link>
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>

@@ -1,9 +1,20 @@
 // Utility to format ISO date strings to browser-local date/time
-export function formatLocalDateTime(isoString: string): string {
+export function formatLocalDateTime(
+  isoString: string,
+  options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }
+): string {
   if (!isoString) return '';
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return isoString;
-  return date.toLocaleString();
+  // This will output MM/DD/YYYY, HH:mm in most browsers with these options
+  return date.toLocaleString(undefined, options).replace(',', '');
 }
 
 // Convert ISO8601 to 'yyyy-MM-ddTHH:mm' for datetime-local input

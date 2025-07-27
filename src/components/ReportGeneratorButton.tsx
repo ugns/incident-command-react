@@ -12,6 +12,7 @@ interface ReportGeneratorButtonProps {
   buildReportData: (formData: { positionTitle: string }) => any;
   onReportGenerated?: (blob: Blob) => void;
   buttonText?: string;
+  disabled?: boolean;
 }
 
 const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({

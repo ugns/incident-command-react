@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Card, Tabs, Tab } from 'react-bootstrap';
 
-import RosterPage from './RosterPage';
+import PeoplePage from './PeoplePage';
 import RadiosPage from './RadiosPage';
 
 const ResourcesPage: React.FC = () => {
@@ -11,11 +11,14 @@ const ResourcesPage: React.FC = () => {
     <Container className="mt-4">
       <Card>
         <Card.Header>
-          <Tabs activeKey={key} onSelect={k => setKey(k || 'people')}>
+          <Tabs activeKey={key} onSelect={k => setKey(k || 'people')} fill>
             <Tab eventKey="people" title="People">
-              <RosterPage />
+              <PeoplePage />
             </Tab>
             <Tab eventKey="radios" title="Radios">
+              <RadiosPage />
+            </Tab>
+            <Tab eventKey="organizations" title="Organizations" disabled>
               <RadiosPage />
             </Tab>
           </Tabs>
