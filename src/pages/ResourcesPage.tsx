@@ -22,7 +22,7 @@ const ResourcesPage: React.FC = () => {
                 <RadiosPage />
               </Tab>
             )}
-            <Tab eventKey="organizations" title="Organizations" disabled>
+            <Tab eventKey="agencies" title="Agencies" disabled>
               <RadiosPage />
             </Tab>
           </Tabs>

@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import PeriodSelectModal from './PeriodSelectModal';
 import { usePeriod } from '../context/PeriodContext';
 import { Navbar, Container, Nav, Button, Offcanvas } from 'react-bootstrap';
@@ -8,7 +9,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const AppNavbar: React.FC = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, token } = useContext(AuthContext);
+  const { superAdminAccess } = useFlags();
+  const { adminAccess } = useFlags();
   const navigate = useNavigate();
   const [showCanvas, setShowCanvas] = useState(false);
   const [showPeriodModal, setShowPeriodModal] = useState(false);
@@ -25,7 +28,7 @@ const AppNavbar: React.FC = () => {
               <Nav className="me-auto">
                 <Nav.Link as={Link} to="/resources">Resources</Nav.Link>
                 <Nav.Link as={Link} to="/activity" disabled>Log Activity</Nav.Link>
-                <Nav.Link onClick={() => setShowCanvas(true)}>Admin</Nav.Link>
+                <Nav.Link onClick={() => setShowCanvas(true)} disabled={!adminAccess}>Admin</Nav.Link>
               </Nav>
               <div className="d-flex align-items-center ms-auto">
                 <Button variant="outline-light" className="me-2" onClick={() => setShowPeriodModal(true)} title="Select Operating Period">
@@ -52,8 +55,11 @@ const AppNavbar: React.FC = () => {
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Nav className="flex-column">
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/volunteers'); }}>Manage Volunteers</Nav.Link>
+            {superAdminAccess && (
+              <Nav.Link onClick={() => { setShowCanvas(false); navigate('/organizations'); }}>Manage Organizations</Nav.Link>
+            )}
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/periods'); }}>Manage Operating Periods</Nav.Link>
+            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/volunteers'); }}>Manage Volunteers</Nav.Link>
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/activity-log'); }}>Activity Logs</Nav.Link>
           </Nav>
         </Offcanvas.Body>

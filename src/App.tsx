@@ -4,9 +4,11 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
+import { OrganizationProvider } from './context/OrganizationContext';
 import AppNavbar from './components/AppNavbar';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
+import OrganizationsPage from './pages/OrganizationsPage';
 import VolunteersPage from './pages/VolunteersPage';
 import PeriodsPage from './pages/PeriodsPage';
 import ResourcesPage from './pages/ResourcesPage';
@@ -24,6 +26,7 @@ const AppContent: React.FC = () => {
       {user ? (
         <Routes>
           <Route path="/" element={<MainPage />} />
+          <Route path="/organizations" element={<OrganizationsPage />} />
           <Route path="/volunteers" element={<VolunteersPage />} />
           <Route path="/periods" element={<PeriodsPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
@@ -77,19 +80,21 @@ const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <PeriodProvider>
-          <VolunteerProvider>
-            <LDProvider
-              clientSideID={clientSideID}
-              context={ldContext}
-            >
-              <LDContextUpdater />
-              <AppContent />
-            </LDProvider>
-          </VolunteerProvider>
-        </PeriodProvider>
-      </AuthProvider>
-    </GoogleOAuthProvider>
+        <OrganizationProvider>
+          <PeriodProvider>
+            <VolunteerProvider>
+              <LDProvider
+                clientSideID={clientSideID}
+                context={ldContext}
+              >
+                <LDContextUpdater />
+                <AppContent />
+              </LDProvider>
+            </VolunteerProvider>
+          </PeriodProvider>
+        </OrganizationProvider>
+      </AuthProvider >
+    </GoogleOAuthProvider >
   );
 };
 
