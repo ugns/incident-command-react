@@ -1,6 +1,6 @@
 import { Volunteer } from '../types/Volunteer';
 import { Modal, Button, Table } from 'react-bootstrap';
-
+import { useFlags } from 'launchdarkly-react-client-sdk';
 interface VolunteerViewModalProps {
   show: boolean;
   onHide: () => void;
@@ -8,6 +8,7 @@ interface VolunteerViewModalProps {
 }
 
 const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, volunteer }) => {
+  const { adminAccess } = useFlags();
   if (!volunteer) return null;
   return (
     <Modal show={show} onHide={onHide}>
@@ -20,10 +21,17 @@ const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, v
       <Modal.Body>
         <Table borderless size="sm">
           <tbody>
-            <tr><th>Contact Info</th><td>{volunteer.contactInfo}</td></tr>
+            <tr><th>E-Mail</th><td>{volunteer.email}</td></tr>
             <tr><th>Location</th><td>{volunteer.currentLocation}</td></tr>
             <tr><th>Status</th><td>{volunteer.status}</td></tr>
             <tr><th>Notes</th><td>{volunteer.notes}</td></tr>
+            {adminAccess && (
+              <>
+                <tr><th>Cellphone</th><td>{volunteer.cellphone}</td></tr>
+                <tr><th>Family Name</th><td>{volunteer.familyName}</td></tr>
+                <tr><th>Given Name</th><td>{volunteer.givenName}</td></tr>
+              </>
+            )}
           </tbody>
         </Table>
       </Modal.Body>

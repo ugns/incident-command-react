@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Form, Button, Modal, FloatingLabel } from 'react-bootstrap';
 
 interface OrganizationFormProps {
   show: boolean;
@@ -12,6 +12,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ show, onHide, onSub
   const [form, setForm] = useState({
     name: initial?.name || '',
     aud: initial?.aud || '',
+    hd: initial?.hd || '',
     notes: initial?.notes || '',
   });
 
@@ -20,6 +21,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ show, onHide, onSub
       setForm({
         name: initial?.name || '',
         aud: initial?.aud || '',
+        hd: initial?.hd || '',
         notes: initial?.notes || '',
       });
     }
@@ -42,16 +44,24 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ show, onHide, onSub
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control name="name" value={form.name} onChange={handleChange} required />
+            <FloatingLabel controlId='name' label='Name'>
+              <Form.Control name="name" value={form.name} onChange={handleChange} required />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Client ID</Form.Label>
-            <Form.Control name="aud" value={form.aud} onChange={handleChange} />
+            <FloatingLabel controlId='aud' label='Client ID'>
+              <Form.Control name="aud" value={form.aud} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Notes</Form.Label>
-            <Form.Control name="notes" value={form.notes} onChange={handleChange} />
+            <FloatingLabel controlId='hd' label='Hosted Domain'>
+              <Form.Control name="hd" value={form.hd} onChange={handleChange} />
+            </FloatingLabel>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <FloatingLabel controlId='notes' label='Notes'>
+              <Form.Control name="notes" value={form.notes} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Form, Button, Modal, FloatingLabel, InputGroup } from 'react-bootstrap';
 import { isoToLocal, toISO } from '../utils/dateFormat';
 
 interface PeriodFormProps {
@@ -48,19 +48,20 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control name="description" value={form.description} onChange={handleChange} required />
+            <FloatingLabel controlId='description' label='Description'>
+              <Form.Control name="description" value={form.description} onChange={handleChange} required />
+            </FloatingLabel>
           </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Start</Form.Label>
-            <Form.Control name="startTime" type="datetime-local" value={form.startTime} onChange={handleChange} />
-            <Form.Text className="text-muted">(Optional) Defaults to current</Form.Text>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>End</Form.Label>
-            <Form.Control name="endTime" type="datetime-local" value={form.endTime} onChange={handleChange} />
-            <Form.Text className="text-muted">(Optional)</Form.Text>
-          </Form.Group>
+          <InputGroup className="mb-3">
+            <FloatingLabel controlId='startTime' label='Start Time'>
+              <Form.Control name="startTime" type="datetime-local" value={form.startTime} onChange={handleChange} />
+              <Form.Text className="text-muted">Defaults to now</Form.Text>
+            </FloatingLabel>
+            <FloatingLabel controlId='endTime' label='End Time'>
+              <Form.Control name="endTime" type="datetime-local" value={form.endTime} onChange={handleChange} />
+              <Form.Text className="text-muted">Can be entered later</Form.Text>
+            </FloatingLabel>
+          </InputGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>Cancel</Button>

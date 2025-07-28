@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Form, Button, Modal, InputGroup, FloatingLabel } from 'react-bootstrap';
 
 interface VolunteerFormProps {
   show: boolean;
@@ -11,8 +11,16 @@ interface VolunteerFormProps {
 const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, initial }) => {
   const [form, setForm] = useState({
     name: initial?.name || '',
+    familyName: initial?.familyName || '',
+    givenName: initial?.givenName || '',
+    email: initial?.email || '',
+    cellphone: initial?.cellphone || '',
+    icsPosition: initial?.icsPosition || '',
+    homeAgency: initial?.homeAgency || '',
+    status: initial?.status || '',
     callsign: initial?.callsign || '',
-    contactInfo: initial?.contactInfo || '',
+    radio: initial?.radio || '',
+    radioStatus: initial?.radioStatus || '',
     currentLocation: initial?.currentLocation || '',
     notes: initial?.notes || '',
   });
@@ -21,8 +29,16 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
     if (show) {
       setForm({
         name: initial?.name || '',
+        familyName: initial?.familyName || '',
+        givenName: initial?.givenName || '',
+        email: initial?.email || '',
+        cellphone: initial?.cellphone || '',
+        icsPosition: initial?.icsPosition || '',
+        homeAgency: initial?.homeAgency || '',
+        status: initial?.status || '',
         callsign: initial?.callsign || '',
-        contactInfo: initial?.contactInfo || '',
+        radio: initial?.radio || '',
+        radioStatus: initial?.radioStatus || '',
         currentLocation: initial?.currentLocation || '',
         notes: initial?.notes || '',
       });
@@ -46,24 +62,37 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control name="name" value={form.name} onChange={handleChange} required />
+            <FloatingLabel controlId='name' label='Display Name'>
+              <Form.Control name="name" value={form.name} onChange={handleChange} required />
+            </FloatingLabel>
+          </Form.Group>
+          <InputGroup className="mb-3">
+            <FloatingLabel controlId='givenName' label='First Name'>
+              <Form.Control name="givenName" aria-label="First name" value={form.givenName} onChange={handleChange} />
+            </FloatingLabel>
+            <FloatingLabel controlId='familyName' label='Last Name'>
+              <Form.Control name="familyName" aria-label="Last name" value={form.familyName} onChange={handleChange} />
+            </FloatingLabel>
+          </InputGroup>
+          <Form.Group className="mb-3">
+            <FloatingLabel controlId='callsign' label='Callsign'>
+              <Form.Control name="callsign" value={form.callsign} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Callsign</Form.Label>
-            <Form.Control name="callsign" value={form.callsign} onChange={handleChange} />
+            <FloatingLabel controlId='email' label='E-Mail'>
+              <Form.Control name="email" value={form.email} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Contact Info</Form.Label>
-            <Form.Control name="contactInfo" value={form.contactInfo} onChange={handleChange} />
+            <FloatingLabel controlId='currentLocation' label='Current Location'>
+              <Form.Control name="currentLocation" value={form.currentLocation} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Current Location</Form.Label>
-            <Form.Control name="currentLocation" value={form.currentLocation} onChange={handleChange} />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Notes</Form.Label>
-            <Form.Control name="notes" value={form.notes} onChange={handleChange} />
+            <FloatingLabel controlId='notes' label='Notes'>
+              <Form.Control name="notes" value={form.notes} onChange={handleChange} />
+            </FloatingLabel>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>

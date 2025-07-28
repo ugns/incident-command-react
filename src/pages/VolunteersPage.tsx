@@ -122,7 +122,7 @@ const VolunteersPage: React.FC = () => {
                 filteredVolunteers.map(v => (
                   <tr key={v.volunteerId}>
                     <td>{v.name}</td>
-                    <td>{v.contactInfo}</td>
+                    <td>{v.email}</td>
                     <td>{v.currentLocation}</td>
                     <td>
                       {v.status === VolunteerStatus.CheckedIn && (
