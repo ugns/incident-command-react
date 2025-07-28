@@ -9,9 +9,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const AppNavbar: React.FC = () => {
-  const { user, logout, token } = useContext(AuthContext);
-  const { superAdminAccess } = useFlags();
-  const { adminAccess } = useFlags();
+  const { user, logout } = useContext(AuthContext);
+  const { adminAccess, superAdminAccess } = useFlags();
   const navigate = useNavigate();
   const [showCanvas, setShowCanvas] = useState(false);
   const [showPeriodModal, setShowPeriodModal] = useState(false);

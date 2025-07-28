@@ -119,9 +119,9 @@ const OrganizationsPage: React.FC = () => {
                   <tr key={o.org_id}>
                     <td>{o.name}</td>
                     <td>
-                      <Button size="sm" variant="info" onClick={() => handleView(o)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" onClick={() => handleEdit(o)}>Edit</Button>{' '}
-                      <Button size="sm" variant="danger" onClick={() => handleDelete(o)}>Delete</Button>
+                      <Button size="sm" variant="info" onClick={() => handleView(o)} disabled={!superAdminAccess}>View</Button>{' '}
+                      <Button size="sm" variant="primary" onClick={() => handleEdit(o)} disabled={!superAdminAccess}>Edit</Button>{' '}
+                      <Button size="sm" variant="danger" onClick={() => handleDelete(o)} disabled={!superAdminAccess}>Delete</Button>
                     </td>
                   </tr>
                 ))
