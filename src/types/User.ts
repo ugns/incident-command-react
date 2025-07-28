@@ -1,7 +1,10 @@
 export interface User {
   email: string;
   name: string;
-  hd: string;
+  given_name?: string;
+  family_name?: string;
+  sub: string;
+  picture?: string;
   org_id: string;
-  is_admin?: boolean;
+  org_name: string;
 }

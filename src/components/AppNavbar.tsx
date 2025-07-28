@@ -32,6 +32,13 @@ const AppNavbar: React.FC = () => {
                   <GearFill />
                 </Button>
                 <Navbar.Text className="me-2">{user.name}</Navbar.Text>
+                {user.picture && (
+                  <img
+                    src={user.picture}
+                    alt={user.name}
+                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', marginRight: 8 }}
+                  />
+                )}
                 <Button variant="outline-light" onClick={logout}>Logout</Button>
               </div>
             </>

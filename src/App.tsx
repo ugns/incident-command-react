@@ -41,13 +41,16 @@ const AppContent: React.FC = () => {
 const buildLDContext = (user: any) => user ? {
   kind: 'multi',
   user: {
-    key: user.email,
+    key: user.email || user.sub,
     name: user.name,
     email: user.email,
+    sub: user.sub,
     org_id: user.org_id,
+    org_name: user.org_name,
   },
   organization: {
     key: user.org_id,
+    name: user.org_name,
     org_id: user.org_id,
   },
 } : { key: 'anonymous' };
