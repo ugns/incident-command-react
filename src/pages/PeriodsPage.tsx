@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import periodService from '../services/periodService';
 import { usePeriods } from '../hooks/usePeriods';
 import { AuthContext } from '../context/AuthContext';
@@ -10,7 +11,8 @@ import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
 
 const PeriodsPage: React.FC = () => {
-  const { token, user } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
+  const { adminAccess } = useFlags();
   const { periods, refresh, loading, error } = usePeriods();
   const [showForm, setShowForm] = useState(false);
   const [editPeriod, setEditPeriod] = useState<Period | null>(null);
@@ -38,7 +40,7 @@ const PeriodsPage: React.FC = () => {
   };
 
   const handleDelete = async (period: Period) => {
-    if (!token || !user?.is_admin) return;
+    if (!token || !adminAccess) return;
     try {
       await periodService.delete(period.periodId, token);
       await refresh(); // Refresh periods in context after delete
@@ -152,7 +154,7 @@ const PeriodsPage: React.FC = () => {
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(p)}>View</Button>{' '}
                       <Button size="sm" variant="primary" onClick={() => handleEdit(p)}>Edit</Button>{' '}
-                      {user?.is_admin && (
+                      {adminAccess && (
                         <Button size="sm" variant="danger" onClick={() => handleDelete(p)}>Delete</Button>
                       )}
                     </td>

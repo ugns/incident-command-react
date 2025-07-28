@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Container, Card, Tabs, Tab } from 'react-bootstrap';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import PeoplePage from './PeoplePage';
 import RadiosPage from './RadiosPage';
 
 const ResourcesPage: React.FC = () => {
   const [key, setKey] = useState<string>('people');
+  const { showRadioResources } = useFlags();
 
   return (
     <Container className="mt-4">
@@ -15,9 +17,11 @@ const ResourcesPage: React.FC = () => {
             <Tab eventKey="people" title="People">
               <PeoplePage />
             </Tab>
-            <Tab eventKey="radios" title="Radios">
-              <RadiosPage />
-            </Tab>
+            {showRadioResources && (
+              <Tab eventKey="radios" title="Radios">
+                <RadiosPage />
+              </Tab>
+            )}
             <Tab eventKey="organizations" title="Organizations" disabled>
               <RadiosPage />
             </Tab>

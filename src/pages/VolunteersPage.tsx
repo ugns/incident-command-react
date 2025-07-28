@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useVolunteers } from '../context/VolunteerContext';
 import VolunteerSelect from '../components/VolunteerSelect';
 import { AuthContext } from '../context/AuthContext';
@@ -9,7 +10,8 @@ import VolunteerForm from './VolunteerForm';
 import VolunteerViewModal from './VolunteerViewModal';
 
 const VolunteersPage: React.FC = () => {
-  const { token, user } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
+  const { adminAccess } = useFlags();
   const { volunteers, loading, error, addVolunteer, updateVolunteer, deleteVolunteer } = useVolunteers();
   const [showForm, setShowForm] = useState(false);
   const [editVolunteer, setEditVolunteer] = useState<Volunteer | null>(null);
@@ -35,7 +37,7 @@ const VolunteersPage: React.FC = () => {
   };
 
   const handleDelete = async (vol: Volunteer) => {
-    if (!token || !user?.is_admin) return;
+    if (!token || !adminAccess) return;
     try {
       await deleteVolunteer(vol.volunteerId);
     } catch (e: any) {
@@ -137,7 +139,7 @@ const VolunteersPage: React.FC = () => {
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
                       <Button size="sm" variant="primary" onClick={() => handleEdit(v)}>Edit</Button>{' '}
-                      {user?.is_admin && (
+                      {adminAccess && (
                         <Button size="sm" variant="danger" onClick={() => handleDelete(v)}>Delete</Button>
                       )}
                     </td>
