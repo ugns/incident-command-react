@@ -11,7 +11,7 @@ import VolunteersPage from './pages/VolunteersPage';
 import PeriodsPage from './pages/PeriodsPage';
 import ResourcesPage from './pages/ResourcesPage';
 import ActivityLogPage from './pages/ActivityLogPage';
-import { LDProvider, useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
+import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
