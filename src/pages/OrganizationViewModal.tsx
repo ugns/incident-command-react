@@ -20,7 +20,7 @@ const OrganizationViewModal: React.FC<OrganizationViewModalProps> = ({ show, onH
         <Table borderless size="sm">
           <tbody>
             <tr><th>Name</th><td>{organization.name}</td></tr>
-            <tr><th>Client ID</th><td><span className='truncate-text'>{organization.aud}</span></td></tr>
+            <tr><th>Client ID</th><td><span title={organization.aud}>{organization.aud.slice(0, 20)}...</span></td></tr>
           </tbody>
         </Table>
       </Modal.Body>
