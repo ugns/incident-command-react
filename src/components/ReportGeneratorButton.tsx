@@ -36,7 +36,7 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
     const fetchReportTypes = async () => {
       if (!token) return;
       try {
-        const types = await reportService.listTypes(token);
+        const types = await reportService.list(token);
         setAvailableReportTypes(types.reports);
       } catch (e) {
         setAvailableReportTypes([]);
