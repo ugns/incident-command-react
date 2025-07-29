@@ -58,6 +58,8 @@ const AppNavbar: React.FC = () => {
             {superAdminAccess && (
               <Nav.Link onClick={() => { setShowCanvas(false); navigate('/organizations'); }}>Manage Organizations</Nav.Link>
             )}
+            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/incidents'); }}>Manage Incidents</Nav.Link>
+            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/units'); }}>Manage Units</Nav.Link>
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/periods'); }}>Manage Operating Periods</Nav.Link>
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/volunteers'); }}>Manage Volunteers</Nav.Link>
             <Nav.Link onClick={() => { setShowCanvas(false); navigate('/activity-log'); }}>Activity Logs</Nav.Link>
