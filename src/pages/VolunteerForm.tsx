@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal, InputGroup, FloatingLabel } from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
+import NameFields from '../components/NameField';
+import ContactInfoFields from '../components/ContactInfoField';
+import CallsignField from '../components/CallsignField';
+import LocationField from '../components/LocationField';
+import NoteField from '../components/NoteField';
 
 interface VolunteerFormProps {
   show: boolean;
@@ -45,7 +50,7 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
     }
   }, [initial, show]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -61,39 +66,29 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='name' label='Display Name'>
-              <Form.Control name="name" value={form.name} onChange={handleChange} required />
-            </FloatingLabel>
-          </Form.Group>
-          <InputGroup className="mb-3">
-            <FloatingLabel controlId='givenName' label='First Name'>
-              <Form.Control name="givenName" aria-label="First name" value={form.givenName} onChange={handleChange} />
-            </FloatingLabel>
-            <FloatingLabel controlId='familyName' label='Last Name'>
-              <Form.Control name="familyName" aria-label="Last name" value={form.familyName} onChange={handleChange} />
-            </FloatingLabel>
-          </InputGroup>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='callsign' label='Callsign'>
-              <Form.Control name="callsign" value={form.callsign} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='email' label='E-Mail'>
-              <Form.Control name="email" value={form.email} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='currentLocation' label='Current Location'>
-              <Form.Control name="currentLocation" value={form.currentLocation} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='notes' label='Notes'>
-              <Form.Control name="notes" value={form.notes} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
+          <NameFields
+            name={form.name}
+            givenName={form.givenName}
+            familyName={form.familyName}
+            onChange={handleChange}
+          />
+          <CallsignField
+            callsign={form.callsign}
+            onChange={handleChange}
+          />
+          <ContactInfoFields
+            email={form.email}
+            cellphone={form.cellphone}
+            onChange={handleChange}
+          />
+          <LocationField
+            currentLocation={form.currentLocation}
+            onChange={handleChange}
+          />
+          <NoteField
+            notes={form.notes}
+            onChange={handleChange}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>Cancel</Button>

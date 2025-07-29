@@ -11,7 +11,7 @@ import VolunteerViewModal from './VolunteerViewModal';
 
 const VolunteersPage: React.FC = () => {
   const { token } = useContext(AuthContext);
-  const { adminAccess } = useFlags();
+  const { adminAccess, superAdminAccess } = useFlags();
   const { volunteers, loading, error, addVolunteer, updateVolunteer, deleteVolunteer } = useVolunteers();
   const [showForm, setShowForm] = useState(false);
   const [editVolunteer, setEditVolunteer] = useState<Volunteer | null>(null);
@@ -99,7 +99,7 @@ const VolunteersPage: React.FC = () => {
                 <th style={{ cursor: 'pointer' }} onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
                   Name {sortOrder === 'asc' ? '▲' : '▼'}
                 </th>
-                <th>Contact Info</th>
+                <th>Callsign</th>
                 <th>Location</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -122,7 +122,7 @@ const VolunteersPage: React.FC = () => {
                 filteredVolunteers.map(v => (
                   <tr key={v.volunteerId}>
                     <td>{v.name}</td>
-                    <td>{v.email}</td>
+                    <td>{v.callsign}</td>
                     <td>{v.currentLocation}</td>
                     <td>
                       {v.status === VolunteerStatus.CheckedIn && (
@@ -138,9 +138,9 @@ const VolunteersPage: React.FC = () => {
                     </td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" onClick={() => handleEdit(v)}>Edit</Button>{' '}
+                      <Button size="sm" variant="primary" disabled={!(adminAccess || superAdminAccess)} onClick={() => handleEdit(v)}>Edit</Button>{' '}
                       {adminAccess && (
-                        <Button size="sm" variant="danger" onClick={() => handleDelete(v)}>Delete</Button>
+                        <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(v)}>Delete</Button>
                       )}
                     </td>
                   </tr>

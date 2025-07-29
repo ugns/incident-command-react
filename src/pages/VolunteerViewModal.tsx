@@ -1,6 +1,12 @@
 import { Volunteer } from '../types/Volunteer';
-import { Modal, Button, Table } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
+import NameFields from '../components/NameField';
+import ContactInfoFields from '../components/ContactInfoField';
+import CallsignField from '../components/CallsignField';
+import LocationField from '../components/LocationField';
+import NoteField from '../components/NoteField';
+
 interface VolunteerViewModalProps {
   show: boolean;
   onHide: () => void;
@@ -14,26 +20,46 @@ const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, v
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {volunteer.name}
-          {volunteer.callsign ? ` (${volunteer.callsign})` : ''}
+          <Modal.Title>View Volunteer</Modal.Title>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Table borderless size="sm">
-          <tbody>
-            <tr><th>E-Mail</th><td>{volunteer.email}</td></tr>
-            <tr><th>Location</th><td>{volunteer.currentLocation}</td></tr>
-            <tr><th>Status</th><td>{volunteer.status}</td></tr>
-            <tr><th>Notes</th><td>{volunteer.notes}</td></tr>
-            {adminAccess && (
-              <>
-                <tr><th>Cellphone</th><td>{volunteer.cellphone}</td></tr>
-                <tr><th>Family Name</th><td>{volunteer.familyName}</td></tr>
-                <tr><th>Given Name</th><td>{volunteer.givenName}</td></tr>
-              </>
-            )}
-          </tbody>
-        </Table>
+        <NameFields
+          name={volunteer.name}
+          givenName={volunteer?.givenName || ''}
+          familyName={volunteer?.familyName || ''}
+          onChange={() => { }}
+          readOnly={true}
+        />
+        <CallsignField
+          callsign={volunteer?.callsign || ''}
+          onChange={() => { }}
+          readOnly={true}
+        />
+        {adminAccess && (
+          <>
+            <ContactInfoFields
+              email={volunteer?.email || ''}
+              cellphone={volunteer?.cellphone || ''}
+              onChange={() => { }}
+              readOnly={true}
+            />
+          </>
+        )}
+        <LocationField
+          currentLocation={volunteer?.currentLocation || ''}
+          onChange={() => { }}
+          readOnly={true}
+        />
+        {adminAccess && (
+          <>
+            <NoteField
+              notes={volunteer?.notes || ''}
+              onChange={() => { }}
+              readOnly={true}
+            />
+          </>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Close</Button>
