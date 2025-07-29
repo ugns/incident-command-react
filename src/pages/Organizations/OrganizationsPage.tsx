@@ -89,7 +89,7 @@ const OrganizationsPage: React.FC = () => {
                 value={selectedOrganization}
                 onSelect={setSelectedOrganization}
               />
-              <Button variant="success" onClick={handleAdd}>Add Organization</Button>
+              <Button variant="success" onClick={handleAdd} disabled={!superAdminAccess}>Add Organization</Button>
             </Col>
           </Row>
         </Card.Header>
