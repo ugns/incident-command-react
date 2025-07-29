@@ -1,7 +1,8 @@
 import { Period } from '../types/Period';
 import { apiFetch } from '../api/api';
+import { PERIODS_BASE } from '../constants/apis';
 
-const API_BASE = '/periods';
+const API_BASE = PERIODS_BASE;
 
 const periodService = {
   async list(token: string, onAuthError?: () => void): Promise<Period[]> {

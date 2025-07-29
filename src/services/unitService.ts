@@ -1,7 +1,8 @@
 import { Unit } from '../types/Unit';
 import { apiFetch } from '../api/api';
+import { UNITS_BASE } from '../constants/apis';
 
-const API_BASE = '/units';
+const API_BASE = UNITS_BASE;
 
 const unitService = {
   async list(token: string, onAuthError?: () => void): Promise<Unit[]> {

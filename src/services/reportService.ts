@@ -1,8 +1,9 @@
 import { Report } from '../types/Report';
 import { ReportType } from '../types/ReportType';
 import { apiFetch } from '../api/api';
+import { REPORTS_BASE } from '../constants/apis';
 
-const API_BASE = '/reports';
+const API_BASE = REPORTS_BASE;
 
 const reportService = {
   async list(token: string, onAuthError?: () => void): Promise<{ reports: ReportType[] }> {

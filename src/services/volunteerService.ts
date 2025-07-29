@@ -1,7 +1,8 @@
 import { Volunteer } from '../types/Volunteer';
 import { apiFetch } from '../api/api';
+import { VOLUNTEERS_BASE } from '../constants/apis';
 
-const API_BASE = '/volunteers';
+const API_BASE = VOLUNTEERS_BASE;
 
 const volunteerService = {
   async list(token: string, onAuthError?: () => void): Promise<Volunteer[]> {

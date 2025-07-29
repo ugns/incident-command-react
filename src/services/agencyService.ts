@@ -1,8 +1,9 @@
 // agencyService.ts - API service for Agency CRUD operations
 import { Agency } from '../types/Agency';
 import { apiFetch } from '../api/api';
+import { AGENCY_BASE } from '../constants/apis';
 
-const API_BASE = '/agency';
+const API_BASE = AGENCY_BASE;
 
 const agencyService = {
   async list(token: string, onAuthError?: () => void): Promise<Agency[]> {

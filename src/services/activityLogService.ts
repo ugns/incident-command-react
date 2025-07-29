@@ -1,7 +1,8 @@
 import { ActivityLog } from '../types/ActivityLog';
 import { apiFetch } from '../api/api';
+import { ACTIVITYLOGS_BASE } from '../constants/apis';
 
-const API_BASE = '/activitylogs';
+const API_BASE = ACTIVITYLOGS_BASE;
 
 const activityLogService = {
   async list(token: string, onAuthError?: () => void): Promise<ActivityLog[]> {

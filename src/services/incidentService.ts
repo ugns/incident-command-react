@@ -1,7 +1,8 @@
 import { Incident } from '../types/Incident';
 import { apiFetch } from '../api/api';
+import { INCIDENTS_BASE } from '../constants/apis';
 
-const API_BASE = '/incidents';
+const API_BASE = INCIDENTS_BASE;
 
 const incidentService = {
   async list(token: string, onAuthError?: () => void): Promise<Incident[]> {
