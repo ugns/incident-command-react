@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import { Placeholder } from 'react-bootstrap';
 import { Organization } from '../types/Organization';
 import organizationService from '../services/organizationService';
-import OrganizationForm from '../pages/OrganizationForm';
+import OrganizationForm from '../pages/Organizations/OrganizationForm';
 
 interface OptionType {
   value: string;

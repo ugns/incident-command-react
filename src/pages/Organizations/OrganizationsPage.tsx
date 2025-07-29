@@ -1,16 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { useOrganizations } from '../context/OrganizationContext';
-import OrganizationSelect from '../components/OrganizationSelect';
-import { AuthContext } from '../context/AuthContext';
+import { useOrganizations } from '../../context/OrganizationContext';
+import OrganizationSelect from '../../components/OrganizationSelect';
+import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
-import { Organization } from '../types/Organization';
+import { Organization } from '../../types/Organization';
 import OrganizationForm from './OrganizationForm';
 import OrganizationViewModal from './OrganizationViewModal';
 
 const OrganizationsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
-  const { superAdminAccess } = useFlags();
+  const { adminAccess, superAdminAccess } = useFlags();
   const { organizations, loading, error, addOrganization, updateOrganization, deleteOrganization } = useOrganizations();
   const [showForm, setShowForm] = useState(false);
   const [editOrganization, setEditOrganization] = useState<Organization | null>(null);
@@ -119,7 +119,7 @@ const OrganizationsPage: React.FC = () => {
                   <tr key={o.org_id}>
                     <td>{o.name}</td>
                     <td>
-                      <Button size="sm" variant="info" onClick={() => handleView(o)} disabled={!superAdminAccess}>View</Button>{' '}
+                      <Button size="sm" variant="info" onClick={() => handleView(o)} disabled={!(adminAccess || superAdminAccess)}>View</Button>{' '}
                       <Button size="sm" variant="primary" onClick={() => handleEdit(o)} disabled={!superAdminAccess}>Edit</Button>{' '}
                       <Button size="sm" variant="danger" onClick={() => handleDelete(o)} disabled={!superAdminAccess}>Delete</Button>
                     </td>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
-import NameFields from '../components/fields/NameField';
-import ContactInfoFields from '../components/fields/ContactInfoField';
-import CallsignField from '../components/fields/CallsignField';
-import LocationField from '../components/fields/LocationField';
-import NoteField from '../components/fields/NoteField';
+import NameFields from '../../components/fields/NameField';
+import ContactInfoFields from '../../components/fields/ContactInfoField';
+import CallsignField from '../../components/fields/CallsignField';
+import LocationField from '../../components/fields/LocationField';
+import NoteField from '../../components/fields/NoteField';
 
 interface VolunteerFormProps {
   show: boolean;

@@ -9,6 +9,7 @@ import ReportGeneratorButton from '../components/ReportGeneratorButton';
 import VolunteerSelect from '../components/VolunteerSelect';
 import { Volunteer } from '../types/Volunteer';
 import { ActivityLog } from '../types/ActivityLog';
+import { ReportType } from '../types/Report';
 
 
 const ActivityLogPage: React.FC = () => {
@@ -62,7 +63,7 @@ const ActivityLogPage: React.FC = () => {
                 onSelect={setSelectedVolunteer}
               />
               <ReportGeneratorButton
-                requiredReportType="ics214"
+                requiredReportType={ReportType.ICS214}
                 token={token || ''}
                 user={user}
                 buttonText="Generate ICS-214"

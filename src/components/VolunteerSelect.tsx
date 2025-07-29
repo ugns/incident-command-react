@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import { Placeholder } from 'react-bootstrap';
 import { Volunteer } from '../types/Volunteer';
 import volunteerService from '../services/volunteerService';
-import VolunteerForm from '../pages/VolunteerForm';
+import VolunteerForm from '../pages/Volunteers/VolunteerForm';
 
 interface OptionType {
   value: string;

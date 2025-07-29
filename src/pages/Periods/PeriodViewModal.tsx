@@ -1,4 +1,4 @@
-import { Period } from '../types/Period';
+import { Period } from '../../types/Period';
 import { Modal, Button, Table } from 'react-bootstrap';
 
 interface PeriodViewModalProps {

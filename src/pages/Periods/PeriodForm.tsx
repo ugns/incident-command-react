@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Modal, FloatingLabel, InputGroup } from 'react-bootstrap';
-import { isoToLocal, toISO } from '../utils/dateFormat';
+import { isoToLocal, toISO } from '../../utils/dateFormat';
 
 interface PeriodFormProps {
   show: boolean;

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal, FloatingLabel } from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
+import OrganizationField from '../../components/fields/OrganizationField';
+import NoteField from '../../components/fields/NoteField';
 
 interface OrganizationFormProps {
   show: boolean;
@@ -27,7 +29,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ show, onHide, onSub
     }
   }, [initial, show]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -43,26 +45,16 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({ show, onHide, onSub
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='name' label='Name'>
-              <Form.Control name="name" value={form.name} onChange={handleChange} required />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='aud' label='Client ID'>
-              <Form.Control name="aud" value={form.aud} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='hd' label='Hosted Domain'>
-              <Form.Control name="hd" value={form.hd} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='notes' label='Notes'>
-              <Form.Control name="notes" value={form.notes} onChange={handleChange} />
-            </FloatingLabel>
-          </Form.Group>
+          <OrganizationField
+            name={form.name}
+            aud={form.aud}
+            hd={form.hd}
+            onChange={handleChange}
+          />
+          <NoteField
+            notes={form.notes}
+            onChange={handleChange}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>Cancel</Button>

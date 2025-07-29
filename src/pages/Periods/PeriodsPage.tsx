@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import periodService from '../services/periodService';
-import { usePeriods } from '../hooks/usePeriods';
-import { AuthContext } from '../context/AuthContext';
+import periodService from '../../services/periodService';
+import { usePeriods } from '../../hooks/usePeriods';
+import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
-import PeriodSelect from '../components/PeriodSelect';
-import { Period } from '../types/Period';
-import { formatLocalDateTime } from '../utils/dateFormat';
+import PeriodSelect from '../../components/PeriodSelect';
+import { Period } from '../../types/Period';
+import { formatLocalDateTime } from '../../utils/dateFormat';
 import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
 

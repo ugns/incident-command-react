@@ -3,4 +3,5 @@ export interface Organization {
   name: string;
   aud: string;
   hd?: string;
+  notes?: string;
 }
