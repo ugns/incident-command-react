@@ -22,17 +22,20 @@ export const useVolunteers = () => {
 };
 
 export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Context
+  const { token, logout } = useContext(AuthContext);
+
+  // State
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { logout } = useContext(AuthContext);
 
-  // Fetch volunteers from API
+  // Callbacks
   const refresh = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const data = await volunteerService.list(token, logout);
       setVolunteers(data);
     } catch (err: any) {
@@ -40,18 +43,13 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       setLoading(false);
     }
-  }, [logout]);
-
-  // Initial fetch
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  }, [token, logout]);
 
   const addVolunteer = async (data: Partial<Volunteer>) => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const newVolunteer = await volunteerService.create(data, token, logout);
       await refresh();
       return newVolunteer;
@@ -67,7 +65,7 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const updated = await volunteerService.update(id, data, token, logout);
       await refresh();
       return updated;
@@ -83,7 +81,7 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       await volunteerService.delete(id, token, logout);
       await refresh();
     } catch (err: any) {
@@ -93,6 +91,12 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  // Effects
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // Provider
   return (
     <VolunteerContext.Provider value={{ volunteers, loading, error, refresh, addVolunteer, updateVolunteer, deleteVolunteer }}>
       {children}

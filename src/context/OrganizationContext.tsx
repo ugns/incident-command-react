@@ -22,17 +22,20 @@ export const useOrganizations = () => {
 };
 
 export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Context
+  const { token, logout } = useContext(AuthContext);
+
+  // State
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { logout } = useContext(AuthContext);
 
-  // Fetch organizations from API
+  // Callbacks
   const refresh = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const data = await organizationService.list(token, logout);
       setOrganizations(data);
     } catch (err: any) {
@@ -40,18 +43,13 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } finally {
       setLoading(false);
     }
-  }, [logout]);
-
-  // Initial fetch
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  }, [token, logout]);
 
   const addOrganization = async (data: Partial<Organization>) => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const newOrganization = await organizationService.create(data, token, logout);
       await refresh();
       return newOrganization;
@@ -67,7 +65,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       const updated = await organizationService.update(id, data, token, logout);
       await refresh();
       return updated;
@@ -83,7 +81,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('No auth token');
       await organizationService.delete(id, token, logout);
       await refresh();
     } catch (err: any) {
@@ -93,6 +91,12 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
+  // Effects
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // Provider
   return (
     <OrganizationContext.Provider value={{ organizations, loading, error, refresh, addOrganization, updateOrganization, deleteOrganization }}>
       {children}

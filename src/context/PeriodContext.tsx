@@ -21,46 +21,54 @@ export const usePeriod = () => {
 };
 
 export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Context
+  const { token, logout } = useContext(AuthContext);
+
+  // State
   const [periods, setPeriods] = useState<Period[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriodState] = useState<Period | null>(() => {
     const stored = localStorage.getItem('selectedPeriod');
     return stored ? JSON.parse(stored) : null;
   });
-  const { logout } = useContext(AuthContext);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch periods from API
+  // Callbacks
   const refreshPeriods = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('No auth token');
       const data = await periodService.list(token, logout);
       setPeriods(data);
+      // Validate selectedPeriod after fetching
+      setSelectedPeriodState(prev => {
+        if (!prev) return null;
+        const found = data.find(p => p.periodId === prev.periodId);
+        return found || null;
+      });
     } catch (e: any) {
       setError(e.message || 'Failed to fetch periods');
     } finally {
       setLoading(false);
     }
-  }, [logout]);
+  }, [token, logout]);
 
-  // Initial fetch
+  // Effects
   useEffect(() => {
     refreshPeriods();
   }, [refreshPeriods, logout]);
 
-  // Update localStorage whenever selectedPeriod changes
   useEffect(() => {
-    if (selectedPeriod) {
+    // Only persist if selectedPeriod is in periods
+    if (selectedPeriod && periods.some(p => p.periodId === selectedPeriod.periodId)) {
       localStorage.setItem('selectedPeriod', JSON.stringify(selectedPeriod));
     } else {
       localStorage.removeItem('selectedPeriod');
     }
-  }, [selectedPeriod]);
+  }, [selectedPeriod, periods]);
 
-  // Wrapper to update state and localStorage
+  // Provider
   const setSelectedPeriod = (period: Period | null) => {
     setSelectedPeriodState(period);
   };
