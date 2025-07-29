@@ -6,25 +6,32 @@ import PeoplePage from './PeoplePage';
 import RadiosPage from './RadiosPage';
 
 const ResourcesPage: React.FC = () => {
+
   const [key, setKey] = useState<string>('people');
-  const { showRadioResources } = useFlags();
+  const { showRadioResources, showAgencyResources } = useFlags();
+
+  const resourceTabs = [
+    { eventKey: 'people', title: 'People', component: <PeoplePage /> },
+    { eventKey: 'radios', title: 'Radios', component: <RadiosPage />, show: showRadioResources },
+    { eventKey: 'agencies', title: 'Agencies', component: <RadiosPage />, show: showAgencyResources },
+  ];
 
   return (
     <Container className="mt-4">
       <Card>
         <Card.Header>
           <Tabs activeKey={key} onSelect={k => setKey(k || 'people')} fill>
-            <Tab eventKey="people" title="People">
-              <PeoplePage />
-            </Tab>
-            {showRadioResources && (
-              <Tab eventKey="radios" title="Radios">
-                <RadiosPage />
-              </Tab>
+            {resourceTabs.map(tab =>
+              tab.show === false ? null : (
+                <Tab
+                  key={tab.eventKey}
+                  eventKey={tab.eventKey}
+                  title={tab.title}
+                >
+                  {tab.component}
+                </Tab>
+              )
             )}
-            <Tab eventKey="agencies" title="Agencies" disabled>
-              <RadiosPage />
-            </Tab>
           </Tabs>
         </Card.Header>
       </Card>

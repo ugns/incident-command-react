@@ -28,10 +28,31 @@ const AppNavbar: React.FC = () => {
           {user && (
             <>
               <Nav className="me-auto">
-                <Nav.Link as={Link} to="/resources">Resources</Nav.Link>
-                <Nav.Link as={Link} to="/activity" disabled>Log Activity</Nav.Link>
-                <Nav.Link as={Link} to="/assignment-board">Assignment Board</Nav.Link>
-                <Nav.Link onClick={() => setShowCanvas(true)} disabled={!adminAccess}>Admin</Nav.Link>
+                {[
+                  { key: 'resources', label: 'Resources', to: '/resources' },
+                  { key: 'activity', label: 'Log Activity', to: '/activity', disabled: true },
+                  { key: 'assignment', label: 'Assignment Board', to: '/assignment-board' },
+                  { key: 'admin', label: 'Admin', onClick: () => setShowCanvas(true), disabled: !adminAccess },
+                ].map(link =>
+                  link.to ? (
+                    <Nav.Link
+                      key={link.key}
+                      as={Link}
+                      to={link.to}
+                      disabled={link.disabled}
+                    >
+                      {link.label}
+                    </Nav.Link>
+                  ) : (
+                    <Nav.Link
+                      key={link.key}
+                      onClick={link.onClick}
+                      disabled={link.disabled}
+                    >
+                      {link.label}
+                    </Nav.Link>
+                  )
+                )}
               </Nav>
               <div className="d-flex align-items-center ms-auto">
                 <Button variant="outline-light" className="me-2" onClick={() => setShowPeriodModal(true)} title="Select Operating Period">
@@ -58,14 +79,23 @@ const AppNavbar: React.FC = () => {
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Nav className="flex-column">
-            {superAdminAccess && (
-              <Nav.Link onClick={() => { setShowCanvas(false); navigate('/organizations'); }}>Manage Organizations</Nav.Link>
-            )}
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/incidents'); }}>Manage Incidents</Nav.Link>
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/units'); }}>Manage Units</Nav.Link>
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/periods'); }}>Manage Operating Periods</Nav.Link>
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/volunteers'); }}>Manage Volunteers</Nav.Link>
-            <Nav.Link onClick={() => { setShowCanvas(false); navigate('/activity-log'); }}>Activity Logs</Nav.Link>
+            {[
+              { key: 'organizations', label: 'Manage Organizations', to: '/organizations', show: superAdminAccess },
+              { key: 'incidents', label: 'Manage Incidents', to: '/incidents' },
+              { key: 'units', label: 'Manage Units', to: '/units' },
+              { key: 'periods', label: 'Manage Operating Periods', to: '/periods' },
+              { key: 'volunteers', label: 'Manage Volunteers', to: '/volunteers' },
+              { key: 'activity-log', label: 'Activity Logs', to: '/activity-log' },
+            ]
+              .filter(link => link.show === undefined || link.show)
+              .map(link => (
+                <Nav.Link
+                  key={link.key}
+                  onClick={() => { setShowCanvas(false); navigate(link.to); }}
+                >
+                  {link.label}
+                </Nav.Link>
+              ))}
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>
