@@ -31,6 +31,7 @@ const AppContent: React.FC = () => {
           <Route path="/periods" element={<PeriodsPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
+          <Route path="/assignment-board" element={React.createElement(require('./pages/AssignmentBoardPage').default)} />
         </Routes>
       ) : (
         <LoginPage />

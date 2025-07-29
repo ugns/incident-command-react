@@ -27,6 +27,7 @@ const AppNavbar: React.FC = () => {
               <Nav className="me-auto">
                 <Nav.Link as={Link} to="/resources">Resources</Nav.Link>
                 <Nav.Link as={Link} to="/activity" disabled>Log Activity</Nav.Link>
+                <Nav.Link as={Link} to="/assignment-board">Assignment Board</Nav.Link>
                 <Nav.Link onClick={() => setShowCanvas(true)} disabled={!adminAccess}>Admin</Nav.Link>
               </Nav>
               <div className="d-flex align-items-center ms-auto">
