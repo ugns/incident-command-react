@@ -1,11 +1,11 @@
 import { Volunteer } from '../types/Volunteer';
 import { Modal, Button } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import NameFields from '../components/NameField';
-import ContactInfoFields from '../components/ContactInfoField';
-import CallsignField from '../components/CallsignField';
-import LocationField from '../components/LocationField';
-import NoteField from '../components/NoteField';
+import NameFields from '../components/fields/NameField';
+import ContactInfoFields from '../components/fields/ContactInfoField';
+import CallsignField from '../components/fields/CallsignField';
+import LocationField from '../components/fields/LocationField';
+import NoteField from '../components/fields/NoteField';
 
 interface VolunteerViewModalProps {
   show: boolean;
