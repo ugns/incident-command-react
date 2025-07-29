@@ -2,9 +2,11 @@ import React, { useContext, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { OrganizationProvider } from './context/OrganizationContext';
+import { IncidentProvider } from './context/IncidentContext';
+import { UnitProvider } from './context/UnitContext';
 import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
-import { OrganizationProvider } from './context/OrganizationContext';
 import AppNavbar from './components/AppNavbar';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
@@ -82,17 +84,21 @@ const App: React.FC = () => {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <OrganizationProvider>
-          <PeriodProvider>
-            <VolunteerProvider>
-              <LDProvider
-                clientSideID={clientSideID}
-                context={ldContext}
-              >
-                <LDContextUpdater />
-                <AppContent />
-              </LDProvider>
-            </VolunteerProvider>
-          </PeriodProvider>
+          <IncidentProvider>
+            <PeriodProvider>
+              <UnitProvider>
+                <VolunteerProvider>
+                  <LDProvider
+                    clientSideID={clientSideID}
+                    context={ldContext}
+                  >
+                    <LDContextUpdater />
+                    <AppContent />
+                  </LDProvider>
+                </VolunteerProvider>
+              </UnitProvider>
+            </PeriodProvider>
+          </IncidentProvider>
         </OrganizationProvider>
       </AuthProvider >
     </GoogleOAuthProvider >
