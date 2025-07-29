@@ -3,7 +3,7 @@ import { Container, Card, Tabs, Tab } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import PeoplePage from './PeoplePage';
-import RadiosPage from './RadiosPage';
+import RadiosResourcePage from './RadiosResourcePage';
 
 const ResourcesPage: React.FC = () => {
 
@@ -12,8 +12,8 @@ const ResourcesPage: React.FC = () => {
 
   const resourceTabs = [
     { eventKey: 'people', title: 'People', component: <PeoplePage /> },
-    { eventKey: 'radios', title: 'Radios', component: <RadiosPage />, show: showRadioResources },
-    { eventKey: 'agencies', title: 'Agencies', component: <RadiosPage />, show: showAgencyResources },
+    { eventKey: 'radios', title: 'Radios', component: <RadiosResourcePage />, show: showRadioResources },
+    { eventKey: 'agencies', title: 'Agencies', component: <RadiosResourcePage />, show: showAgencyResources },
   ];
 
   return (

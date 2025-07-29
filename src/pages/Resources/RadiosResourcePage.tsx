@@ -10,7 +10,7 @@ import { Broadcast } from 'react-bootstrap-icons';
 import AppToast from '../../components/AppToast';
 import { usePeriod } from '../../context/PeriodContext';
 
-const RadiosPage: React.FC = () => {
+const RadiosResourcePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [radioSerial, setRadioSerial] = useState<string>('');
   const [message, setMessage] = useState<string | null>(null);
@@ -183,7 +183,7 @@ const RadiosPage: React.FC = () => {
   );
 };
 
-export default RadiosPage;
+export default RadiosResourcePage;
 
 const AssignedRadios: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
   const [showModal, setShowModal] = useState(false);

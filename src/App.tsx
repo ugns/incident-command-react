@@ -9,35 +9,45 @@ import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
 import AppNavbar from './components/AppNavbar';
 import LoginPage from './pages/LoginPage';
-import MainPage from './pages/MainPage';
-import OrganizationsPage from './pages/Organizations/OrganizationsPage';
-import IncidentsPage from './pages/Incidents/IncidentsPage';
-import UnitsPage from './pages/Units/UnitsPage';
-import PeriodsPage from './pages/Periods/PeriodsPage';
-import ResourcesPage from './pages/Resources/ResourcesPage';
-import VolunteersPage from './pages/Volunteers/VolunteersPage';
-import ActivityLogPage from './pages/ActivityLogPage';
+import { routesConfig } from './routesConfig';
+import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
+// Type guard for nav routes (not separators)
+function isNav(link: RouteConfigNav | RouteConfigSeparator): link is RouteConfigNav {
+  return !('separator' in link);
+}
+
 const AppContent: React.FC = () => {
   const { user } = useContext(AuthContext);
+  const flags = useFlags();
+  // Build a featureFlags object for all show-based flags
+  const featureFlags = {
+    superAdminAccess: !!flags.superAdminAccess,
+    showRadioResources: !!flags.showRadioResources,
+    showAgencyResources: !!flags.showAgencyResources,
+    showAssignmentBoard: !!flags.showAssignmentBoard,
+  };
 
   return (
     <>
-      <AppNavbar />
+      <AppNavbar featureFlags={featureFlags} />
       {user ? (
         <Routes>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/organizations" element={<OrganizationsPage />} />
-          <Route path="/incidents" element={<IncidentsPage />} />
-          <Route path="/units" element={<UnitsPage />} />
-          <Route path="/volunteers" element={<VolunteersPage />} />
-          <Route path="/periods" element={<PeriodsPage />} />
-          <Route path="/resources" element={<ResourcesPage />} />
-          <Route path="/activity-log" element={<ActivityLogPage />} />
-          <Route path="/assignment-board" element={React.createElement(require('./pages/AssignmentBoardPage').default)} />
+          {routesConfig
+            .filter(isNav)
+            .filter(route => {
+              if (route.show && typeof route.show === 'string') {
+                return !!featureFlags[route.show as keyof typeof featureFlags];
+              }
+              return true;
+            })
+            .map(route => (
+              <Route key={route.key} path={route.path ?? `/${route.key}`} element={route.element} />
+            ))}
         </Routes>
       ) : (
         <LoginPage />
