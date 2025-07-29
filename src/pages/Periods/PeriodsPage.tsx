@@ -9,6 +9,7 @@ import { Period } from '../../types/Period';
 import { formatLocalDateTime } from '../../utils/dateFormat';
 import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
+import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const PeriodsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
@@ -64,7 +65,7 @@ const PeriodsPage: React.FC = () => {
     }
   };
 
-  if (!token) return <Alert variant="warning">You must be logged in.</Alert>;
+  if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (loading) return (
     <Container>
       <Card>

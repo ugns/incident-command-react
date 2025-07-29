@@ -10,6 +10,7 @@ import ContextSelect from '../components/ContextSelect';
 import { Volunteer } from '../types/Volunteer';
 import { ActivityLog } from '../types/ActivityLog';
 import { ReportType } from '../types/Report';
+import { ALERT_NO_CONTEXT_SELECTED } from '../constants/messages';
 
 
 const ActivityLogPage: React.FC = () => {
@@ -47,7 +48,7 @@ const ActivityLogPage: React.FC = () => {
   }, [selectedPeriod, selectedVolunteer]);
 
   if (!selectedPeriod) {
-    return <Alert variant="warning">No operating period selected.</Alert>;
+    return <Alert variant="warning">{ALERT_NO_CONTEXT_SELECTED}</Alert>;
   }
 
   return (

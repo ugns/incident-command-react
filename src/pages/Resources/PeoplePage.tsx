@@ -9,6 +9,7 @@ import { usePeriod } from '../../context/PeriodContext';
 import { useVolunteers } from '../../context/VolunteerContext';
 import { AuthContext } from '../../context/AuthContext';
 import AppToast from '../../components/AppToast';
+import { ALERT_NO_CONTEXT_SELECTED, ALERT_NO_VOLUNTEERS_CHECKED_IN } from '../../constants/messages';
 
 const PeoplePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
@@ -26,7 +27,7 @@ const PeoplePage: React.FC = () => {
 
   // Check for selected period on load
   if (!selectedPeriod) {
-    return <Alert variant="warning">No operating period selected.</Alert>;
+    return <Alert variant="warning">{ALERT_NO_CONTEXT_SELECTED}</Alert>;
   }
 
   const handleCheckIn = async () => {
@@ -154,7 +155,7 @@ export default PeoplePage;
 const CheckedInVolunteers: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
   const checkedIn = volunteers.filter(v => v.status === VolunteerStatus.CheckedIn);
   if (checkedIn.length === 0) {
-    return <Alert variant="secondary">No volunteers are currently checked in.</Alert>;
+    return <Alert variant="secondary">{ALERT_NO_VOLUNTEERS_CHECKED_IN}</Alert>;
   }
   return (
     <Card className="mt-4">

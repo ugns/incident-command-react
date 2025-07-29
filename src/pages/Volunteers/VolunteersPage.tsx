@@ -8,6 +8,7 @@ import { CheckCircleFill, Broadcast } from 'react-bootstrap-icons';
 import { Volunteer, VolunteerStatus, RadioStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';
 import VolunteerViewModal from './VolunteerViewModal';
+import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const VolunteersPage: React.FC = () => {
   const { token } = useContext(AuthContext);
@@ -59,7 +60,7 @@ const VolunteersPage: React.FC = () => {
     }
   };
 
-  if (!token) return <Alert variant="warning">You must be logged in.</Alert>;
+  if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
   // Filter and sort volunteers before rendering

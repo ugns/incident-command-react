@@ -9,6 +9,7 @@ import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'r
 import { Broadcast } from 'react-bootstrap-icons';
 import AppToast from '../../components/AppToast';
 import { usePeriod } from '../../context/PeriodContext';
+import { ALERT_NO_CONTEXT_SELECTED, ALERT_NO_RADIOS_ASSIGNED } from '../../constants/messages';
 
 const RadiosResourcePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
@@ -25,7 +26,7 @@ const RadiosResourcePage: React.FC = () => {
   const volunteerSelectRef = useRef<{ reset: () => void }>(null);
 
   if (!selectedPeriod) {
-    return <Alert variant="warning">No operating period selected.</Alert>;
+    return <Alert variant="warning">{ALERT_NO_CONTEXT_SELECTED}</Alert>;
   }
 
   const handleAssign = async () => {
@@ -191,7 +192,7 @@ const AssignedRadios: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) =
   const assigned = volunteers.filter(v => v.radioStatus === RadioStatus.Assigned);
   const found = assigned.find(v => v.radio === searchSerial);
   if (assigned.length === 0) {
-    return <Alert variant="secondary">No radios are currently assigned.</Alert>;
+    return <Alert variant="secondary">{ALERT_NO_RADIOS_ASSIGNED}</Alert>;
   }
   return (
     <>

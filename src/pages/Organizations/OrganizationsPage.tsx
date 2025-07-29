@@ -7,6 +7,7 @@ import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 're
 import { Organization } from '../../types/Organization';
 import OrganizationForm from './OrganizationForm';
 import OrganizationViewModal from './OrganizationViewModal';
+import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const OrganizationsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
@@ -60,7 +61,7 @@ const OrganizationsPage: React.FC = () => {
     }
   };
 
-  if (!token) return <Alert variant="warning">You must be logged in.</Alert>;
+  if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
   // Filter and sort organizations before rendering
