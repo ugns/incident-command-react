@@ -1,5 +1,5 @@
 import { Organization } from '../../types/Organization';
-import { Modal, Button, Table } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import OrganizationField from '../../components/fields/OrganizationField';
 import NoteField from '../../components/fields/NoteField';
 

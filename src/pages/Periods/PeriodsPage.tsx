@@ -4,7 +4,7 @@ import periodService from '../../services/periodService';
 import { usePeriods } from '../../hooks/usePeriods';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
-import PeriodSelect from '../../components/PeriodSelect';
+import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
 import { formatLocalDateTime } from '../../utils/dateFormat';
 import PeriodForm from './PeriodForm';
@@ -119,12 +119,14 @@ const PeriodsPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Time Periods</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
-              <PeriodSelect
-                periods={periods}
-                value={selectedPeriod}
-                onSelect={setSelectedPeriod}
+              <ContextSelect
+                label="Period"
+                options={periods}
+                value={selectedPeriod ? selectedPeriod.periodId : null}
+                onSelect={id => setSelectedPeriod(id ? periods.find(p => p.periodId === id) ?? null : null)}
                 loading={loading}
-                allowNone
+                getOptionLabel={p => p.description}
+                getOptionValue={p => p.periodId}
               />
               <Button variant="success" onClick={handleAdd}>Add Period</Button>
             </Col>

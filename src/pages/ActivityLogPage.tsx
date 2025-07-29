@@ -6,7 +6,7 @@ import { usePeriod } from '../context/PeriodContext';
 import { useVolunteers } from '../context/VolunteerContext';
 import activityLogService from '../services/activityLogService';
 import ReportGeneratorButton from '../components/ReportGeneratorButton';
-import VolunteerSelect from '../components/VolunteerSelect';
+import ContextSelect from '../components/ContextSelect';
 import { Volunteer } from '../types/Volunteer';
 import { ActivityLog } from '../types/ActivityLog';
 import { ReportType } from '../types/Report';
@@ -57,10 +57,14 @@ const ActivityLogPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Activity Log</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
-              <VolunteerSelect
-                volunteers={volunteers}
-                value={selectedVolunteer}
-                onSelect={setSelectedVolunteer}
+              <ContextSelect
+                label="Volunteer"
+                options={volunteers}
+                value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
+                onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
+                loading={loading}
+                getOptionLabel={v => v.name}
+                getOptionValue={v => v.volunteerId}
               />
               <ReportGeneratorButton
                 requiredReportType={ReportType.ICS214}

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef } from 'react';
-import VolunteerSelect from '../../components/VolunteerSelect';
+import ContextSelect from '../../components/ContextSelect';
 import { Volunteer, VolunteerStatus, RadioStatus } from '../../types/Volunteer';
 import { ActivityLog, ActivityLogAction } from '../../types/ActivityLog';
 import activityLogService from '../../services/activityLogService';
@@ -101,12 +101,14 @@ const PeoplePage: React.FC = () => {
                   <Form.Label>Select Volunteer</Form.Label>
                   <div className="d-flex align-items-center">
                     <div className="flex-grow-1">
-                      <VolunteerSelect
-                        ref={volunteerSelectRef}
-                        value={selectedVolunteer}
-                        onSelect={setSelectedVolunteer}
-                        volunteers={volunteers}
-                        onVolunteerAdded={refresh}
+                      <ContextSelect
+                        label="Volunteer"
+                        options={volunteers}
+                        value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
+                        onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
+                        loading={loading}
+                        getOptionLabel={v => v.name}
+                        getOptionValue={v => v.volunteerId}
                       />
                     </div>
                   </div>

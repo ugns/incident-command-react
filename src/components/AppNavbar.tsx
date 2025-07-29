@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import PeriodSelectModal from './PeriodSelectModal';
+import ContextSelectModal from './ContextSelectModal';
+import { useIncident } from '../context/IncidentContext';
 import { usePeriod } from '../context/PeriodContext';
+import { useUnit } from '../context/UnitContext';
 import { Navbar, Container, Nav, Button, Offcanvas } from 'react-bootstrap';
-import { usePeriods } from '../hooks/usePeriods';
+
 import { GearFill } from 'react-bootstrap-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -14,8 +16,9 @@ const AppNavbar: React.FC = () => {
   const navigate = useNavigate();
   const [showCanvas, setShowCanvas] = useState(false);
   const [showPeriodModal, setShowPeriodModal] = useState(false);
-  const { selectedPeriod, setSelectedPeriod } = usePeriod();
-  const { periods, loading: periodsLoading } = usePeriods();
+  const { incidents, setSelectedIncident } = useIncident();
+  const { periods, setSelectedPeriod } = usePeriod();
+  const { units, setSelectedUnit } = useUnit();
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
@@ -66,15 +69,14 @@ const AppNavbar: React.FC = () => {
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>
-      {/* Modal for selecting operating period */}
-      <PeriodSelectModal
+      {/* Modal for selecting incident, period, and unit */}
+      <ContextSelectModal
         show={showPeriodModal}
-        selectedPeriod={selectedPeriod}
-        periods={periods}
-        loading={periodsLoading}
         onHide={() => setShowPeriodModal(false)}
-        onSelect={period => {
-          setSelectedPeriod(period);
+        onSelect={(incidentId, periodId, unitId) => {
+          setSelectedIncident(incidentId ? (incidents.find(i => i.incidentId === incidentId) ?? null) : null);
+          setSelectedPeriod(periodId ? (periods.find(p => p.periodId === periodId) ?? null) : null);
+          setSelectedUnit(unitId ? (units.find(u => u.unitId === unitId) ?? null) : null);
           setShowPeriodModal(false);
         }}
       />

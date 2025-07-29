@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useVolunteers } from '../../context/VolunteerContext';
-import VolunteerSelect from '../../components/VolunteerSelect';
+import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import { CheckCircleFill, Broadcast } from 'react-bootstrap-icons';
@@ -83,10 +83,14 @@ const VolunteersPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Volunteers</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
-              <VolunteerSelect
-                volunteers={volunteers}
-                value={selectedVolunteer}
-                onSelect={setSelectedVolunteer}
+              <ContextSelect
+                label="Volunteer"
+                options={volunteers}
+                value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
+                onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
+                loading={loading}
+                getOptionLabel={v => v.name}
+                getOptionValue={v => v.volunteerId}
               />
               <Button variant="success" onClick={handleAdd}>Add Volunteer</Button>
             </Col>

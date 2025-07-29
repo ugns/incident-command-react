@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import AssignmentBoard from '../components/AssignmentBoard';
 import { AuthContext } from '../context/AuthContext';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 
 
 const AssignmentBoardPage: React.FC = () => {

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useOrganizations } from '../../context/OrganizationContext';
-import OrganizationSelect from '../../components/OrganizationSelect';
+import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import { Organization } from '../../types/Organization';
@@ -84,10 +84,14 @@ const OrganizationsPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Organizations</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
-              <OrganizationSelect
-                organizations={organizations}
-                value={selectedOrganization}
-                onSelect={setSelectedOrganization}
+              <ContextSelect
+                label="Organization"
+                options={organizations}
+                value={selectedOrganization ? selectedOrganization.org_id : null}
+                onSelect={id => setSelectedOrganization(id ? organizations.find(o => o.org_id === id) ?? null : null)}
+                loading={loading}
+                getOptionLabel={o => o.name}
+                getOptionValue={o => o.org_id}
               />
               <Button variant="success" onClick={handleAdd} disabled={!superAdminAccess}>Add Organization</Button>
             </Col>
