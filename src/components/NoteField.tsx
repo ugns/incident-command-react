@@ -15,7 +15,15 @@ const NoteField: React.FC<NoteFieldProps> = ({
   <>
     <Form.Group className="mb-3">
       <FloatingLabel controlId='notes' label='Notes'>
-        <Form.Control name="notes" value={notes} as="textarea" rows={3} onChange={onChange} readOnly={readOnly} />
+        <Form.Control
+          name="notes"
+          value={notes}
+          as="textarea"
+          rows={3}
+          onChange={onChange}
+          className={readOnly ? "form-control-plaintext" : undefined}
+          readOnly={readOnly}
+        />
       </FloatingLabel>
     </Form.Group>
   </>

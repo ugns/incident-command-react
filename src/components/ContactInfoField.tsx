@@ -17,12 +17,23 @@ const ContactInfoFields: React.FC<ContactInfoFieldsProps> = ({
   <>
     <Form.Group className="mb-3">
       <FloatingLabel controlId='email' label='E-Mail'>
-        <Form.Control name="email" type="email" onChange={onChange} readOnly={readOnly} />
+        <Form.Control
+          name="email"
+          type="email"
+          onChange={onChange}
+          className={readOnly ? "form-control-plaintext" : undefined}
+          readOnly={readOnly}
+        />
       </FloatingLabel>
     </Form.Group>
     <Form.Group className="mb-3">
       <FloatingLabel controlId='cellphone' label='Cell Phone'>
-        <Form.Control name="cellphone" onChange={onChange} readOnly={readOnly} />
+        <Form.Control
+          name="cellphone"
+          onChange={onChange}
+          className={readOnly ? "form-control-plaintext" : undefined}
+          readOnly={readOnly}
+        />
       </FloatingLabel>
     </Form.Group>
   </>

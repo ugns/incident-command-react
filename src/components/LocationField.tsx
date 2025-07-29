@@ -15,7 +15,13 @@ const LocationField: React.FC<LocationFieldProps> = ({
   <>
     <Form.Group className="mb-3">
       <FloatingLabel controlId='currentLocation' label='Current Location'>
-        <Form.Control name="currentLocation" value={currentLocation} onChange={onChange} readOnly={readOnly} />
+        <Form.Control
+          name="currentLocation"
+          value={currentLocation}
+          onChange={onChange}
+          className={readOnly ? "form-control-plaintext" : undefined}
+          readOnly={readOnly}
+        />
       </FloatingLabel>
     </Form.Group>
   </>
