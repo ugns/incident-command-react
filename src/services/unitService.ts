@@ -1,10 +1,12 @@
 import { Unit } from '../types/Unit';
 import { apiFetch } from '../api/api';
 
+const API_BASE = '/units';
+
 const unitService = {
   async list(token: string, onAuthError?: () => void): Promise<Unit[]> {
     return apiFetch<Unit[]>({
-      path: '/units',
+      path: API_BASE,
       token,
       onAuthError,
     });
@@ -12,7 +14,7 @@ const unitService = {
 
   async get(id: string, token: string, onAuthError?: () => void): Promise<Unit> {
     return apiFetch<Unit>({
-      path: `/units/${id}`,
+      path: `${API_BASE}/${id}`,
       token,
       onAuthError,
     });
@@ -20,7 +22,7 @@ const unitService = {
 
   async create(data: Partial<Unit>, token: string, onAuthError?: () => void): Promise<Unit> {
     return apiFetch<Unit>({
-      path: '/units',
+      path: `${API_BASE}`,
       method: 'POST',
       body: data,
       token,
@@ -30,7 +32,7 @@ const unitService = {
 
   async update(id: string, data: Partial<Unit>, token: string, onAuthError?: () => void): Promise<Unit> {
     return apiFetch<Unit>({
-      path: `/units/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'PUT',
       body: data,
       token,
@@ -40,7 +42,7 @@ const unitService = {
 
   async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
     await apiFetch<void>({
-      path: `/units/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'DELETE',
       token,
       onAuthError,

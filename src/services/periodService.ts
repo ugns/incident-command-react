@@ -1,24 +1,26 @@
 import { Period } from '../types/Period';
 import { apiFetch } from '../api/api';
 
+const API_BASE = '/periods';
+
 const periodService = {
   async list(token: string, onAuthError?: () => void): Promise<Period[]> {
     return apiFetch<Period[]>({
-      path: '/periods',
+      path: API_BASE,
       token,
       onAuthError,
     });
   },
   async get(id: string, token: string, onAuthError?: () => void): Promise<Period> {
     return apiFetch<Period>({
-      path: `/periods/${id}`,
+      path: `${API_BASE}/${id}`,
       token,
       onAuthError,
     });
   },
   async create(data: Partial<Period>, token: string, onAuthError?: () => void): Promise<Period> {
     return apiFetch<Period>({
-      path: '/periods',
+      path: `${API_BASE}`,
       method: 'POST',
       body: data,
       token,
@@ -27,7 +29,7 @@ const periodService = {
   },
   async update(id: string, data: Partial<Period>, token: string, onAuthError?: () => void): Promise<Period> {
     return apiFetch<Period>({
-      path: `/periods/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'PUT',
       body: data,
       token,
@@ -36,7 +38,7 @@ const periodService = {
   },
   async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
     await apiFetch<void>({
-      path: `/periods/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'DELETE',
       token,
       onAuthError,

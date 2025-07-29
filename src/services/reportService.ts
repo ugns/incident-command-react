@@ -2,25 +2,27 @@ import { Report } from '../types/Report';
 import { ReportType } from '../types/ReportType';
 import { apiFetch } from '../api/api';
 
-
+const API_BASE = '/reports';
 
 const reportService = {
-  async generate(report: Report, token: string, reportType: string, mediaType: string, onAuthError?: () => void): Promise<{ blob: Blob; filename?: string }> {
-    return apiFetch<{ blob: Blob; filename?: string }>({
-      path: `/reports/${reportType}`,
-      method: 'POST',
-      body: report,
+  async list(token: string, onAuthError?: () => void): Promise<{ reports: ReportType[] }> {
+    return apiFetch<{ reports: ReportType[] }>({
+      path: `${API_BASE}`,
       token,
-      responseType: 'blob',
-      accept: mediaType,
       onAuthError,
     });
   },
 
-  async listTypes(token: string, onAuthError?: () => void): Promise<{ reports: ReportType[] }> {
-    return apiFetch<{ reports: ReportType[] }>({
-      path: '/reports',
+  // No get, create, update, or delete methods for reports
+
+  async generate(data: Report, token: string, reportType: string, mediaType: string, onAuthError?: () => void): Promise<{ blob: Blob; filename?: string }> {
+    return apiFetch<{ blob: Blob; filename?: string }>({
+      path: `${API_BASE}/${reportType}`,
+      method: 'POST',
+      body: data,
       token,
+      responseType: 'blob',
+      accept: mediaType,
       onAuthError,
     });
   },

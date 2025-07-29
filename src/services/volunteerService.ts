@@ -1,10 +1,12 @@
 import { Volunteer } from '../types/Volunteer';
 import { apiFetch } from '../api/api';
 
+const API_BASE = '/volunteers';
+
 const volunteerService = {
   async list(token: string, onAuthError?: () => void): Promise<Volunteer[]> {
     return apiFetch<Volunteer[]>({
-      path: '/volunteers',
+      path: API_BASE,
       token,
       onAuthError,
     });
@@ -12,7 +14,7 @@ const volunteerService = {
 
   async get(id: string, token: string, onAuthError?: () => void): Promise<Volunteer> {
     return apiFetch<Volunteer>({
-      path: `/volunteers/${id}`,
+      path: `${API_BASE}/${id}`,
       token,
       onAuthError,
     });
@@ -20,7 +22,7 @@ const volunteerService = {
 
   async create(data: Partial<Volunteer>, token: string, onAuthError?: () => void): Promise<Volunteer> {
     return apiFetch<Volunteer>({
-      path: '/volunteers',
+      path: '${API_BASE}',
       method: 'POST',
       body: data,
       token,
@@ -30,7 +32,7 @@ const volunteerService = {
 
   async update(id: string, data: Partial<Volunteer>, token: string, onAuthError?: () => void): Promise<Volunteer> {
     return apiFetch<Volunteer>({
-      path: `/volunteers/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'PUT',
       body: data,
       token,
@@ -40,7 +42,7 @@ const volunteerService = {
   
   async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
     await apiFetch<void>({
-      path: `/volunteers/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'DELETE',
       token,
       onAuthError,

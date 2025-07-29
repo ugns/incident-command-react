@@ -1,10 +1,12 @@
 import { Incident } from '../types/Incident';
 import { apiFetch } from '../api/api';
 
+const API_BASE = '/incidents';
+
 const incidentService = {
   async list(token: string, onAuthError?: () => void): Promise<Incident[]> {
     return apiFetch<Incident[]>({
-      path: '/incidents',
+      path: API_BASE,
       token,
       onAuthError,
     });
@@ -12,7 +14,7 @@ const incidentService = {
 
   async get(id: string, token: string, onAuthError?: () => void): Promise<Incident> {
     return apiFetch<Incident>({
-      path: `/incidents/${id}`,
+      path: `${API_BASE}/${id}`,
       token,
       onAuthError,
     });
@@ -20,7 +22,7 @@ const incidentService = {
 
   async create(data: Partial<Incident>, token: string, onAuthError?: () => void): Promise<Incident> {
     return apiFetch<Incident>({
-      path: '/incidents',
+      path: '${API_BASE}',
       method: 'POST',
       body: data,
       token,
@@ -30,7 +32,7 @@ const incidentService = {
 
   async update(id: string, data: Partial<Incident>, token: string, onAuthError?: () => void): Promise<Incident> {
     return apiFetch<Incident>({
-      path: `/incidents/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'PUT',
       body: data,
       token,
@@ -40,7 +42,7 @@ const incidentService = {
 
   async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
     await apiFetch<void>({
-      path: `/incidents/${id}`,
+      path: `${API_BASE}/${id}`,
       method: 'DELETE',
       token,
       onAuthError,
