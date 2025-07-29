@@ -1,14 +1,14 @@
 import React, { useState, useContext, useRef } from 'react';
-import VolunteerSelect from '../components/VolunteerSelect';
-import { Volunteer, VolunteerStatus, RadioStatus } from '../types/Volunteer';
-import { ActivityLog, ActivityLogAction } from '../types/ActivityLog';
-import activityLogService from '../services/activityLogService';
+import VolunteerSelect from '../../components/VolunteerSelect';
+import { Volunteer, VolunteerStatus, RadioStatus } from '../../types/Volunteer';
+import { ActivityLog, ActivityLogAction } from '../../types/ActivityLog';
+import activityLogService from '../../services/activityLogService';
 import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'react-bootstrap';
 import { Broadcast } from 'react-bootstrap-icons';
-import { usePeriod } from '../context/PeriodContext';
-import { useVolunteers } from '../context/VolunteerContext';
-import { AuthContext } from '../context/AuthContext';
-import AppToast from '../components/AppToast';
+import { usePeriod } from '../../context/PeriodContext';
+import { useVolunteers } from '../../context/VolunteerContext';
+import { AuthContext } from '../../context/AuthContext';
+import AppToast from '../../components/AppToast';
 
 const PeoplePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);

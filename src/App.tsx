@@ -9,9 +9,9 @@ import AppNavbar from './components/AppNavbar';
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import OrganizationsPage from './pages/Organizations/OrganizationsPage';
-import VolunteersPage from './pages/Volunteers/VolunteersPage';
 import PeriodsPage from './pages/Periods/PeriodsPage';
-import ResourcesPage from './pages/ResourcesPage';
+import ResourcesPage from './pages/Resources/ResourcesPage';
+import VolunteersPage from './pages/Volunteers/VolunteersPage';
 import ActivityLogPage from './pages/ActivityLogPage';
 import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
 
