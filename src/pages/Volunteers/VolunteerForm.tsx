@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
-import NameField from '../../components/fields/NameField';
 import FullNameField from '../../components/fields/FullNameField';
 import ContactInfoField from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';

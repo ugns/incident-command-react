@@ -1,7 +1,6 @@
 import { Volunteer } from '../../types/Volunteer';
 import { Modal, Button } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import NameField from '../../components/fields/NameField';
 import ContactInfoFields from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
 import LocationField from '../../components/fields/LocationField';
