@@ -84,7 +84,9 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     },
   });
   const touchSensor = useSensor(TouchSensor);
-  const sensors = useSensors(pointerSensor, touchSensor);
+  // Use only PointerSensor on Windows (for Toughpad), both sensors elsewhere
+  const isWindows = typeof navigator !== 'undefined' && navigator.userAgent.includes('Windows');
+  const sensors = isWindows ? useSensors(pointerSensor) : useSensors(pointerSensor, touchSensor);
 
   // Log sensor activation for debugging
   React.useEffect(() => {
