@@ -78,7 +78,9 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   // Always call hooks in the same order and at the top level
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: {
-      distance: 8, // Require 8px movement before drag starts
+      distance: 1, // Lower distance for easier drag start
+      delay: 200, // Allow long-press to start drag (200ms)
+      tolerance: 5, // Allow some movement before cancel
     },
   });
   const touchSensor = useSensor(TouchSensor);
