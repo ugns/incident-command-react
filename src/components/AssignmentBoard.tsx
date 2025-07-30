@@ -111,7 +111,17 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
       );
     }
     return (
-      <Col ref={setNodeRef} md={3} sm={6} xs={12} style={{ background: isOver ? '#e3f2fd' : undefined, transition: 'background 0.2s' }}>
+      <Col
+        ref={setNodeRef}
+        md={3}
+        sm={6}
+        xs={12}
+        style={{
+          background: isOver ? '#e3f2fd' : undefined,
+          transition: 'background 0.2s',
+          touchAction: 'none',
+        }}
+      >
         <Card>
           <Card.Header className="bg-primary text-white">{location}</Card.Header>
           <Card.Body style={{ minHeight: 200 }}>{children}</Card.Body>
@@ -154,6 +164,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
           opacity: isDragging ? 0.5 : 1,
           transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
           cursor: 'grab',
+          touchAction: 'none',
         }}
         {...listeners}
         {...attributes}
