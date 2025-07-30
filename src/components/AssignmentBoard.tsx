@@ -22,6 +22,16 @@ const DEFAULT_LOCATIONS = [
   'Released',
 ];
 
+const DEFAULT_REFRESH_INTERVAL = 3000; // 3 seconds
+
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0
+  );
+};
+
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId, readOnly = false, refreshInterval }) => {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +57,9 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
 
   useEffect(() => {
     fetchVolunteers();
-    if (refreshInterval && refreshInterval > 0) {
-      const interval = setInterval(fetchVolunteers, refreshInterval);
-      return () => clearInterval(interval);
-    }
+    const intervalMs = (refreshInterval && refreshInterval > 0) ? refreshInterval : DEFAULT_REFRESH_INTERVAL;
+    const interval = setInterval(fetchVolunteers, intervalMs);
+    return () => clearInterval(interval);
     // eslint-disable-next-line
   }, [token, orgId, unitId, refreshInterval]);
 
@@ -73,11 +82,12 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   // Track the currently dragged volunteer id
   const [activeVolunteerId, setActiveVolunteerId] = useState<string | null>(null);
 
-  // Enable both pointer and touch sensors for drag-and-drop
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor)
-  );
+  // Always call hooks in the same order and at the top level
+  const pointerSensor = useSensor(PointerSensor);
+  const touchSensor = useSensor(TouchSensor);
+  const pointerSensors = useSensors(pointerSensor);
+  const touchSensors = useSensors(touchSensor);
+  const sensors = isTouchDevice() ? touchSensors : pointerSensors;
 
   // Droppable column (only if not readOnly)
   function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
