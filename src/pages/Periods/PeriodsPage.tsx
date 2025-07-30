@@ -7,6 +7,7 @@ import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 're
 import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
 import { formatLocalDateTime } from '../../utils/dateFormat';
+import { useIncident } from '../../context/IncidentContext';
 import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
@@ -22,6 +23,7 @@ const PeriodsPage: React.FC = () => {
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
+  const { incidents, loading: incidentsLoading } = useIncident();
 
   // fetchPeriods and related state are now handled by usePeriods (context)
 
@@ -50,13 +52,15 @@ const PeriodsPage: React.FC = () => {
     }
   };
 
+  const { user } = useContext(AuthContext);
   const handleFormSubmit = async (form: any) => {
-    if (!token) return;
+    if (!token || !user) return;
+    const payload = { ...form, org_id: user.org_id };
     try {
       if (editPeriod) {
-        await periodService.update(editPeriod.periodId, form, token);
+        await periodService.update(editPeriod.periodId, payload, token);
       } else {
-        await periodService.create(form, token);
+        await periodService.create(payload, token);
       }
       setShowForm(false);
       await refresh(); // Refresh periods in context after add/edit
@@ -173,6 +177,8 @@ const PeriodsPage: React.FC = () => {
         onHide={() => setShowForm(false)}
         onSubmit={handleFormSubmit}
         initial={editPeriod}
+        incidents={incidents}
+        incidentsLoading={incidentsLoading}
       />
       <PeriodViewModal
         show={showView}

@@ -10,6 +10,9 @@ interface UnitContextType {
   selectedUnit: Unit | null;
   setSelectedUnit: (unit: Unit | null) => void;
   refresh: () => void;
+  addUnit: (data: Partial<Unit>) => Promise<Unit | null>;
+  updateUnit: (id: string, data: Partial<Unit>) => Promise<Unit | null>;
+  deleteUnit: (id: string) => Promise<void>;
 }
 
 const UnitContext = createContext<UnitContextType | undefined>(undefined);
@@ -69,8 +72,66 @@ export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSelectedUnitState(unit);
   };
 
+
+  // CRUD functions
+  const addUnit = async (data: Partial<Unit>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const newUnit = await unitService.create(data, token);
+      await fetchUnits();
+      return newUnit;
+    } catch (err: any) {
+      setError(err.message || 'Failed to add unit');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUnit = async (id: string, data: Partial<Unit>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const updated = await unitService.update(id, data, token);
+      await fetchUnits();
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update unit');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUnit = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      await unitService.delete(id, token);
+      await fetchUnits();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete unit');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <UnitContext.Provider value={{ units, loading, error, selectedUnit, setSelectedUnit, refresh: fetchUnits }}>
+    <UnitContext.Provider value={{
+      units,
+      loading,
+      error,
+      selectedUnit,
+      setSelectedUnit,
+      refresh: fetchUnits,
+      addUnit,
+      updateUnit,
+      deleteUnit
+    }}>
       {children}
     </UnitContext.Provider>
   );

@@ -23,11 +23,15 @@ function ContextSelect<T>({
   getOptionLabel,
   getOptionValue,
 }: ContextSelectProps<T>) {
-  // Memoize react-select options
-  const selectOptions = useMemo(() => options.map(option => ({
-    value: getOptionValue(option),
-    label: getOptionLabel(option),
-  })), [options, getOptionLabel, getOptionValue]);
+
+  // Memoize react-select options, guard against undefined options
+  const selectOptions = useMemo(() => {
+    const safeOptions = options || [];
+    return safeOptions.map(option => ({
+      value: getOptionValue(option),
+      label: getOptionLabel(option),
+    }));
+  }, [options, getOptionLabel, getOptionValue]);
 
   const selectedOption = selectOptions.find(opt => opt.value === value) || null;
 
@@ -37,7 +41,7 @@ function ContextSelect<T>({
 
   return (
     <div className="mb-3">
-      <label>{label}</label>
+      <label>{`Select ${label}`}</label>
       {loading ? (
         <Placeholder as="div" animation="glow">
           <Placeholder xs={12} style={{ height: 38, marginBottom: 8 }} />

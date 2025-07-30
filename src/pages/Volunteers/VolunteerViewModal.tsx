@@ -1,11 +1,12 @@
 import { Volunteer } from '../../types/Volunteer';
 import { Modal, Button } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import NameFields from '../../components/fields/NameField';
+import NameField from '../../components/fields/NameField';
 import ContactInfoFields from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
 import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
+import FullNameField from '../../components/fields/FullNameField';
 
 interface VolunteerViewModalProps {
   show: boolean;
@@ -24,7 +25,7 @@ const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, v
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <NameFields
+        <FullNameField
           name={volunteer.name || ''}
           givenName={volunteer?.givenName || ''}
           familyName={volunteer?.familyName || ''}

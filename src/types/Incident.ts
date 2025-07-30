@@ -3,5 +3,6 @@ export interface Incident {
   org_id: string;
   name: string;
   description?: string;
+  notes?: string;
   // ...other fields as needed
 }

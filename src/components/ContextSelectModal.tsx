@@ -16,9 +16,32 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   const { periods, loading: loadingPeriods } = usePeriod();
   const { units, loading: loadingUnits } = useUnit();
 
+
   const [incidentId, setIncidentId] = useState<string | null>(null);
   const [periodId, setPeriodId] = useState<string | null>(null);
   const [unitId, setUnitId] = useState<string | null>(null);
+
+  // When modal is opened, pre-populate with selected context
+  // Get selected context from context providers
+  const { selectedIncident } = useIncident();
+  const { selectedPeriod } = usePeriod();
+  const { selectedUnit } = useUnit();
+
+  // Wait for context to be ready before initializing modal state
+  const contextReady = !loadingIncidents && !loadingPeriods && !loadingUnits
+    && (incidents.length === 0 || selectedIncident || incidentId)
+    && (periods.length === 0 || selectedPeriod || periodId)
+    && (units.length === 0 || selectedUnit || unitId);
+
+  useEffect(() => {
+    if (show && contextReady) {
+      setIncidentId(selectedIncident ? selectedIncident.incidentId : null);
+      setPeriodId(selectedPeriod ? selectedPeriod.periodId : null);
+      setUnitId(selectedUnit ? selectedUnit.unitId : null);
+    }
+    // Only run when modal is shown and context is ready
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show, contextReady]);
 
   // Reset lower selections when upper changes
   useEffect(() => {
@@ -29,9 +52,14 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
     setUnitId(null);
   }, [periodId]);
 
-  // Filter periods/units by selection if needed
+
+  // Filter periods by incident
   const filteredPeriods = incidentId ? periods.filter(p => p.incidentId === incidentId) : periods;
-  const filteredUnits = periodId ? units.filter(u => u.periodId === periodId) : units;
+  // Filter units by the selected period's unitId (since period has unitId, not the other way around)
+  const selectedPeriodObj = periodId ? periods.find(p => p.periodId === periodId) : null;
+  const filteredUnits = selectedPeriodObj && selectedPeriodObj.unitId
+    ? units.filter(u => u.unitId === selectedPeriodObj.unitId)
+    : units;
 
   const handleConfirm = () => {
     onSelect(incidentId, periodId, unitId);
@@ -45,6 +73,19 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
     onSelect(null, null, null);
     onHide();
   };
+
+  if (!contextReady && show) {
+    return (
+      <Modal show={show} onHide={onHide}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Operation Context</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>Loading context...</div>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   return (
     <Modal show={show} onHide={onHide}>
@@ -68,7 +109,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
           onSelect={setPeriodId}
           loading={loadingPeriods}
           disabled={!incidentId}
-          getOptionLabel={p => p.name || p.periodId}
+          getOptionLabel={p => p.description || p.periodId}
           getOptionValue={p => p.periodId}
         />
         <ContextSelect
@@ -78,7 +119,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
           onSelect={setUnitId}
           loading={loadingUnits}
           disabled={!periodId}
-          getOptionLabel={u => u.name || u.unitId}
+          getOptionLabel={u => u.description || u.name || u.unitId}
           getOptionValue={u => u.unitId}
         />
       </Modal.Body>

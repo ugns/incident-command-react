@@ -1,26 +1,33 @@
 import React from 'react';
 import { Form, FloatingLabel } from 'react-bootstrap';
+import NameField from './NameField';
 
-interface NameFieldProps {
+interface DescriptorFieldProps {
   name: string;
+  description: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
 }
 
-const NameField: React.FC<NameFieldProps> = ({ 
-  name, 
+const DescriptorField: React.FC<DescriptorFieldProps> = ({
+  name,
+  description,
   onChange,
   readOnly = false,
 }) => (
   <>
+    <NameField
+      name={name}
+      onChange={onChange}
+      readOnly={readOnly}
+    />
     <Form.Group className="mb-3">
-      <FloatingLabel controlId='name' label='Display Name'>
+      <FloatingLabel controlId='description' label='Description'>
         <Form.Control
-          name="name"
-          value={name}
+          name="description"
+          value={description}
           onChange={onChange}
           className={readOnly ? "form-control-plaintext" : undefined}
-          required
           readOnly={readOnly}
         />
       </FloatingLabel>
@@ -28,4 +35,4 @@ const NameField: React.FC<NameFieldProps> = ({
   </>
 );
 
-export default NameField;
+export default DescriptorField;

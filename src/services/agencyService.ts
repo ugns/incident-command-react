@@ -24,7 +24,7 @@ const agencyService = {
 
   async create(data: Partial<Agency>, token: string, onAuthError?: () => void): Promise<Agency> {
     return apiFetch<Agency>({
-      path: `${API_BASE}`,
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,

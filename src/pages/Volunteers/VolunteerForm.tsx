@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
-import NameFields from '../../components/fields/NameField';
-import ContactInfoFields from '../../components/fields/ContactInfoField';
+import NameField from '../../components/fields/NameField';
+import FullNameField from '../../components/fields/FullNameField';
+import ContactInfoField from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
 import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
@@ -66,7 +67,7 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
-          <NameFields
+          <FullNameField
             name={form.name}
             givenName={form.givenName}
             familyName={form.familyName}
@@ -76,7 +77,7 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
             callsign={form.callsign}
             onChange={handleChange}
           />
-          <ContactInfoFields
+          <ContactInfoField
             email={form.email}
             cellphone={form.cellphone}
             onChange={handleChange}

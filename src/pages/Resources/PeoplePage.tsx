@@ -1,10 +1,9 @@
 import React, { useState, useContext, useRef } from 'react';
 import ContextSelect from '../../components/ContextSelect';
-import { Volunteer, VolunteerStatus, RadioStatus } from '../../types/Volunteer';
+import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import { ActivityLog, ActivityLogAction } from '../../types/ActivityLog';
 import activityLogService from '../../services/activityLogService';
 import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'react-bootstrap';
-import { Broadcast } from 'react-bootstrap-icons';
 import { usePeriod } from '../../context/PeriodContext';
 import { useVolunteers } from '../../context/VolunteerContext';
 import { AuthContext } from '../../context/AuthContext';
@@ -99,7 +98,6 @@ const PeoplePage: React.FC = () => {
             <Card.Body>
               <Form>
                 <Form.Group className="mb-3" controlId="volunteerSelect">
-                  <Form.Label>Select Volunteer</Form.Label>
                   <div className="d-flex align-items-center">
                     <div className="flex-grow-1">
                       <ContextSelect
@@ -168,11 +166,11 @@ const CheckedInVolunteers: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers
             <ListGroupItem key={v.volunteerId}>
               {v.name}{v.callsign ? ` (${v.callsign})` : ''}{' '}
               {/* Show radio icon if radio has a value */}
-              {v.radio && v.radioStatus === RadioStatus.Assigned && (
+              {/* {v.radio && v.radioStatus === RadioStatus.Assigned && (
                 <span title={`Radio: ${v.radio}`} style={{ marginRight: 6 }}>
                   <Broadcast color="#007bff" size={18} />
                 </span>
-              )}
+              )} */}
             </ListGroupItem>
           ))}
         </ListGroup>

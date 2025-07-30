@@ -1,24 +1,34 @@
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Modal, FloatingLabel, InputGroup } from 'react-bootstrap';
 import { isoToLocal, toISO } from '../../utils/dateFormat';
+import ContextSelect from '../../components/ContextSelect';
+import { Incident } from '../../types/Incident';
+
 
 interface PeriodFormProps {
   show: boolean;
   onHide: () => void;
   onSubmit: (data: any) => void;
   initial?: any;
+  incidents: Incident[];
+  incidentsLoading?: boolean;
 }
 
-const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial }) => {
+
+const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial, incidents, incidentsLoading }) => {
   const [form, setForm] = useState({
+    incidentId: initial?.incidentId || '',
     startTime: initial?.startTime || '',
     endTime: initial?.endTime || '',
     description: initial?.description || '',
   });
 
+
   useEffect(() => {
     if (show) {
       setForm({
+        incidentId: initial?.incidentId || '',
         startTime: initial?.startTime ? isoToLocal(initial.startTime) : '',
         endTime: initial?.endTime ? isoToLocal(initial.endTime) : '',
         description: initial?.description || '',
@@ -26,9 +36,15 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
     }
   }, [initial, show]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const handleIncidentSelect = (id: string | null) => {
+    setForm(f => ({ ...f, incidentId: id || '' }));
+  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +56,7 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
     onSubmit(data);
   };
 
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -47,6 +64,15 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
+          <ContextSelect
+            label="Incident"
+            options={incidents}
+            value={form.incidentId || null}
+            onSelect={handleIncidentSelect}
+            loading={incidentsLoading}
+            getOptionLabel={i => i.name}
+            getOptionValue={i => i.incidentId}
+          />
           <Form.Group className="mb-3">
             <FloatingLabel controlId='description' label='Description'>
               <Form.Control name="description" value={form.description} onChange={handleChange} required />

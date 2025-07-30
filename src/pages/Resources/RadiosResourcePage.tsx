@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useVolunteers } from '../../context/VolunteerContext';
+import { useRadios } from '../../context/RadioContext';
 import { Modal } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
-import { Volunteer, RadioStatus } from '../../types/Volunteer';
+import { Volunteer } from '../../types/Volunteer';
+import { Radio, RadioStatus } from '../../types/Radio';
 import { ActivityLog, ActivityLogAction } from '../../types/ActivityLog';
 import activityLogService from '../../services/activityLogService';
 import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'react-bootstrap';
@@ -13,16 +15,19 @@ import { ALERT_NO_CONTEXT_SELECTED, ALERT_NO_RADIOS_ASSIGNED } from '../../const
 
 const RadiosResourcePage: React.FC = () => {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
-  const [radioSerial, setRadioSerial] = useState<string>('');
+  const [selectedRadioId, setSelectedRadioId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [toastBg, setToastBg] = useState<'info' | 'danger' | 'success'>('info');
   const [showToast, setShowToast] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { volunteers, loading: volunteersLoading, updateVolunteer, refresh } = useVolunteers();
+  const { volunteers, loading: volunteersLoading } = useVolunteers();
+  const { radios, loading: radiosLoading, updateRadio, refresh } = useRadios();
   const { selectedPeriod } = usePeriod();
 
   const token = localStorage.getItem('token') || '';
-  const isAssigned = selectedVolunteer?.radioStatus === RadioStatus.Assigned;
+  // Find the radio assigned to this volunteer (if any)
+  const assignedRadio = selectedVolunteer ? radios.find(r => r.assignedToVolunteerId === selectedVolunteer.volunteerId && r.status === RadioStatus.Assigned) : undefined;
+  const isAssigned = !!assignedRadio;
   const volunteerSelectRef = useRef<{ reset: () => void }>(null);
 
   if (!selectedPeriod) {
@@ -30,18 +35,23 @@ const RadiosResourcePage: React.FC = () => {
   }
 
   const handleAssign = async () => {
-    if (!selectedVolunteer || !radioSerial) return;
-    // Prevent assigning a radio that is already assigned to another volunteer
-    const alreadyAssigned = volunteers.find(v => v.radio === radioSerial && v.radioStatus === RadioStatus.Assigned && v.volunteerId !== selectedVolunteer.volunteerId);
-    if (alreadyAssigned) {
-      setMessage(`Radio ${radioSerial} is already assigned to ${alreadyAssigned.name}.`);
+    if (!selectedVolunteer || !selectedRadioId) return;
+    // Prevent assigning a radio that is already assigned
+    const radio = radios.find(r => r.radioId === selectedRadioId);
+    if (!radio) {
+      setMessage(`Radio not found.`);
       setToastBg('danger');
       setShowToast(true);
       return;
     }
-    // Prevent assigning a radio if one is already assigned
-    if (selectedVolunteer.radio && selectedVolunteer.radioStatus === RadioStatus.Assigned) {
-      setMessage(`${selectedVolunteer.name} already has radio ${selectedVolunteer.radio} assigned.`);
+    if (radio.status === RadioStatus.Assigned && radio.assignedToVolunteerId !== selectedVolunteer.volunteerId) {
+      setMessage(`Radio ${radio.serialNumber || radio.name} is already assigned to another volunteer.`);
+      setToastBg('danger');
+      setShowToast(true);
+      return;
+    }
+    if (assignedRadio) {
+      setMessage(`${selectedVolunteer.name} already has radio ${assignedRadio.serialNumber || assignedRadio.name} assigned.`);
       setToastBg('danger');
       setShowToast(true);
       return;
@@ -49,19 +59,19 @@ const RadiosResourcePage: React.FC = () => {
     setLoading(true);
     setMessage(null);
     try {
-      await updateVolunteer(selectedVolunteer.volunteerId, { ...selectedVolunteer, radio: radioSerial, radioStatus: RadioStatus.Assigned });
+      await updateRadio(radio.radioId, { assignedToVolunteerId: selectedVolunteer.volunteerId, status: RadioStatus.Assigned });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,
         volunteerId: selectedVolunteer.volunteerId,
         action: ActivityLogAction.RadioAssigned,
-        details: `${selectedVolunteer.name} assigned radio ${radioSerial}`,
+        details: `${selectedVolunteer.name} assigned radio ${radio.serialNumber || radio.name}`,
       };
       await activityLogService.create(log, token);
-      setMessage(`${selectedVolunteer.name} assigned radio ${radioSerial}.`);
+      setMessage(`${selectedVolunteer.name} assigned radio ${radio.serialNumber || radio.name}.`);
       setToastBg('success');
       setShowToast(true);
-      setRadioSerial('');
+      setSelectedRadioId(null);
       await refresh();
       volunteerSelectRef.current?.reset();
       setSelectedVolunteer(null);
@@ -75,31 +85,31 @@ const RadiosResourcePage: React.FC = () => {
   };
 
   const handleReturn = async () => {
-    if (!selectedVolunteer) return;
+    if (!selectedVolunteer || !assignedRadio) return;
     setLoading(true);
     setMessage(null);
     try {
-      // Validate serial number matches assigned
-      if (!selectedVolunteer || selectedVolunteer.radio !== radioSerial) {
-        setMessage('Serial number does not match the assigned radio.');
+      // Validate selected radio matches assigned
+      if (assignedRadio.radioId !== selectedRadioId) {
+        setMessage('Selected radio does not match the assigned radio.');
         setToastBg('danger');
         setShowToast(true);
         setLoading(false);
         return;
       }
-      await updateVolunteer(selectedVolunteer.volunteerId, { ...selectedVolunteer, radioStatus: RadioStatus.Returned });
+      await updateRadio(assignedRadio.radioId, { assignedToVolunteerId: undefined, status: RadioStatus.Available });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,
         volunteerId: selectedVolunteer.volunteerId,
         action: ActivityLogAction.RadioReturned,
-        details: `${selectedVolunteer.name} returned radio ${radioSerial}`,
+        details: `${selectedVolunteer.name} returned radio ${assignedRadio.serialNumber || assignedRadio.name}`,
       };
       await activityLogService.create(log, token);
       setMessage(`${selectedVolunteer.name} returned their radio.`);
       setToastBg('success');
       setShowToast(true);
-      setRadioSerial('');
+      setSelectedRadioId(null);
       await refresh();
       volunteerSelectRef.current?.reset();
       setSelectedVolunteer(null);
@@ -123,7 +133,6 @@ const RadiosResourcePage: React.FC = () => {
             <Card.Body>
               <Form>
                 <Form.Group className="mb-3" controlId="volunteerSelect">
-                  <Form.Label>Select Volunteer</Form.Label>
                   <div className="d-flex align-items-center">
                     <div className="flex-grow-1">
                       <ContextSelect
@@ -138,13 +147,15 @@ const RadiosResourcePage: React.FC = () => {
                     </div>
                   </div>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="radioSerial">
-                  <Form.Label>Radio Serial Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={radioSerial}
-                    onChange={e => setRadioSerial(e.target.value)}
-                    placeholder="Enter radio serial number"
+                <Form.Group className="mb-3" controlId="radioSelect">
+                  <ContextSelect
+                    label="Radio"
+                    options={radios.filter(r => r.status === RadioStatus.Available || (assignedRadio && r.radioId === assignedRadio.radioId))}
+                    value={selectedRadioId}
+                    onSelect={id => setSelectedRadioId(id as string)}
+                    loading={loading || radiosLoading}
+                    getOptionLabel={r => r.serialNumber ? `${r.serialNumber}${r.name ? ` (${r.name})` : ''}` : r.name}
+                    getOptionValue={r => r.radioId}
                     disabled={!selectedVolunteer || loading}
                   />
                 </Form.Group>
@@ -152,14 +163,14 @@ const RadiosResourcePage: React.FC = () => {
                   <Button
                     variant="primary"
                     onClick={handleAssign}
-                    disabled={!selectedVolunteer || loading || volunteersLoading || isAssigned || !radioSerial}
+                    disabled={!selectedVolunteer || loading || volunteersLoading || isAssigned || !selectedRadioId}
                   >
                     Assign Radio
                   </Button>
                   <Button
                     variant="secondary"
                     onClick={handleReturn}
-                    disabled={!selectedVolunteer || loading || volunteersLoading || !isAssigned || !radioSerial}
+                    disabled={!selectedVolunteer || loading || volunteersLoading || !isAssigned || !selectedRadioId}
                   >
                     Return Radio
                   </Button>
@@ -177,7 +188,7 @@ const RadiosResourcePage: React.FC = () => {
       </Row>
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
-          <AssignedRadios volunteers={volunteers} />
+          <AssignedRadios radios={radios} volunteers={volunteers} />
         </Col>
       </Row>
     </>
@@ -186,11 +197,17 @@ const RadiosResourcePage: React.FC = () => {
 
 export default RadiosResourcePage;
 
-const AssignedRadios: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
+interface AssignedRadiosProps {
+  radios: Radio[];
+  volunteers: Volunteer[];
+}
+
+const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) => {
   const [showModal, setShowModal] = useState(false);
   const [searchSerial, setSearchSerial] = useState('');
-  const assigned = volunteers.filter(v => v.radioStatus === RadioStatus.Assigned);
-  const found = assigned.find(v => v.radio === searchSerial);
+  // Only show radios that are assigned
+  const assigned = radios.filter(r => r.status === RadioStatus.Assigned && r.assignedToVolunteerId);
+  const found = assigned.find(r => r.serialNumber === searchSerial);
   if (assigned.length === 0) {
     return <Alert variant="secondary">{ALERT_NO_RADIOS_ASSIGNED}</Alert>;
   }
@@ -205,16 +222,22 @@ const AssignedRadios: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) =
         </Card.Header>
         <Card.Body>
           <ListGroup>
-            {assigned.map(v => (
-              <ListGroupItem key={v.volunteerId}>
-                {v.name}{v.callsign ? ` (${v.callsign})` : ''}{' '}
-                {v.radio && v.radioStatus === RadioStatus.Assigned && (
-                  <span title={`Radio: ${v.radio}`} style={{ marginRight: 6 }}>
+            {assigned.map(r => {
+              const volunteer = volunteers.find(v => v.volunteerId === r.assignedToVolunteerId);
+              return (
+                <ListGroupItem key={r.radioId}>
+                  {r.serialNumber || r.name} {' '}
+                  <span title="Assigned">
                     <Broadcast color="#007bff" size={18} />
                   </span>
-                )}
-              </ListGroupItem>
-            ))}
+                  {volunteer && (
+                    <span style={{ marginLeft: 8 }}>
+                      Assigned to: {volunteer.name}{volunteer.callsign ? ` (${volunteer.callsign})` : ''}
+                    </span>
+                  )}
+                </ListGroupItem>
+              );
+            })}
           </ListGroup>
         </Card.Body>
       </Card>
@@ -235,11 +258,14 @@ const AssignedRadios: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) =
           {searchSerial && (
             found ? (
               <Alert variant="success" className="mt-3">
-                Assigned to: {found.name}{found.callsign ? ` (${found.callsign})` : ''}
+                Assigned to: {(() => {
+                  const v = volunteers.find(v => v.volunteerId === found.assignedToVolunteerId);
+                  return v ? `${v.name}${v.callsign ? ` (${v.callsign})` : ''}` : 'Unknown';
+                })()}
               </Alert>
             ) : (
               <Alert variant="danger" className="mt-3">
-                No volunteer found with that radio serial.
+                No radio found with that serial number.
               </Alert>
             )
           )}

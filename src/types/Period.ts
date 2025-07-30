@@ -9,4 +9,5 @@ export interface Period {
   icsPosition?: string; // Section 4
   homeAgency?: string; // Section 5
   description: string;
+  notes?: string; //
 }

@@ -21,7 +21,7 @@ const periodService = {
   },
   async create(data: Partial<Period>, token: string, onAuthError?: () => void): Promise<Period> {
     return apiFetch<Period>({
-      path: `${API_BASE}`,
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,

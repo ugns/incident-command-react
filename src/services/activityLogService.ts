@@ -26,7 +26,7 @@ const activityLogService = {
 
   async create(data: Partial<ActivityLog>, token: string, onAuthError?: () => void): Promise<ActivityLog> {
     return apiFetch<ActivityLog>({
-      path: '${API_BASE}',
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,

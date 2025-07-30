@@ -23,7 +23,7 @@ const incidentService = {
 
   async create(data: Partial<Incident>, token: string, onAuthError?: () => void): Promise<Incident> {
     return apiFetch<Incident>({
-      path: '${API_BASE}',
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,

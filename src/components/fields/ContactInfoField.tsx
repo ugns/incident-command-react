@@ -20,6 +20,7 @@ const ContactInfoFields: React.FC<ContactInfoFieldsProps> = ({
         <Form.Control
           name="email"
           type="email"
+          value={email}
           onChange={onChange}
           className={readOnly ? "form-control-plaintext" : undefined}
           readOnly={readOnly}
@@ -30,6 +31,7 @@ const ContactInfoFields: React.FC<ContactInfoFieldsProps> = ({
       <FloatingLabel controlId='cellphone' label='Cell Phone'>
         <Form.Control
           name="cellphone"
+          value={cellphone}
           onChange={onChange}
           className={readOnly ? "form-control-plaintext" : undefined}
           readOnly={readOnly}

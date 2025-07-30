@@ -7,6 +7,7 @@ import { IncidentProvider } from './context/IncidentContext';
 import { UnitProvider } from './context/UnitContext';
 import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
+import { RadioProvider } from './context/RadioContext';
 import AppNavbar from './components/AppNavbar';
 import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
@@ -102,13 +103,15 @@ const App: React.FC = () => {
             <PeriodProvider>
               <UnitProvider>
                 <VolunteerProvider>
-                  <LDProvider
-                    clientSideID={clientSideID}
-                    context={ldContext}
-                  >
-                    <LDContextUpdater />
-                    <AppContent />
-                  </LDProvider>
+                  <RadioProvider>
+                    <LDProvider
+                      clientSideID={clientSideID}
+                      context={ldContext}
+                    >
+                      <LDContextUpdater />
+                      <AppContent />
+                    </LDProvider>
+                  </RadioProvider>
                 </VolunteerProvider>
               </UnitProvider>
             </PeriodProvider>

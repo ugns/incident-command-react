@@ -23,7 +23,7 @@ const organizationService = {
 
   async create(data: Partial<Organization>, token: string, onAuthError?: () => void): Promise<Organization> {
     return apiFetch<Organization>({
-      path: `${API_BASE}`,
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,
