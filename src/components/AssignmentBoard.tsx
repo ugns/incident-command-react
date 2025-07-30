@@ -86,6 +86,16 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   const touchSensor = useSensor(TouchSensor);
   const sensors = useSensors(pointerSensor, touchSensor);
 
+  // Log sensor activation for debugging
+  React.useEffect(() => {
+    console.log('[AssignmentBoard] PointerSensor and TouchSensor initialized.');
+    // Log device info
+    console.log('[AssignmentBoard] UserAgent:', navigator.userAgent);
+    console.log('[AssignmentBoard] PointerEvent:', typeof window.PointerEvent !== 'undefined');
+    console.log('[AssignmentBoard] TouchEvent:', typeof window.TouchEvent !== 'undefined');
+    console.log('[AssignmentBoard] maxTouchPoints:', navigator.maxTouchPoints);
+  }, []);
+
   // Droppable column (only if not readOnly)
   function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
     // Always call the hook
@@ -116,8 +126,13 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: volunteer.volunteerId });
     // Set activeVolunteerId on drag start/stop
     React.useEffect(() => {
-      if (isDragging) setActiveVolunteerId(volunteer.volunteerId);
-      else if (activeVolunteerId === volunteer.volunteerId) setActiveVolunteerId(null);
+      if (isDragging) {
+        setActiveVolunteerId(volunteer.volunteerId);
+        console.log('[AssignmentBoard] Drag start:', volunteer.volunteerId, volunteer.name);
+      } else if (activeVolunteerId === volunteer.volunteerId) {
+        setActiveVolunteerId(null);
+        console.log('[AssignmentBoard] Drag end:', volunteer.volunteerId, volunteer.name);
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isDragging]);
     if (readOnly) {
@@ -156,6 +171,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   const handleDragEnd = async (event: any) => {
     if (readOnly) return;
     const { active, over } = event;
+    console.log('[AssignmentBoard] handleDragEnd event:', event);
     if (!over || !active) return;
     const volunteerId = active.id;
     const newLocation = over.id;
@@ -165,9 +181,11 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     setVolunteers(prev => prev.map(v => v.volunteerId === volunteerId ? updatedVolunteer : v));
     try {
       await volunteerService.update(volunteerId, updatedVolunteer, token);
+      console.log('[AssignmentBoard] Updated volunteer location:', volunteerId, newLocation);
       // After successful update, refresh volunteers from API to sync all clients
       fetchVolunteers();
     } catch (e) {
+      console.error('[AssignmentBoard] Error updating volunteer:', e);
       // Optionally handle error, revert UI if needed
     }
   };
