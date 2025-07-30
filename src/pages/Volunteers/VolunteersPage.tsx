@@ -5,7 +5,7 @@ import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import { CheckCircleFill, Broadcast } from 'react-bootstrap-icons';
-import { Volunteer, VolunteerStatus, RadioStatus } from '../../types/Volunteer';
+import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';
 import VolunteerViewModal from './VolunteerViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
@@ -135,11 +135,11 @@ const VolunteersPage: React.FC = () => {
                           <CheckCircleFill color="green" size={18} />
                         </span>
                       )}
-                      {v.radio && v.radioStatus === RadioStatus.Assigned && (
+                      {/* {v.radio && v.radioStatus === RadioStatus.Assigned && (
                         <span title={`Radio: ${v.radio}`} style={{ marginRight: 6 }}>
                           <Broadcast color="#007bff" size={18} />
                         </span>
-                      )}
+                      )} */}
                     </td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
