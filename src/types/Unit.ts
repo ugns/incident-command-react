@@ -1,6 +1,6 @@
 export interface Unit {
   unitId: string;
-  periodId: string;
+  orgId: string;
   name: string;
   description?: string;
   // ...other fields as needed

@@ -9,6 +9,7 @@ export enum RadioStatus {
 }
 
 export interface Radio {
+  org_id: string; // Organization ID for ownership context
   radioId: string;
   name: string;
   serialNumber?: string;

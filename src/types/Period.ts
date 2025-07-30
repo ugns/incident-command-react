@@ -2,7 +2,7 @@ export interface Period {
   periodId: string;
   org_id: string;
   incidentId: string; // NEW: link to parent incident
-  incidentName?: string; // Section 1
+  unitId: string; // NEW: link to parent unit
   startTime: string; // Section 2
   endTime: string; // Section 2
   name?: string; // Section 3
