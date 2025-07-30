@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Spinner } from 'react-bootstrap';
 import { Volunteer, VolunteerStatus } from '../types/Volunteer';
 import volunteerService from '../services/volunteerService';
-import { DndContext, closestCenter, useDroppable, useDraggable } from '@dnd-kit/core';
+import { DndContext, closestCenter, useDroppable, useDraggable, DragOverlay } from '@dnd-kit/core';
 
 interface AssignmentBoardProps {
   token: string;
@@ -68,6 +68,9 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
 
   // --- dnd-kit integration ---
 
+  // Track the currently dragged volunteer id
+  const [activeVolunteerId, setActiveVolunteerId] = useState<string | null>(null);
+
   // Droppable column (only if not readOnly)
   function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
     // Always call the hook
@@ -96,6 +99,12 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   function DraggableVolunteer({ volunteer }: { volunteer: Volunteer }) {
     // Always call the hook
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: volunteer.volunteerId });
+    // Set activeVolunteerId on drag start/stop
+    React.useEffect(() => {
+      if (isDragging) setActiveVolunteerId(volunteer.volunteerId);
+      else if (activeVolunteerId === volunteer.volunteerId) setActiveVolunteerId(null);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isDragging]);
     if (readOnly) {
       return (
         <Card className="mb-2">
@@ -137,9 +146,10 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     const newLocation = over.id;
     const volunteer = volunteers.find(v => v.volunteerId === volunteerId);
     if (!volunteer || volunteer.currentLocation === newLocation) return;
-    setVolunteers(prev => prev.map(v => v.volunteerId === volunteerId ? { ...v, currentLocation: newLocation } : v));
+    const updatedVolunteer = { ...volunteer, currentLocation: newLocation };
+    setVolunteers(prev => prev.map(v => v.volunteerId === volunteerId ? updatedVolunteer : v));
     try {
-      await volunteerService.update(volunteerId, { currentLocation: newLocation }, token);
+      await volunteerService.update(volunteerId, updatedVolunteer, token);
     } catch (e) {
       // Optionally handle error, revert UI if needed
     }
@@ -180,6 +190,22 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
           </DroppableColumn>
         ))}
       </Row>
+      <DragOverlay zIndex={2000}>
+        {activeVolunteerId ? (
+          (() => {
+            const v = volunteers.find(vol => vol.volunteerId === activeVolunteerId);
+            if (!v) return null;
+            return (
+              <Card className="mb-2" style={{ zIndex: 2000, boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
+                <Card.Body style={{ padding: '0.5rem', background: '#fff' }}>
+                  <div><strong>{v.name}</strong> {v.callsign && <span>({v.callsign})</span>}</div>
+                  <div className="small text-muted">Shift End: TBD</div>
+                </Card.Body>
+              </Card>
+            );
+          })()
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 };
