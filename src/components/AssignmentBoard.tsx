@@ -3,6 +3,7 @@ import { Card, Row, Col, Spinner } from 'react-bootstrap';
 import { Volunteer, VolunteerStatus } from '../types/Volunteer';
 import volunteerService from '../services/volunteerService';
 import { DndContext, closestCenter, useDroppable, useDraggable, DragOverlay } from '@dnd-kit/core';
+import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
 
 interface AssignmentBoardProps {
   token: string;
@@ -66,10 +67,17 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     if (!grouped[loc]) grouped[loc] = [];
   }
 
+
   // --- dnd-kit integration ---
 
   // Track the currently dragged volunteer id
   const [activeVolunteerId, setActiveVolunteerId] = useState<string | null>(null);
+
+  // Enable both pointer and touch sensors for drag-and-drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor)
+  );
 
   // Droppable column (only if not readOnly)
   function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
@@ -150,6 +158,8 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     setVolunteers(prev => prev.map(v => v.volunteerId === volunteerId ? updatedVolunteer : v));
     try {
       await volunteerService.update(volunteerId, updatedVolunteer, token);
+      // After successful update, refresh volunteers from API to sync all clients
+      fetchVolunteers();
     } catch (e) {
       // Optionally handle error, revert UI if needed
     }
@@ -176,7 +186,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     );
   }
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Row className="g-3">
         {Object.entries(grouped).map(([location, vols]) => (
           <DroppableColumn key={location} location={location}>
