@@ -54,8 +54,6 @@ export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Effects
   useEffect(() => {
     fetchUnits();
-    const interval = setInterval(fetchUnits, 30000); // poll every 30s
-    return () => clearInterval(interval);
   }, [fetchUnits]);
 
   useEffect(() => {

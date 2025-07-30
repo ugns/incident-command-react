@@ -6,7 +6,7 @@ import UnitViewModal from './UnitViewModal';
 import { Unit } from '../../types/Unit';
 
 const UnitsPage: React.FC = () => {
-  const { units, loading, error, selectedUnit, setSelectedUnit, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
+  const { units, loading, error, selectedUnit, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
   const [showForm, setShowForm] = useState(false);
   const [editUnit, setEditUnit] = useState<Unit | null>(null);
   const [showView, setShowView] = useState(false);

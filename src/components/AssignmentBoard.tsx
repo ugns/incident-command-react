@@ -24,8 +24,6 @@ const DEFAULT_LOCATIONS = [
   'Released',
 ];
 
-const DEFAULT_REFRESH_INTERVAL = 3000; // 3 seconds
-
 
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId, readOnly = false, refreshInterval }) => {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
@@ -52,11 +50,8 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
 
   useEffect(() => {
     fetchVolunteers();
-    const intervalMs = (refreshInterval && refreshInterval > 0) ? refreshInterval : DEFAULT_REFRESH_INTERVAL;
-    const interval = setInterval(fetchVolunteers, intervalMs);
-    return () => clearInterval(interval);
     // eslint-disable-next-line
-  }, [token, orgId, unitId, refreshInterval]);
+  }, [token, orgId, unitId]);
 
   // Group volunteers by currentLocation
   const grouped: { [location: string]: Volunteer[] } = {};

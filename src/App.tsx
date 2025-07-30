@@ -9,6 +9,7 @@ import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
 import { RadioProvider } from './context/RadioContext';
 import AppNavbar from './components/AppNavbar';
+import WebSocketCNCProvider from './context/WebSocketCNCProvider';
 import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
 import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
@@ -109,6 +110,8 @@ const App: React.FC = () => {
                       context={ldContext}
                     >
                       <LDContextUpdater />
+                      {/* WebSocket CNC connection for real-time updates */}
+                      <WebSocketCNCProvider />
                       <AppContent />
                     </LDProvider>
                   </RadioProvider>

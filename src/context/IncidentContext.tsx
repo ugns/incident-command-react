@@ -114,8 +114,6 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Effects
   useEffect(() => {
     fetchIncidents();
-    const interval = setInterval(fetchIncidents, 30000); // poll every 30s
-    return () => clearInterval(interval);
   }, [fetchIncidents]);
 
   useEffect(() => {

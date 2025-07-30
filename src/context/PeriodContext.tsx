@@ -5,7 +5,7 @@ import { AuthContext } from './AuthContext';
 
 interface PeriodContextType {
   periods: Period[];
-  refreshPeriods: () => Promise<void>;
+  refresh: () => Promise<void>;
   selectedPeriod: Period | null;
   setSelectedPeriod: (period: Period | null) => void;
   loading: boolean;
@@ -34,7 +34,7 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [error, setError] = useState<string | null>(null);
 
   // Callbacks
-  const refreshPeriods = React.useCallback(async () => {
+  const refresh = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -56,8 +56,8 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Effects
   useEffect(() => {
-    refreshPeriods();
-  }, [refreshPeriods, logout]);
+    refresh();
+  }, [refresh, logout]);
 
   useEffect(() => {
     // Only persist if selectedPeriod is in periods
@@ -74,7 +74,7 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <PeriodContext.Provider value={{ periods, refreshPeriods, selectedPeriod, setSelectedPeriod, loading, error }}>
+    <PeriodContext.Provider value={{ periods, refresh, selectedPeriod, setSelectedPeriod, loading, error }}>
       {children}
     </PeriodContext.Provider>
   );
