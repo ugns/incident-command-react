@@ -1,8 +1,8 @@
 import { Organization } from '../types/Organization';
 import { apiFetch } from '../api/api';
-import { ORGANIZATION_BASE } from '../constants/apis';
+import { ORGANIZATIONS_BASE } from '../constants/apis';
 
-const API_BASE = ORGANIZATION_BASE;
+const API_BASE = ORGANIZATIONS_BASE;
 
 const organizationService = {
   async list(token: string, onAuthError?: () => void): Promise<Organization[]> {
