@@ -63,7 +63,12 @@ const PeoplePage: React.FC = () => {
     setLoading(true);
     setMessage(null);
     try {
-      await updateVolunteer(selectedVolunteer.volunteerId, { ...selectedVolunteer, status: VolunteerStatus.CheckedOut });
+      await updateVolunteer(
+        selectedVolunteer.volunteerId, {
+        ...selectedVolunteer,
+        status: VolunteerStatus.CheckedOut,
+        currentLocation: ''
+      });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,

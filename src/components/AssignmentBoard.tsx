@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Spinner } from 'react-bootstrap';
+import { Row, Spinner } from 'react-bootstrap';
 import { Volunteer, VolunteerStatus } from '../types/Volunteer';
 import volunteerService from '../services/volunteerService';
-import { DndContext, closestCenter, useDroppable, useDraggable, DragOverlay } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
+import VolunteerCard from './VolunteerCard';
+import LocationColumn from './LocationColumn';
 import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
 
 interface AssignmentBoardProps {
@@ -96,86 +98,6 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     console.log('[AssignmentBoard] maxTouchPoints:', navigator.maxTouchPoints);
   }, []);
 
-  // Droppable column (only if not readOnly)
-  function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
-    // Always call the hook
-    const { setNodeRef, isOver } = useDroppable({ id: location });
-    if (readOnly) {
-      return (
-        <Col md={3} sm={6} xs={12}>
-          <Card>
-            <Card.Header className="bg-primary text-white">{location}</Card.Header>
-            <Card.Body style={{ minHeight: 200 }}>{children}</Card.Body>
-          </Card>
-        </Col>
-      );
-    }
-    return (
-      <Col
-        ref={setNodeRef}
-        md={3}
-        sm={6}
-        xs={12}
-        style={{
-          background: isOver ? '#e3f2fd' : undefined,
-          transition: 'background 0.2s',
-          touchAction: 'none',
-        }}
-      >
-        <Card>
-          <Card.Header className="bg-primary text-white">{location}</Card.Header>
-          <Card.Body style={{ minHeight: 200 }}>{children}</Card.Body>
-        </Card>
-      </Col>
-    );
-  }
-
-  // Draggable card (only if not readOnly)
-  function DraggableVolunteer({ volunteer }: { volunteer: Volunteer }) {
-    // Always call the hook
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: volunteer.volunteerId });
-    // Set activeVolunteerId on drag start/stop
-    React.useEffect(() => {
-      if (isDragging) {
-        setActiveVolunteerId(volunteer.volunteerId);
-        console.log('[AssignmentBoard] Drag start:', volunteer.volunteerId, volunteer.name);
-      } else if (activeVolunteerId === volunteer.volunteerId) {
-        setActiveVolunteerId(null);
-        console.log('[AssignmentBoard] Drag end:', volunteer.volunteerId, volunteer.name);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isDragging]);
-    if (readOnly) {
-      return (
-        <Card className="mb-2">
-          <Card.Body style={{ padding: '0.5rem' }}>
-            <div><strong>{volunteer.name}</strong> {volunteer.callsign && <span>({volunteer.callsign})</span>}</div>
-            <div className="small text-muted">Shift End: TBD</div>
-          </Card.Body>
-        </Card>
-      );
-    }
-    return (
-      <Card
-        ref={setNodeRef}
-        className="mb-2"
-        style={{
-          padding: 0,
-          opacity: isDragging ? 0.5 : 1,
-          transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-          cursor: 'grab',
-          touchAction: 'none',
-        }}
-        {...listeners}
-        {...attributes}
-      >
-        <Card.Body style={{ padding: '0.5rem' }}>
-          <div><strong>{volunteer.name}</strong> {volunteer.callsign && <span>({volunteer.callsign})</span>}</div>
-          <div className="small text-muted">Shift End: TBD</div>
-        </Card.Body>
-      </Card>
-    );
-  }
 
 
   // Handle drag end (only if not readOnly)
@@ -208,15 +130,15 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     return (
       <Row className="g-3">
         {Object.entries(grouped).map(([location, vols]) => (
-          <DroppableColumn key={location} location={location}>
+          <LocationColumn key={location} location={location} readOnly>
             {vols.length === 0 ? (
               <div className="text-muted">No volunteers</div>
             ) : (
               vols.map(v => (
-                <DraggableVolunteer key={v.volunteerId} volunteer={v} />
+                <VolunteerCard key={v.volunteerId} volunteer={v} readOnly />
               ))
             )}
-          </DroppableColumn>
+          </LocationColumn>
         ))}
       </Row>
     );
@@ -225,15 +147,20 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Row className="g-3">
         {Object.entries(grouped).map(([location, vols]) => (
-          <DroppableColumn key={location} location={location}>
+          <LocationColumn key={location} location={location}>
             {vols.length === 0 ? (
               <div className="text-muted">No volunteers</div>
             ) : (
               vols.map(v => (
-                <DraggableVolunteer key={v.volunteerId} volunteer={v} />
+                <VolunteerCard
+                  key={v.volunteerId}
+                  volunteer={v}
+                  activeVolunteerId={activeVolunteerId}
+                  setActiveVolunteerId={setActiveVolunteerId}
+                />
               ))
             )}
-          </DroppableColumn>
+          </LocationColumn>
         ))}
       </Row>
       <DragOverlay zIndex={2000}>
@@ -242,12 +169,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
             const v = volunteers.find(vol => vol.volunteerId === activeVolunteerId);
             if (!v) return null;
             return (
-              <Card className="mb-2" style={{ zIndex: 2000, boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
-                <Card.Body style={{ padding: '0.5rem', background: '#fff' }}>
-                  <div><strong>{v.name}</strong> {v.callsign && <span>({v.callsign})</span>}</div>
-                  <div className="small text-muted">Shift End: TBD</div>
-                </Card.Body>
-              </Card>
+              <VolunteerCard volunteer={v} readOnly />
             );
           })()
         ) : null}

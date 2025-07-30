@@ -57,6 +57,7 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // No normalization: just submit the form as-is
     onSubmit(form);
   };
 

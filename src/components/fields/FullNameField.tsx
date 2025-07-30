@@ -19,7 +19,7 @@ const FullNameField: React.FC<FullNameFieldProps> = ({
 }) => (
   <>
     <NameField
-      name={givenName}
+      name={name}
       onChange={onChange}
       readOnly={readOnly}
     />

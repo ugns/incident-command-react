@@ -28,10 +28,14 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   const { selectedUnit } = useUnit();
 
   // Wait for context to be ready before initializing modal state
-  const contextReady = !loadingIncidents && !loadingPeriods && !loadingUnits
-    && (incidents.length === 0 || selectedIncident || incidentId)
+  // If all context arrays are empty, consider context ready (no data to wait for)
+  const contextReady = !loadingIncidents && !loadingPeriods && !loadingUnits && (
+    incidents.length > 0 || periods.length > 0 || units.length > 0 ||
+    (incidents.length === 0 && periods.length === 0 && units.length === 0)
+    || (incidents.length === 0 || selectedIncident || incidentId)
     && (periods.length === 0 || selectedPeriod || periodId)
-    && (units.length === 0 || selectedUnit || unitId);
+    && (units.length === 0 || selectedUnit || unitId)
+  );
 
   useEffect(() => {
     if (show && contextReady) {

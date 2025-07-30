@@ -23,7 +23,7 @@ const volunteerService = {
 
   async create(data: Partial<Volunteer>, token: string, onAuthError?: () => void): Promise<Volunteer> {
     return apiFetch<Volunteer>({
-      path: '${API_BASE}',
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,
