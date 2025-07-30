@@ -24,13 +24,6 @@ const DEFAULT_LOCATIONS = [
 
 const DEFAULT_REFRESH_INTERVAL = 3000; // 3 seconds
 
-const isTouchDevice = () => {
-  if (typeof window === 'undefined') return false;
-  return (
-    'ontouchstart' in window ||
-    navigator.maxTouchPoints > 0
-  );
-};
 
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId, readOnly = false, refreshInterval }) => {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
@@ -83,11 +76,13 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   const [activeVolunteerId, setActiveVolunteerId] = useState<string | null>(null);
 
   // Always call hooks in the same order and at the top level
-  const pointerSensor = useSensor(PointerSensor);
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8, // Require 8px movement before drag starts
+    },
+  });
   const touchSensor = useSensor(TouchSensor);
-  const pointerSensors = useSensors(pointerSensor);
-  const touchSensors = useSensors(touchSensor);
-  const sensors = isTouchDevice() ? touchSensors : pointerSensors;
+  const sensors = useSensors(pointerSensor, touchSensor);
 
   // Droppable column (only if not readOnly)
   function DroppableColumn({ location, children }: { location: string; children: React.ReactNode }) {
