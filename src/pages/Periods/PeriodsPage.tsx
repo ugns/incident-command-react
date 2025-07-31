@@ -168,7 +168,7 @@ const PeriodsPage: React.FC = () => {
                       <Button size="sm" variant="info" onClick={() => handleView(p)}>View</Button>{' '}
                       <Button size="sm" variant="primary" onClick={() => handleEdit(p)}>Edit</Button>{' '}
                       {superAdminAccess && (
-                        <Button size="sm" variant="danger" onClick={() => handleDelete(p)}>Delete</Button>
+                        <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(p)}>Delete</Button>
                       )}
                     </td>
                   </tr>

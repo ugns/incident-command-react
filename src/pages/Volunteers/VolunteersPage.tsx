@@ -155,7 +155,7 @@ const VolunteersPage: React.FC = () => {
                     </td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" disabled={!(adminAccess || superAdminAccess)} onClick={() => handleEdit(v)}>Edit</Button>{' '}
+                      <Button size="sm" variant="primary" onClick={() => handleEdit(v)}>Edit</Button>{' '}
                       {superAdminAccess && (
                         <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(v)}>Delete</Button>
                       )}

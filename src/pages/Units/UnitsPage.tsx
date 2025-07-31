@@ -129,7 +129,7 @@ const UnitsPage: React.FC = () => {
                     <td>{unit.name || unit.unitId}</td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(unit)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" disabled={!(adminAccess || superAdminAccess)} onClick={() => handleEdit(unit)}>Edit</Button>{' '}
+                      <Button size="sm" variant="primary" onClick={() => handleEdit(unit)}>Edit</Button>{' '}
                       {superAdminAccess && (
                         <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(unit)}>Delete</Button>
                       )}
