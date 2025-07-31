@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useIncident } from '../../context/IncidentContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
 import { Incident } from '../../types/Incident';
 import IncidentForm from './IncidentForm';
 import IncidentViewModal from './IncidentViewModal';
@@ -93,7 +93,19 @@ const IncidentsPage: React.FC = () => {
                 getOptionLabel={o => o.name}
                 getOptionValue={o => o.incidentId}
               />
-              <Button variant="success" onClick={handleAdd} disabled={!superAdminAccess}>Add Incident</Button>
+              <Button variant="success" onClick={handleAdd} disabled={loading}>
+                {loading && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Add Incident
+              </Button>
             </Col>
           </Row>
         </Card.Header>
