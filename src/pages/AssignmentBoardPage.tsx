@@ -2,10 +2,12 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import AssignmentBoard from '../components/AssignmentBoard';
 import { AuthContext } from '../context/AuthContext';
 import { Container, Row, Col, Form } from 'react-bootstrap';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 
 const AssignmentBoardPage: React.FC = () => {
   const { token, user } = useContext(AuthContext);
+  const flags = useFlags();
   const [readOnly, setReadOnly] = useState(true); // Default to dashboard mode
   const [isFullScreen, setIsFullScreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,14 +41,16 @@ const AssignmentBoardPage: React.FC = () => {
         <Row className="align-items-center mb-3">
           <Col><h2 className="mb-0" style={{ color: darkMode ? '#fff' : undefined }}>Assignment Board</h2></Col>
           <Col xs="auto" className="d-flex align-items-center gap-2" style={{ color: darkMode ? '#fff' : undefined }}>
-            <Form.Check
-              type="switch"
-              id="mode-switch"
-              label={readOnly ? 'Dashboard Mode' : 'Dispatch Mode'}
-              checked={!readOnly}
-              onChange={() => setReadOnly(r => !r)}
-              reverse
-            />
+            {flags.dispatchAccess && (
+              <Form.Check
+                type="switch"
+                id="mode-switch"
+                label={readOnly ? 'Dashboard Mode' : 'Dispatch Mode'}
+                checked={!readOnly}
+                onChange={() => setReadOnly(r => !r)}
+                reverse
+              />
+            )}
             <Form.Check
               type="switch"
               id="fullscreen-switch"
