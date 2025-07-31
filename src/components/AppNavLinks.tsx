@@ -2,6 +2,7 @@ import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import type { RouteConfigNav, RouteConfigSeparator } from '../routesConfig';
+import type { FeatureFlags } from '../types/FeatureFlags';
 
 // Type guards
 function isSeparator(link: RouteConfigNav | RouteConfigSeparator): link is RouteConfigSeparator {
@@ -14,8 +15,8 @@ function isNav(link: RouteConfigNav | RouteConfigSeparator): link is RouteConfig
 interface AppNavLinksProps {
   links: (RouteConfigNav | RouteConfigSeparator)[];
   navType: 'main' | 'admin';
-  featureFlags?: Record<string, boolean>;
-  onNav?: () => void;
+  featureFlags?: FeatureFlags;
+  onNav: () => void;
 }
 
 const AppNavLinks: React.FC<AppNavLinksProps> = ({ links, navType, featureFlags = {}, onNav }) => {
@@ -31,7 +32,8 @@ const AppNavLinks: React.FC<AppNavLinksProps> = ({ links, navType, featureFlags 
         .filter(link => {
           if (isSeparator(link)) return true;
           if (isNav(link) && link.show && typeof link.show === 'string') {
-            return !!featureFlags[link.show];
+            // Type-safe check: only allow keys that exist in FeatureFlags
+            return (featureFlags as any)[link.show] === true;
           }
           return true;
         })

@@ -9,10 +9,12 @@ import { routesConfig } from '../routesConfig';
 
 import { GearFill } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
+
 import { AuthContext } from '../context/AuthContext';
+import type { FeatureFlags } from '../types/FeatureFlags';
 
 interface AppNavbarProps {
-  featureFlags?: Record<string, boolean>;
+  featureFlags?: FeatureFlags;
 }
 
 const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
@@ -22,6 +24,17 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
   const { incidents, setSelectedIncident } = useIncident();
   const { periods, setSelectedPeriod } = usePeriod();
   const { units, setSelectedUnit } = useUnit();
+
+  // Debug: Log feature flag values
+  React.useEffect(() => {
+    // Only log if there are any flags
+    if (Object.keys(featureFlags).length > 0) {
+      console.log('[AppNavbar] Feature flags:', featureFlags);
+    } else {
+      console.log('[AppNavbar] No feature flags provided');
+    }
+  }, [featureFlags]);
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>

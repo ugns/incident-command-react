@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
 import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
 import { useFlags } from 'launchdarkly-react-client-sdk';
+import type { FeatureFlags } from './types/FeatureFlags';
 import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
@@ -27,7 +28,7 @@ const AppContent: React.FC = () => {
   const { user } = useContext(AuthContext);
   const flags = useFlags();
   // Build a featureFlags object for all show-based flags
-  const featureFlags = {
+  const featureFlags: FeatureFlags = {
     superAdminAccess: !!flags.superAdminAccess,
     showRadioResources: !!flags.showRadioResources,
     showAgencyResources: !!flags.showAgencyResources,
