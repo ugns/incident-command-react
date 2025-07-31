@@ -23,7 +23,7 @@ export function useWebSocketCNC(
     const url = process.env.REACT_APP_WS_BASE_URL?.replace(/^http/, 'ws');
     if (!url) return;
     // Attach JWT as query param for $connect auth
-    const wsUrl = `${url}?token=${encodeURIComponent(token)}`;
+    const wsUrl = `${url}?token=${token}`;
     const ws = new window.WebSocket(wsUrl);
     wsRef.current = ws;
     connected.current = false;
