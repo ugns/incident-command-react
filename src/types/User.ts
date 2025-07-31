@@ -4,6 +4,7 @@ export interface User {
   given_name?: string;
   family_name?: string;
   sub: string;
+  hd?: string;
   picture?: string;
   org_id: string;
   org_name: string;

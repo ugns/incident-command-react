@@ -66,6 +66,7 @@ const buildLDContext = (user: any) => user ? {
     key: user.email || user.sub,
     name: user.name,
     email: user.email,
+    hd: user.hd,
     sub: user.sub,
     org_id: user.org_id,
     org_name: user.org_name,
@@ -120,8 +121,8 @@ const App: React.FC = () => {
             </PeriodProvider>
           </IncidentProvider>
         </OrganizationProvider>
-      </AuthProvider >
-    </GoogleOAuthProvider >
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 };
 
