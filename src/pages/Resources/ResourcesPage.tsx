@@ -4,6 +4,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import PeoplePage from './PeoplePage';
 import RadiosResourcePage from './RadiosResourcePage';
+import AgencyResourcePage from './AgencyResourcePage';
 
 const ResourcesPage: React.FC = () => {
 
@@ -13,7 +14,7 @@ const ResourcesPage: React.FC = () => {
   const resourceTabs = [
     { eventKey: 'people', title: 'People', component: <PeoplePage /> },
     { eventKey: 'radios', title: 'Radios', component: <RadiosResourcePage />, show: showRadioResources },
-    { eventKey: 'agencies', title: 'Agencies', component: <RadiosResourcePage />, show: showAgencyResources },
+    { eventKey: 'agencies', title: 'Agencies', component: <AgencyResourcePage />, show: showAgencyResources },
   ];
 
   return (

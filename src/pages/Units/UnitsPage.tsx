@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useUnit } from '../../context/UnitContext';
-import { Button, Card, Table, Container, Row, Col, Placeholder, Alert } from 'react-bootstrap';
+import { Button, Card, Table, Container, Row, Col, Placeholder, Alert, Spinner } from 'react-bootstrap';
 import UnitForm from './UnitForm';
 import UnitViewModal from './UnitViewModal';
 import { Unit } from '../../types/Unit';
+import ContextSelect from '../../components/ContextSelect';
+import { useFlags } from 'launchdarkly-react-client-sdk';
+import { AuthContext } from '../../context/AuthContext';
+import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const UnitsPage: React.FC = () => {
-  const { units, loading, error, selectedUnit, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
+  const { token } = useContext(AuthContext);
+  const { adminAccess, superAdminAccess } = useFlags();
+  const { units, loading, error, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
   const [showForm, setShowForm] = useState(false);
   const [editUnit, setEditUnit] = useState<Unit | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewUnit, setViewUnit] = useState<Unit | null>(null);
+  // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
 
   const handleAdd = () => {
     setEditUnit(null);
@@ -51,6 +59,9 @@ const UnitsPage: React.FC = () => {
     }
   };
 
+  if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
+  if (error) return <Alert variant="danger">{error}</Alert>;
+
   // Sort units by name
   const sortedUnits = [...units].sort((a, b) => {
     const aName = a.name ? a.name.toLowerCase() : '';
@@ -67,7 +78,28 @@ const UnitsPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Units</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
-              <Button variant="success" onClick={handleAdd}>Add Unit</Button>
+              <ContextSelect
+                label="Unit"
+                options={units}
+                value={selectedUnit ? selectedUnit.unitId : null}
+                onSelect={id => setSelectedUnit(id ? units.find(u => u.unitId === id) ?? null : null)}
+                loading={loading}
+                getOptionLabel={v => v.name}
+                getOptionValue={v => v.unitId}
+              />
+              <Button variant="success" onClick={handleAdd} disabled={loading}>
+                {loading && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Add Unit
+              </Button>
             </Col>
           </Row>
         </Card.Header>
@@ -97,8 +129,10 @@ const UnitsPage: React.FC = () => {
                     <td>{unit.name || unit.unitId}</td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(unit)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" onClick={() => handleEdit(unit)}>Edit</Button>{' '}
-                      <Button size="sm" variant="danger" onClick={() => handleDelete(unit)}>Delete</Button>
+                      <Button size="sm" variant="primary" disabled={!(adminAccess || superAdminAccess)} onClick={() => handleEdit(unit)}>Edit</Button>{' '}
+                      {superAdminAccess && (
+                        <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(unit)}>Delete</Button>
+                      )}
                     </td>
                   </tr>
                 ))

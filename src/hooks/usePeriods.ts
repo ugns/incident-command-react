@@ -1,6 +1,6 @@
 import { usePeriod } from '../context/PeriodContext';
 
 export function usePeriods() {
-  const { periods, loading, error, refresh } = usePeriod();
-  return { periods, loading, error, refresh };
+  // Expose the full context for CRUD and selection
+  return usePeriod();
 }

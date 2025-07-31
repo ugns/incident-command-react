@@ -5,11 +5,14 @@ import { AuthContext } from './AuthContext';
 
 interface PeriodContextType {
   periods: Period[];
-  refresh: () => Promise<void>;
-  selectedPeriod: Period | null;
-  setSelectedPeriod: (period: Period | null) => void;
   loading: boolean;
   error: string | null;
+  selectedPeriod: Period | null;
+  setSelectedPeriod: (period: Period | null) => void;
+  refresh: () => Promise<void>;
+  addPeriod: (data: Partial<Period>) => Promise<Period | null>;
+  updatePeriod: (id: string, data: Partial<Period>) => Promise<Period | null>;
+  deletePeriod: (id: string) => Promise<void>;
 }
 
 const PeriodContext = createContext<PeriodContextType | undefined>(undefined);
@@ -19,6 +22,7 @@ export const usePeriod = () => {
   if (!ctx) throw new Error('usePeriod must be used within a PeriodProvider');
   return ctx;
 };
+
 
 export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
@@ -54,6 +58,52 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [token, logout]);
 
+  const addPeriod = async (data: Partial<Period>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const newPeriod = await periodService.create(data, token, logout);
+      await refresh();
+      return newPeriod;
+    } catch (err: any) {
+      setError(err.message || 'Failed to add period');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePeriod = async (id: string, data: Partial<Period>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const updated = await periodService.update(id, data, token, logout);
+      await refresh();
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update period');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deletePeriod = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      await periodService.delete(id, token, logout);
+      await refresh();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete period');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Effects
   useEffect(() => {
     refresh();
@@ -74,7 +124,17 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <PeriodContext.Provider value={{ periods, refresh, selectedPeriod, setSelectedPeriod, loading, error }}>
+    <PeriodContext.Provider value={{
+      periods,
+      loading,
+      error,
+      selectedPeriod,
+      setSelectedPeriod,
+      refresh,
+      addPeriod,
+      updatePeriod,
+      deletePeriod,
+    }}>
       {children}
     </PeriodContext.Provider>
   );

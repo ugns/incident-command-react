@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import periodService from '../../services/periodService';
 import { usePeriods } from '../../hooks/usePeriods';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
@@ -14,15 +13,24 @@ import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const PeriodsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
-  const { adminAccess } = useFlags();
-  const { periods, refresh, loading, error } = usePeriods();
+  const { adminAccess, superAdminAccess } = useFlags();
+  const {
+    periods,
+    refresh,
+    loading,
+    error,
+    addPeriod,
+    updatePeriod,
+    deletePeriod,
+    selectedPeriod,
+    setSelectedPeriod,
+  } = usePeriods();
   const [showForm, setShowForm] = useState(false);
   const [editPeriod, setEditPeriod] = useState<Period | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewPeriod, setViewPeriod] = useState<Period | null>(null);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   const { incidents, loading: incidentsLoading } = useIncident();
 
   // fetchPeriods and related state are now handled by usePeriods (context)
@@ -45,8 +53,7 @@ const PeriodsPage: React.FC = () => {
   const handleDelete = async (period: Period) => {
     if (!token || !adminAccess) return;
     try {
-      await periodService.delete(period.periodId, token);
-      await refresh(); // Refresh periods in context after delete
+      await deletePeriod(period.periodId);
     } catch (e: any) {
       // Optionally handle error locally if needed
     }
@@ -58,12 +65,11 @@ const PeriodsPage: React.FC = () => {
     const payload = { ...form, org_id: user.org_id };
     try {
       if (editPeriod) {
-        await periodService.update(editPeriod.periodId, payload, token);
+        await updatePeriod(editPeriod.periodId, payload);
       } else {
-        await periodService.create(payload, token);
+        await addPeriod(payload);
       }
       setShowForm(false);
-      await refresh(); // Refresh periods in context after add/edit
     } catch (e: any) {
       // error is now handled by context
     }
@@ -161,7 +167,7 @@ const PeriodsPage: React.FC = () => {
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(p)}>View</Button>{' '}
                       <Button size="sm" variant="primary" onClick={() => handleEdit(p)}>Edit</Button>{' '}
-                      {adminAccess && (
+                      {superAdminAccess && (
                         <Button size="sm" variant="danger" onClick={() => handleDelete(p)}>Delete</Button>
                       )}
                     </td>

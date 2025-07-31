@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useVolunteers } from '../../context/VolunteerContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
 import { CheckCircleFill } from 'react-bootstrap-icons';
 import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';
@@ -93,7 +93,19 @@ const VolunteersPage: React.FC = () => {
                 getOptionLabel={v => v.name}
                 getOptionValue={v => v.volunteerId}
               />
-              <Button variant="success" onClick={handleAdd}>Add Volunteer</Button>
+              <Button variant="success" onClick={handleAdd} disabled={loading}>
+                {loading && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Add Volunteer
+              </Button>
             </Col>
           </Row>
         </Card.Header>
@@ -144,7 +156,7 @@ const VolunteersPage: React.FC = () => {
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
                       <Button size="sm" variant="primary" disabled={!(adminAccess || superAdminAccess)} onClick={() => handleEdit(v)}>Edit</Button>{' '}
-                      {adminAccess && (
+                      {superAdminAccess && (
                         <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(v)}>Delete</Button>
                       )}
                     </td>
