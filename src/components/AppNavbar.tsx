@@ -47,13 +47,13 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
                 links={routesConfig}
                 navType="main"
                 featureFlags={featureFlags}
-                onNav={() => {}}
+                onNav={() => { }}
               />
               <div className="d-flex align-items-center ms-auto">
                 <Button variant="outline-light" className="me-2" onClick={() => setShowContextModal(true)} title="Select Operating Context">
                   <GearFill />
                 </Button>
-                {(featureFlags?.adminAccess === true || featureFlags?.superAdminAccess === true) && (
+                {(featureFlags?.adminAccess || featureFlags?.superAdminAccess) && (
                   <Button variant="outline-light" className="me-2" onClick={() => setShowCanvas(true)} title="Open Admin Menu">
                     Admin
                   </Button>
