@@ -26,19 +26,16 @@ const IncidentsPage: React.FC = () => {
   };
 
   const handleEdit = (incident: Incident) => {
-    if (!token || !superAdminAccess) return;
     setEditIncident(incident);
     setShowForm(true);
   };
 
   const handleView = (incident: Incident) => {
-    if (!token || !superAdminAccess) return;
     setViewIncident(incident);
     setShowView(true);
   };
 
   const handleDelete = async (incident: Incident) => {
-    if (!token || !superAdminAccess) return;
     try {
       await deleteIncident(incident.incidentId);
     } catch (e: any) {

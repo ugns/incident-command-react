@@ -59,15 +59,13 @@ const PeriodsPage: React.FC = () => {
     }
   };
 
-  const { user } = useContext(AuthContext);
   const handleFormSubmit = async (form: any) => {
-    if (!token || !user) return;
-    const payload = { ...form, org_id: user.org_id };
+    if (!token) return;
     try {
       if (editPeriod) {
-        await updatePeriod(editPeriod.periodId, payload);
+        await updatePeriod(editPeriod.periodId, form);
       } else {
-        await addPeriod(payload);
+        await addPeriod(form);
       }
       setShowForm(false);
     } catch (e: any) {
