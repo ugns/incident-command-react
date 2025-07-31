@@ -57,7 +57,7 @@ const AssignmentBoardPage: React.FC = () => {
             />
           </Col>
         </Row>
-        <AssignmentBoard token={token} orgId={user?.org_id} readOnly={readOnly} />
+        <AssignmentBoard orgId={user?.org_id} readOnly={readOnly} />
       </Container>
     </div>
   );

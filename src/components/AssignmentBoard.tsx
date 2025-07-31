@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Row, Spinner } from 'react-bootstrap';
 import { Volunteer, VolunteerStatus } from '../types/Volunteer';
@@ -9,7 +8,6 @@ import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core
 import { useVolunteers } from '../context/VolunteerContext';
 
 interface AssignmentBoardProps {
-  token: string;
   unitId?: string; // For future filtering by Unit
   orgId?: string; // For future filtering by Org
   readOnly?: boolean;
@@ -25,7 +23,7 @@ const DEFAULT_LOCATIONS = [
 ];
 
 
-const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId, readOnly = false, refreshInterval }) => {
+const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOnly = false }) => {
 
   const { volunteers, loading, error, refresh, updateVolunteer } = useVolunteers();
   // Filtering for orgId/unitId and checked-in status
