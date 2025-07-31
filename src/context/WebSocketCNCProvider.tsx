@@ -16,7 +16,8 @@ const WebSocketCNCProvider: React.FC = () => {
   const { refresh: refreshIncidents } = useIncident();
 
   useWebSocketCNC(token, (msg) => {
-    switch (msg.type) {
+    switch (msg.type || msg.action) {
+      case 'assignmentsUpdated':
       case 'volunteersUpdated':
         refreshVolunteers();
         break;
@@ -28,10 +29,6 @@ const WebSocketCNCProvider: React.FC = () => {
         break;
       case 'incidentsUpdated':
         refreshIncidents();
-        break;
-      case 'assignmentsUpdated':
-        // AssignmentBoard uses volunteers context, so refresh volunteers
-        refreshVolunteers();
         break;
       default:
         // eslint-disable-next-line no-console
