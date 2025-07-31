@@ -40,7 +40,7 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
                 <Button variant="outline-light" className="me-2" onClick={() => setShowContextModal(true)} title="Select Operating Context">
                   <GearFill />
                 </Button>
-                {(featureFlags.adminAccess || featureFlags.superAdminAccess) && (
+                {(featureFlags?.adminAccess === true || featureFlags?.superAdminAccess === true) && (
                   <Button variant="outline-light" className="me-2" onClick={() => setShowCanvas(true)} title="Open Admin Menu">
                     Admin
                   </Button>
