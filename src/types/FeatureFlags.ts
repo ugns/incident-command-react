@@ -3,6 +3,7 @@
 export interface FeatureFlags {
   superAdminAccess?: boolean;
   adminAccess?: boolean;
+  dispatchAccess?: boolean;
   showRadioResources?: boolean;
   showAgencyResources?: boolean;
   showAssignmentBoard?: boolean;

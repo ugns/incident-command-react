@@ -29,6 +29,7 @@ const AppContent: React.FC = () => {
   const flags = useFlags();
   // Build a featureFlags object for all show-based flags
   const featureFlags: FeatureFlags = {
+    adminAccess: !!flags.adminAccess,
     superAdminAccess: !!flags.superAdminAccess,
     showRadioResources: !!flags.showRadioResources,
     showAgencyResources: !!flags.showAgencyResources,
