@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import { Row, Spinner } from 'react-bootstrap';
 import { Volunteer, VolunteerStatus } from '../types/Volunteer';
-import volunteerService from '../services/volunteerService';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import VolunteerCard from './VolunteerCard';
 import LocationColumn from './LocationColumn';
 import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
+import { useVolunteers } from '../context/VolunteerContext';
 
 interface AssignmentBoardProps {
   token: string;
   unitId?: string; // For future filtering by Unit
   orgId?: string; // For future filtering by Org
   readOnly?: boolean;
-  refreshInterval?: number; // ms
   // Add more filter props as needed
 }
 
@@ -26,36 +26,17 @@ const DEFAULT_LOCATIONS = [
 
 
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId, readOnly = false, refreshInterval }) => {
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch volunteers (with future filtering)
-  const fetchVolunteers = () => {
-    setLoading(true);
-    volunteerService.list(token)
-      .then(data => {
-        let filtered = data;
-        if (orgId) filtered = filtered.filter(v => v.org_id === orgId);
-        if (unitId) filtered = filtered.filter(v => (v as any).unitId === unitId); // Adjust when Unit model is added
-        filtered = filtered.filter(v => v.status === VolunteerStatus.CheckedIn);
-        setVolunteers(filtered);
-        setLoading(false);
-      })
-      .catch(e => {
-        setError('Failed to load volunteers');
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    fetchVolunteers();
-    // eslint-disable-next-line
-  }, [token, orgId, unitId]);
+  const { volunteers, loading, error, refresh, updateVolunteer } = useVolunteers();
+  // Filtering for orgId/unitId and checked-in status
+  const filteredVolunteers = volunteers
+    .filter(v => (!orgId || v.org_id === orgId))
+    .filter(v => (!unitId || (v as any).unitId === unitId))
+    .filter(v => v.status === VolunteerStatus.CheckedIn);
 
   // Group volunteers by currentLocation
   const grouped: { [location: string]: Volunteer[] } = {};
-  for (const v of volunteers) {
+  for (const v of filteredVolunteers) {
     const loc = v.currentLocation || 'Unassigned';
     if (!grouped[loc]) grouped[loc] = [];
     grouped[loc].push(v);
@@ -99,22 +80,18 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
   const handleDragEnd = async (event: any) => {
     if (readOnly) return;
     const { active, over } = event;
-    console.log('[AssignmentBoard] handleDragEnd event:', event);
     if (!over || !active) return;
     const volunteerId = active.id;
     const newLocation = over.id;
-    const volunteer = volunteers.find(v => v.volunteerId === volunteerId);
+    const volunteer = filteredVolunteers.find(v => v.volunteerId === volunteerId);
     if (!volunteer || volunteer.currentLocation === newLocation) return;
     const updatedVolunteer = { ...volunteer, currentLocation: newLocation };
-    setVolunteers(prev => prev.map(v => v.volunteerId === volunteerId ? updatedVolunteer : v));
     try {
-      await volunteerService.update(volunteerId, updatedVolunteer, token);
-      console.log('[AssignmentBoard] Updated volunteer location:', volunteerId, newLocation);
-      // After successful update, refresh volunteers from API to sync all clients
-      fetchVolunteers();
+      await updateVolunteer(volunteerId, updatedVolunteer);
+      await refresh(); // Ensure sync after update
     } catch (e) {
-      console.error('[AssignmentBoard] Error updating volunteer:', e);
       // Optionally handle error, revert UI if needed
+      console.error('[AssignmentBoard] Error updating volunteer:', e);
     }
   };
 
@@ -146,14 +123,14 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
             {vols.length === 0 ? (
               <div className="text-muted">No volunteers</div>
             ) : (
-              vols.map(v => (
-                <VolunteerCard
-                  key={v.volunteerId}
-                  volunteer={v}
-                  activeVolunteerId={activeVolunteerId}
-                  setActiveVolunteerId={setActiveVolunteerId}
-                />
-              ))
+            vols.map(v => (
+              <VolunteerCard
+                key={v.volunteerId}
+                volunteer={v}
+                activeVolunteerId={activeVolunteerId}
+                setActiveVolunteerId={setActiveVolunteerId}
+              />
+            ))
             )}
           </LocationColumn>
         ))}
@@ -161,7 +138,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ token, unitId, orgId,
       <DragOverlay zIndex={2000}>
         {activeVolunteerId ? (
           (() => {
-            const v = volunteers.find(vol => vol.volunteerId === activeVolunteerId);
+            const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
             if (!v) return null;
             return (
               <VolunteerCard volunteer={v} readOnly />
