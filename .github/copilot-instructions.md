@@ -39,15 +39,32 @@
 - **Debugging:** Use React DevTools and browser console; context and service logic are separated for easy tracing
 
 ## Conventions & Tips
-- **Never hardcode routes or navigation:** Always use `routesConfig.tsx` and `AppNavLinks`
-- **Always use context for state:** Do not use local state for org/period/volunteer data
-- **API calls:** Use the appropriate service in `src/services/`, never call `apiFetch` directly from components
-- **Access control:** Enforced in UI via context and LaunchDarkly; backend should also enforce
-- **Keep models in sync:** Update `src/types/` and `docs/PROJECT_UML.md` together
-- **Add new features:** Scaffold context, service, and page; update UML and navigation config
+## Common Patterns: Context Providers
+
+### 1. CRUD Contexts (Organization, Volunteer, Location, etc.)
+- Expose: list, loading, error, refresh, add<Model>, update<Model>, delete<Model>
+- No selected<Model> state or localStorage logic.
+- `refresh` loads all items and is called on mount and after CRUD.
+- Service methods: `list`, `get`, `create`, `update`, `delete` (no org/period IDs unless required by API).
+
+### 2. Selectable Contexts (Incident, Period, Unit, etc.)
+- Expose: list, loading, error, refresh, add<Model>, update<Model>, delete<Model>, selected<Model>, setSelected<Model>
+- Maintain `selected<Model>` in state and localStorage.
+- On load/refresh, validate `selected<Model>` against the list; clear if not found.
+- Use a private `fetch<Model>s` for initial load/validation, and a public `refresh` for consumer reloads.
+- Service methods: `list`, `get`, `create`, `update`, `delete` (may require org/period IDs).
+
+### 3. General Notes
+- Always use context for shared state, never local state for org/period/volunteer/etc.
+- Use `useCallback` for refresh and CRUD methods to avoid unnecessary re-renders.
+- Use `useEffect(() => { refresh(); }, [refresh])` for initial data load.
+- Handle auth errors in `refresh` and CRUD methods (call `logout` if needed).
+- Keep context/provider APIs consistent for maintainability.
+
+See existing context files for reference implementations.
 
 ## Integration Points
-- **Backend API:** See OpenAPI spec at https://icapi.undergrid.services/openapi.json
+- **Backend API:** See OpenAPI spec at https://api.undergrid.services/openapi.json
 - **Feature Flags:** LaunchDarkly (see context and navbar usage)
 
 ## Reference Files
