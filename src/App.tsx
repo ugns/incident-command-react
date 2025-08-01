@@ -14,7 +14,6 @@ import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
-import { useOrganizations } from './context/OrganizationContext';
 import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
 import type { FeatureFlags } from './types/FeatureFlags';
 
@@ -29,7 +28,6 @@ function isNav(link: RouteConfigNav | RouteConfigSeparator): link is RouteConfig
 const AppContent: React.FC = () => {
   const { user } = useContext(AuthContext);
   const flags = useFlags();
-  const { organizations } = useOrganizations();
   // Build a featureFlags object for all show-based flags
   const featureFlags: FeatureFlags = {
     adminAccess: !!flags.adminAccess,
