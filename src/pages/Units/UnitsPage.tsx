@@ -11,7 +11,7 @@ import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const UnitsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
-  const { adminAccess, superAdminAccess } = useFlags();
+  const { superAdminAccess } = useFlags();
   const { units, loading, error, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
   const [showForm, setShowForm] = useState(false);
   const [editUnit, setEditUnit] = useState<Unit | null>(null);

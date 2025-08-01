@@ -20,7 +20,7 @@ export function useWebSocketCNC(
 
   const {
     sendJsonMessage,
-    lastMessage,
+    // lastMessage,
     readyState,
   } = useWebSocket(wsUrl, {
     onOpen: () => {
@@ -37,7 +37,15 @@ export function useWebSocketCNC(
     },
     shouldReconnect: () => true, // auto-reconnect on close
     retryOnError: true,
-    // You can add more options as needed
+    reconnectInterval: (attemptNumber) => {
+      return Math.min(Math.pow(2, attemptNumber) * 1000, 10000);
+    },
+    // heartbeat: {
+    //   message: 'ping',
+    //   returnMessage: 'pong',
+    //   interval: 30000, // 30 seconds
+    //   timeout: 10000, // 10 seconds
+    // },
   },
   // Only connect if token is present
   Boolean(wsUrl));

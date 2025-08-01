@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Modal, FloatingLabel, InputGroup } from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
 import { isoToLocal, toISO } from '../../utils/dateFormat';
 import ContextSelect from '../../components/ContextSelect';
+import DescriptorField from '../../components/fields/DescriptorField';
+import TimePeriodField from '../../components/fields/TimePeriodField';
 import { Incident } from '../../types/Incident';
-
+import { Unit } from '../../types/Unit';
 
 interface PeriodFormProps {
   show: boolean;
@@ -12,13 +13,19 @@ interface PeriodFormProps {
   onSubmit: (data: any) => void;
   initial?: any;
   incidents: Incident[];
+  units: Unit[];
   incidentsLoading?: boolean;
+  unitsLoading?: boolean;
 }
 
 
-const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial, incidents, incidentsLoading }) => {
+const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial, incidents, incidentsLoading, units, unitsLoading }) => {
   const [form, setForm] = useState({
     incidentId: initial?.incidentId || '',
+    unitId: initial?.unitId || '',
+    name: initial?.name || '',
+    icsPosition: initial?.icsPosition || '',
+    homeAgency: initial?.homeAgency || '',
     startTime: initial?.startTime || '',
     endTime: initial?.endTime || '',
     description: initial?.description || '',
@@ -29,6 +36,10 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
     if (show) {
       setForm({
         incidentId: initial?.incidentId || '',
+        unitId: initial?.unitId || '',
+        name: initial?.name || '',
+        icsPosition: initial?.icsPosition || '',
+        homeAgency: initial?.homeAgency || '',
         startTime: initial?.startTime ? isoToLocal(initial.startTime) : '',
         endTime: initial?.endTime ? isoToLocal(initial.endTime) : '',
         description: initial?.description || '',
@@ -45,6 +56,9 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
     setForm(f => ({ ...f, incidentId: id || '' }));
   };
 
+  const handleUnitSelect = (id: string | null) => {
+    setForm(f => ({ ...f, unitId: id || '' }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,12 +87,26 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
             getOptionLabel={i => i.name}
             getOptionValue={i => i.incidentId}
           />
-          <Form.Group className="mb-3">
-            <FloatingLabel controlId='description' label='Description'>
-              <Form.Control name="description" value={form.description} onChange={handleChange} required />
-            </FloatingLabel>
-          </Form.Group>
-          <InputGroup className="mb-3">
+          <ContextSelect
+            label='Unit'
+            options={units}
+            value={form.unitId || null}
+            onSelect={handleUnitSelect}
+            loading={unitsLoading}
+            getOptionLabel={u => u.name}
+            getOptionValue={u => u.unitId}
+          />
+          <DescriptorField
+            name={form.name}
+            description={form.description}
+            onChange={handleChange}
+          />
+          <TimePeriodField
+            startTime={form.startTime}
+            endTime={form.endTime}
+            onChange={handleChange}
+          />
+          {/* <InputGroup className="mb-3">
             <FloatingLabel controlId='startTime' label='Start Time'>
               <Form.Control name="startTime" type="datetime-local" value={form.startTime} onChange={handleChange} />
               <Form.Text className="text-muted">Defaults to now</Form.Text>
@@ -87,7 +115,7 @@ const PeriodForm: React.FC<PeriodFormProps> = ({ show, onHide, onSubmit, initial
               <Form.Control name="endTime" type="datetime-local" value={form.endTime} onChange={handleChange} />
               <Form.Text className="text-muted">Can be entered later</Form.Text>
             </FloatingLabel>
-          </InputGroup>
+          </InputGroup> */}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>Cancel</Button>

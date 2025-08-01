@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { usePeriods } from '../../hooks/usePeriods';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
@@ -10,13 +9,14 @@ import { useIncident } from '../../context/IncidentContext';
 import PeriodForm from './PeriodForm';
 import PeriodViewModal from './PeriodViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import { useUnit } from '../../context/UnitContext';
+import { usePeriod } from '../../context/PeriodContext';
 
 const PeriodsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
   const { adminAccess, superAdminAccess } = useFlags();
   const {
     periods,
-    refresh,
     loading,
     error,
     addPeriod,
@@ -24,7 +24,7 @@ const PeriodsPage: React.FC = () => {
     deletePeriod,
     selectedPeriod,
     setSelectedPeriod,
-  } = usePeriods();
+  } = usePeriod();
   const [showForm, setShowForm] = useState(false);
   const [editPeriod, setEditPeriod] = useState<Period | null>(null);
   const [showView, setShowView] = useState(false);
@@ -32,8 +32,7 @@ const PeriodsPage: React.FC = () => {
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const { incidents, loading: incidentsLoading } = useIncident();
-
-  // fetchPeriods and related state are now handled by usePeriods (context)
+  const { units, loading: unitsLoading } = useUnit();
 
   const handleAdd = () => {
     setEditPeriod(null);
@@ -183,11 +182,15 @@ const PeriodsPage: React.FC = () => {
         initial={editPeriod}
         incidents={incidents}
         incidentsLoading={incidentsLoading}
+        units={units}
+        unitsLoading={unitsLoading}
       />
       <PeriodViewModal
         show={showView}
         onHide={() => setShowView(false)}
         period={viewPeriod}
+        incidents={incidents}
+        units={units}
       />
     </Container>
   );

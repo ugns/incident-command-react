@@ -11,8 +11,17 @@ import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
 const IncidentsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
-  const { adminAccess, superAdminAccess } = useFlags();
-  const { incidents, loading, error, selectedIncident, setSelectedIncident, addIncident, updateIncident, deleteIncident } = useIncident();
+  const { superAdminAccess } = useFlags();
+  const { 
+    incidents, 
+    loading, 
+    error, 
+    selectedIncident, 
+    setSelectedIncident, 
+    addIncident, 
+    updateIncident, 
+    deleteIncident 
+  } = useIncident();
   const [showForm, setShowForm] = useState(false);
   const [editIncident, setEditIncident] = useState<Incident | null>(null);
   const [showView, setShowView] = useState(false);

@@ -6,6 +6,7 @@ import CallsignField from '../../components/fields/CallsignField';
 import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
 import FullNameField from '../../components/fields/FullNameField';
+import IcsInfoFields from '../../components/fields/IcsInfoField';
 
 interface VolunteerViewModalProps {
   show: boolean;
@@ -48,6 +49,12 @@ const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, v
         )}
         <LocationField
           currentLocation={volunteer?.currentLocation || ''}
+          onChange={() => { }}
+          readOnly={true}
+        />
+        <IcsInfoFields
+          icsPosition={volunteer?.icsPosition || ''}
+          homeAgency={volunteer?.homeAgency || ''}
           onChange={() => { }}
           readOnly={true}
         />

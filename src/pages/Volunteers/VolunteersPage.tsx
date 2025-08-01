@@ -4,7 +4,7 @@ import { useVolunteers } from '../../context/VolunteerContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
-import { CheckCircleFill } from 'react-bootstrap-icons';
+import { BoxArrowInRight, BoxArrowRight } from 'react-bootstrap-icons';
 import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';
 import VolunteerViewModal from './VolunteerViewModal';
@@ -144,14 +144,14 @@ const VolunteersPage: React.FC = () => {
                     <td>
                       {v.status === VolunteerStatus.CheckedIn && (
                         <span title="Checked In" style={{ marginRight: 6 }}>
-                          <CheckCircleFill color="green" size={18} />
+                          <BoxArrowInRight color="green" size={18} />
                         </span>
                       )}
-                      {/* {v.radio && v.radioStatus === RadioStatus.Assigned && (
-                        <span title={`Radio: ${v.radio}`} style={{ marginRight: 6 }}>
-                          <Broadcast color="#007bff" size={18} />
+                      {v.status === VolunteerStatus.CheckedOut && (
+                        <span title="Checked Out" style={{ marginRight: 6 }}>
+                          <BoxArrowRight color="red" size={18} />
                         </span>
-                      )} */}
+                      )}
                     </td>
                     <td>
                       <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}

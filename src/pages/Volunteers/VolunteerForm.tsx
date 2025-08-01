@@ -5,6 +5,7 @@ import ContactInfoField from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
 import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
+import IcsInfoFields from '../../components/fields/IcsInfoField';
 
 interface VolunteerFormProps {
   show: boolean;
@@ -80,6 +81,11 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
           <ContactInfoField
             email={form.email}
             cellphone={form.cellphone}
+            onChange={handleChange}
+          />
+          <IcsInfoFields
+            icsPosition={form.icsPosition}
+            homeAgency={form.homeAgency}
             onChange={handleChange}
           />
           <LocationField
