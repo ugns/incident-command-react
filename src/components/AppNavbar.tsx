@@ -38,7 +38,13 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <Navbar.Brand as={Link} to="/">EventCoord</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">
+          <img
+            src={require('../logo.png')}
+            alt="EventCoord Logo"
+            style={{ height: 40, width: 'auto', objectFit: 'contain', marginRight: 8 }}
+          />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           {user && (

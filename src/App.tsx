@@ -12,11 +12,13 @@ import AppNavbar from './components/AppNavbar';
 import WebSocketCNCProvider from './context/WebSocketCNCProvider';
 import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
-import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import type { FeatureFlags } from './types/FeatureFlags';
 import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
+import { useOrganizations } from './context/OrganizationContext';
+import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
+import type { FeatureFlags } from './types/FeatureFlags';
 
+// Environment
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 // Type guard for nav routes (not separators)
@@ -27,6 +29,7 @@ function isNav(link: RouteConfigNav | RouteConfigSeparator): link is RouteConfig
 const AppContent: React.FC = () => {
   const { user } = useContext(AuthContext);
   const flags = useFlags();
+  const { organizations } = useOrganizations();
   // Build a featureFlags object for all show-based flags
   const featureFlags: FeatureFlags = {
     adminAccess: !!flags.adminAccess,
@@ -35,6 +38,13 @@ const AppContent: React.FC = () => {
     showAgencyResources: !!flags.showAgencyResources,
     showAssignmentBoard: !!flags.showAssignmentBoard,
   };
+
+  React.useEffect(() => {
+    const orgName = user?.org_name || '';
+    document.title = orgName
+      ? `Event Coordination for ${orgName}`
+      : 'Event Coordination';
+  }, [user]);
 
   return (
     <>
