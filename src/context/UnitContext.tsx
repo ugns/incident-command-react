@@ -19,7 +19,7 @@ const UnitContext = createContext<UnitContextType | undefined>(undefined);
 
 export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
 
   // State
   const [units, setUnits] = useState<Unit[]>([]);
@@ -51,27 +51,20 @@ export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
-  // Effects
-  useEffect(() => {
-    fetchUnits();
-  }, [fetchUnits]);
-
-  useEffect(() => {
-    // Only persist if selectedUnit is in units
-    if (selectedUnit && units.some(u => u.unitId === selectedUnit.unitId)) {
-      localStorage.setItem('selectedUnit', JSON.stringify(selectedUnit));
-    } else {
-      localStorage.removeItem('selectedUnit');
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const data = await unitService.list(token, logout);
+      setUnits(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch units');
+    } finally {
+      setLoading(false);
     }
-  }, [selectedUnit, units]);
+  }, [token, logout]);
 
-  // Provider
-  const setSelectedUnit = (unit: Unit | null) => {
-    setSelectedUnitState(unit);
-  };
-
-
-  // CRUD functions
   const addUnit = async (data: Partial<Unit>) => {
     setLoading(true);
     setError(null);
@@ -118,6 +111,25 @@ export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Effects
+  useEffect(() => {
+    fetchUnits();
+  }, [fetchUnits]);
+
+  useEffect(() => {
+    // Only persist if selectedUnit is in units
+    if (selectedUnit && units.some(u => u.unitId === selectedUnit.unitId)) {
+      localStorage.setItem('selectedUnit', JSON.stringify(selectedUnit));
+    } else {
+      localStorage.removeItem('selectedUnit');
+    }
+  }, [selectedUnit, units]);
+
+  // Provider
+  const setSelectedUnit = (unit: Unit | null) => {
+    setSelectedUnitState(unit);
+  };
+
   return (
     <UnitContext.Provider value={{
       units,
@@ -125,7 +137,7 @@ export const UnitProvider: React.FC<{ children: React.ReactNode }> = ({ children
       error,
       selectedUnit,
       setSelectedUnit,
-      refresh: fetchUnits,
+      refresh,
       addUnit,
       updateUnit,
       deleteUnit

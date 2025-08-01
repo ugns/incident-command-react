@@ -13,7 +13,7 @@ interface IncidentContextType {
   addIncident: (data: Partial<Incident>) => Promise<Incident | null>;
   updateIncident: (id: string, data: Partial<Incident>) => Promise<Incident | null>;
   deleteIncident: (id: string) => Promise<void>;
-}   
+}
 
 const IncidentContext = createContext<IncidentContextType | undefined>(undefined);
 
@@ -51,7 +51,7 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [token]);
 
-    const refresh = React.useCallback(async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {

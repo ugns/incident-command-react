@@ -23,7 +23,7 @@ const unitService = {
 
   async create(data: Partial<Unit>, token: string, onAuthError?: () => void): Promise<Unit> {
     return apiFetch<Unit>({
-      path: `${API_BASE}`,
+      path: API_BASE,
       method: 'POST',
       body: data,
       token,

@@ -15,12 +15,6 @@ interface VolunteerContextType {
 
 const VolunteerContext = createContext<VolunteerContextType | undefined>(undefined);
 
-export const useVolunteers = () => {
-  const ctx = useContext(VolunteerContext);
-  if (!ctx) throw new Error('useVolunteers must be used within a VolunteerProvider');
-  return ctx;
-};
-
 export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
   const { token, logout } = useContext(AuthContext);
@@ -98,8 +92,22 @@ export const VolunteerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Provider
   return (
-    <VolunteerContext.Provider value={{ volunteers, loading, error, refresh, addVolunteer, updateVolunteer, deleteVolunteer }}>
+    <VolunteerContext.Provider value={{ 
+      volunteers, 
+      loading, 
+      error, 
+      refresh, 
+      addVolunteer, 
+      updateVolunteer, 
+      deleteVolunteer 
+   }}>
       {children}
     </VolunteerContext.Provider>
   );
+};
+
+export const useVolunteers = () => {
+  const ctx = useContext(VolunteerContext);
+  if (!ctx) throw new Error('useVolunteers must be used within a VolunteerProvider');
+  return ctx;
 };

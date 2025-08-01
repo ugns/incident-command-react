@@ -28,11 +28,11 @@ const radioService = {
       onAuthError
     });
   },
-  async update(id: string, radio: Partial<Radio>, token: string, onAuthError?: () => void): Promise<Radio> {
+  async update(id: string, data: Partial<Radio>, token: string, onAuthError?: () => void): Promise<Radio> {
     return apiFetch({ 
       path: `${API_BASE}/${id}`, 
       method: 'PUT', 
-      body: radio, 
+      body: data, 
       token,
       onAuthError
     });

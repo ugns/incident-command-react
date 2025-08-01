@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Organization } from '../types/Organization';
 import organizationService from '../services/organizationService';
 import { AuthContext } from './AuthContext';
@@ -15,12 +15,6 @@ interface OrganizationContextType {
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
 
-export const useOrganizations = () => {
-  const ctx = useContext(OrganizationContext);
-  if (!ctx) throw new Error('useOrganizations must be used within a OrganizationProvider');
-  return ctx;
-};
-
 export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
   const { token, logout } = useContext(AuthContext);
@@ -31,7 +25,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [error, setError] = useState<string | null>(null);
 
   // Callbacks
-  const refresh = React.useCallback(async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -98,8 +92,22 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Provider
   return (
-    <OrganizationContext.Provider value={{ organizations, loading, error, refresh, addOrganization, updateOrganization, deleteOrganization }}>
+    <OrganizationContext.Provider value={{ 
+      organizations, 
+      loading, 
+      error, 
+      refresh, 
+      addOrganization, 
+      updateOrganization, 
+      deleteOrganization 
+    }}>
       {children}
     </OrganizationContext.Provider>
   );
+};
+
+export const useOrganizations = () => {
+  const ctx = useContext(OrganizationContext);
+  if (!ctx) throw new Error('useOrganizations must be used within a OrganizationProvider');
+  return ctx;
 };

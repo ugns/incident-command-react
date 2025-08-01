@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { Period } from '../types/Period';
 import periodService from '../services/periodService';
 import { AuthContext } from './AuthContext';
@@ -17,13 +17,6 @@ interface PeriodContextType {
 
 const PeriodContext = createContext<PeriodContextType | undefined>(undefined);
 
-export const usePeriod = () => {
-  const ctx = useContext(PeriodContext);
-  if (!ctx) throw new Error('usePeriod must be used within a PeriodProvider');
-  return ctx;
-};
-
-
 export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
   const { token, logout } = useContext(AuthContext);
@@ -38,12 +31,12 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [error, setError] = useState<string | null>(null);
 
   // Callbacks
-  const refresh = React.useCallback(async () => {
+  const fetchPeriods = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
     setError(null);
     try {
-      if (!token) throw new Error('No auth token');
-      const data = await periodService.list(token, logout);
+      const data = await periodService.list(token);
       setPeriods(data);
       // Validate selectedPeriod after fetching
       setSelectedPeriodState(prev => {
@@ -53,6 +46,20 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
     } catch (e: any) {
       setError(e.message || 'Failed to fetch periods');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!token) throw new Error('No auth token');
+      const data = await periodService.list(token, logout);
+      setPeriods(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch periods');
     } finally {
       setLoading(false);
     }
@@ -106,8 +113,8 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Effects
   useEffect(() => {
-    refresh();
-  }, [refresh, logout]);
+    fetchPeriods();
+  }, [fetchPeriods]);
 
   useEffect(() => {
     // Only persist if selectedPeriod is in periods
@@ -139,3 +146,9 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     </PeriodContext.Provider>
   );
 };
+
+export const usePeriod = () => {
+  const ctx = useContext(PeriodContext);
+  if (!ctx) throw new Error('usePeriod must be used within a PeriodProvider');
+  return ctx;
+}
