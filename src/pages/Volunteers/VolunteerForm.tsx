@@ -3,9 +3,9 @@ import { Form, Button, Modal } from 'react-bootstrap';
 import FullNameField from '../../components/fields/FullNameField';
 import ContactInfoField from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
-import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
 import IcsInfoFields from '../../components/fields/IcsInfoField';
+import CurrentLocationField from '../../components/fields/CurrentLocationField';
 
 interface VolunteerFormProps {
   show: boolean;
@@ -88,7 +88,7 @@ const VolunteerForm: React.FC<VolunteerFormProps> = ({ show, onHide, onSubmit, i
             homeAgency={form.homeAgency}
             onChange={handleChange}
           />
-          <LocationField
+          <CurrentLocationField
             currentLocation={form.currentLocation}
             onChange={handleChange}
           />

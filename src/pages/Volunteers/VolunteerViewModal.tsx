@@ -3,10 +3,10 @@ import { Modal, Button } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import ContactInfoFields from '../../components/fields/ContactInfoField';
 import CallsignField from '../../components/fields/CallsignField';
-import LocationField from '../../components/fields/LocationField';
 import NoteField from '../../components/fields/NoteField';
 import FullNameField from '../../components/fields/FullNameField';
 import IcsInfoFields from '../../components/fields/IcsInfoField';
+import CurrentLocationField from '../../components/fields/CurrentLocationField';
 
 interface VolunteerViewModalProps {
   show: boolean;
@@ -47,7 +47,7 @@ const VolunteerViewModal: React.FC<VolunteerViewModalProps> = ({ show, onHide, v
             />
           </>
         )}
-        <LocationField
+        <CurrentLocationField
           currentLocation={volunteer?.currentLocation || ''}
           onChange={() => { }}
           readOnly={true}

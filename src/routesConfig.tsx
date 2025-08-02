@@ -9,6 +9,7 @@ import IncidentsPage from './pages/Incidents/IncidentsPage';
 import UnitsPage from './pages/Units/UnitsPage';
 import PeriodsPage from './pages/Periods/PeriodsPage';
 import VolunteersPage from './pages/Volunteers/VolunteersPage';
+import LocationsPage from './pages/Locations/LocationsPage';
 import RadiosPage from './pages/Radios/RadiosPage';
 import AgenciesPage from './pages/Agencies/AgenciesPage';
 import ActivityLogPage from './pages/ActivityLogPage';
@@ -40,8 +41,9 @@ export const routesConfig: RouteConfig[] = [
   { separator: true, group: 'Resources' },
   { key: 'organizations', element: <OrganizationsPage />, label: 'Manage Organizations', admin: true, show: 'superAdminAccess' },
   { key: 'incidents', element: <IncidentsPage />, label: 'Manage Incidents', admin: true },
-  { key: 'units', element: <UnitsPage />, label: 'Manage Units', admin: true },
+  { key: 'units', element: <UnitsPage />, label: 'Manage Units/Teams', admin: true },
   { key: 'periods', element: <PeriodsPage />, label: 'Manage Operating Periods', admin: true },
+  { key: 'locations', element: <LocationsPage />, label: 'Manage Locations/Positions', admin: true },
   { key: 'volunteers', element: <VolunteersPage />, label: 'Manage Volunteers', admin: true },
   { separator: true, group: 'Assets & Agencies' },
   { key: 'radios', element: <RadiosPage />, label: 'Manage Radios', admin: true, show: 'showRadioResources' },

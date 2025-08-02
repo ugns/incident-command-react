@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FloatingLabel } from 'react-bootstrap';
+import { Form, FloatingLabel, InputGroup } from 'react-bootstrap';
 import NameField from './NameField';
 
 interface FullNameFieldProps {
@@ -23,8 +23,8 @@ const FullNameField: React.FC<FullNameFieldProps> = ({
       onChange={onChange}
       readOnly={readOnly}
     />
-    <div className="row">
-      <div className="col-md-6 mb-3">
+    <Form.Group className="mb-3">
+      <InputGroup className="mb-3">
         <FloatingLabel controlId='givenName' label='First Name'>
           <Form.Control
             name="givenName"
@@ -35,8 +35,6 @@ const FullNameField: React.FC<FullNameFieldProps> = ({
             readOnly={readOnly}
           />
         </FloatingLabel>
-      </div>
-      <div className="col-md-6 mb-3">
         <FloatingLabel controlId='familyName' label='Last Name'>
           <Form.Control
             name="familyName"
@@ -47,8 +45,8 @@ const FullNameField: React.FC<FullNameFieldProps> = ({
             readOnly={readOnly}
           />
         </FloatingLabel>
-      </div>
-    </div>
+      </InputGroup>
+    </Form.Group>
   </>
 );
 

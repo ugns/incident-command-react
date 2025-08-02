@@ -8,6 +8,7 @@ import { UnitProvider } from './context/UnitContext';
 import { PeriodProvider } from './context/PeriodContext';
 import { VolunteerProvider } from './context/VolunteerContext';
 import { RadioProvider } from './context/RadioContext';
+import { LocationProvider } from './context/LocationContext';
 import AppNavbar from './components/AppNavbar';
 import WebSocketCNCProvider from './context/WebSocketCNCProvider';
 import LoginPage from './pages/LoginPage';
@@ -116,15 +117,17 @@ const App: React.FC = () => {
               <UnitProvider>
                 <VolunteerProvider>
                   <RadioProvider>
-                    <LDProvider
-                      clientSideID={clientSideID}
-                      context={ldContext}
-                    >
-                      <LDContextUpdater />
-                      {/* WebSocket CNC connection for real-time updates */}
-                      <WebSocketCNCProvider />
-                      <AppContent />
-                    </LDProvider>
+                    <LocationProvider>
+                      <LDProvider
+                        clientSideID={clientSideID}
+                        context={ldContext}
+                      >
+                        <LDContextUpdater />
+                        {/* WebSocket CNC connection for real-time updates */}
+                        <WebSocketCNCProvider />
+                        <AppContent />
+                      </LDProvider>
+                    </LocationProvider>
                   </RadioProvider>
                 </VolunteerProvider>
               </UnitProvider>

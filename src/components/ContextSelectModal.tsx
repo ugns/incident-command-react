@@ -17,9 +17,10 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   const { units, loading: loadingUnits } = useUnit();
 
 
-  const [incidentId, setIncidentId] = useState<string | null>(null);
+  const [incidentId, setIncidentIdState] = useState<string | null>(null);
   const [periodId, setPeriodId] = useState<string | null>(null);
   const [unitId, setUnitId] = useState<string | null>(null);
+  const [incidentChangedByUser, setIncidentChangedByUser] = useState(false);
 
   // When modal is opened, pre-populate with selected context
   // Get selected context from context providers
@@ -48,22 +49,23 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
 
   useEffect(() => {
     if (show && contextReady) {
-      setIncidentId(selectedIncident ? selectedIncident.incidentId : null);
+      setIncidentIdState(selectedIncident ? selectedIncident.incidentId : null);
       setPeriodId(selectedPeriod ? selectedPeriod.periodId : null);
       setUnitId(selectedUnit ? selectedUnit.unitId : null);
+      setIncidentChangedByUser(false);
     }
     // Only run when modal is shown and context is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, contextReady]);
 
-  // Reset lower selections when upper changes
+  // Reset lower selections only if Incident was changed by user
   useEffect(() => {
-    setPeriodId(null);
-    setUnitId(null);
-  }, [incidentId]);
-  useEffect(() => {
-    setUnitId(null);
-  }, [periodId]);
+    if (incidentChangedByUser) {
+      setPeriodId(null);
+      setUnitId(null);
+    }
+  }, [incidentId, incidentChangedByUser]);
+
 
 
   // Filter periods by incident
@@ -80,7 +82,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   };
 
   const handleReset = () => {
-    setIncidentId(null);
+    setIncidentIdState(null);
     setPeriodId(null);
     setUnitId(null);
     onSelect(null, null, null);
@@ -110,20 +112,13 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
           label="Incident"
           options={incidents}
           value={incidentId}
-          onSelect={setIncidentId}
+          onSelect={id => {
+            setIncidentIdState(id);
+            setIncidentChangedByUser(true);
+          }}
           loading={loadingIncidents}
           getOptionLabel={i => i.name || i.incidentId}
           getOptionValue={i => i.incidentId}
-        />
-        <ContextSelect
-          label="Period"
-          options={filteredPeriods}
-          value={periodId}
-          onSelect={setPeriodId}
-          loading={loadingPeriods}
-          disabled={!incidentId}
-          getOptionLabel={p => p.description || p.periodId}
-          getOptionValue={p => p.periodId}
         />
         <ContextSelect
           label="Unit"
@@ -131,9 +126,19 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
           value={unitId}
           onSelect={setUnitId}
           loading={loadingUnits}
-          disabled={!periodId}
+          disabled={!incidentId}
           getOptionLabel={u => u.description || u.name || u.unitId}
           getOptionValue={u => u.unitId}
+        />
+        <ContextSelect
+          label="Period"
+          options={filteredPeriods}
+          value={periodId}
+          onSelect={setPeriodId}
+          loading={loadingPeriods}
+          disabled={!unitId}
+          getOptionLabel={p => p.description || p.periodId}
+          getOptionValue={p => p.periodId}
         />
       </Modal.Body>
       <Modal.Footer>

@@ -1,53 +1,55 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { useVolunteers } from '../../context/VolunteerContext';
+import { useLocation } from '../../context/LocationContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
-import { BoxArrowInRight, BoxArrowRight } from 'react-bootstrap-icons';
-import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
-import VolunteerForm from './VolunteerForm';
-import VolunteerViewModal from './VolunteerViewModal';
+import { ArchiveFill, CheckCircleFill, DashCircleFill } from 'react-bootstrap-icons';
+import { Location, LocationStatus } from '../../types/Location';
+import LocationForm from './LocationForm';
+import LocationViewModal from './LocationViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import { useUnit } from '../../context/UnitContext';
 
-const VolunteersPage: React.FC = () => {
+const LocationsPage: React.FC = () => {
   const { token } = useContext(AuthContext);
   const { adminAccess, superAdminAccess } = useFlags();
   const { 
-    volunteers, 
+    locations, 
     loading, 
     error, 
-    addVolunteer, 
-    updateVolunteer, 
-    deleteVolunteer 
-  } = useVolunteers();
+    addLocation, 
+    updateLocation, 
+    deleteLocation 
+  } = useLocation();
   const [showForm, setShowForm] = useState(false);
-  const [editVolunteer, setEditVolunteer] = useState<Volunteer | null>(null);
+  const [editLocation, setEditLocation] = useState<Location | null>(null);
   const [showView, setShowView] = useState(false);
-  const [viewVolunteer, setViewVolunteer] = useState<Volunteer | null>(null);
+  const [viewLocation, setViewLocation] = useState<Location | null>(null);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const { units, loading: unitsLoading } = useUnit();
 
   const handleAdd = () => {
-    setEditVolunteer(null);
+    setEditLocation(null);
     setShowForm(true);
   };
 
-  const handleEdit = (vol: Volunteer) => {
-    setEditVolunteer(vol);
+  const handleEdit = (loc: Location) => {
+    setEditLocation(loc);
     setShowForm(true);
   };
 
-  const handleView = (vol: Volunteer) => {
-    setViewVolunteer(vol);
+  const handleView = (loc: Location) => {
+    setViewLocation(loc);
     setShowView(true);
   };
 
-  const handleDelete = async (vol: Volunteer) => {
+  const handleDelete = async (loc: Location) => {
     if (!token || !adminAccess) return;
     try {
-      await deleteVolunteer(vol.volunteerId);
+      await deleteLocation(loc.locationId);
     } catch (e: any) {
       // Optionally handle error locally if needed
     }
@@ -56,10 +58,10 @@ const VolunteersPage: React.FC = () => {
   const handleFormSubmit = async (form: any) => {
     if (!token) return;
     try {
-      if (editVolunteer) {
-        await updateVolunteer(editVolunteer.volunteerId, form);
+      if (editLocation) {
+        await updateLocation(editLocation.locationId, form);
       } else {
-        await addVolunteer(form);
+        await addLocation(form);
       }
       setShowForm(false);
     } catch (e: any) {
@@ -70,11 +72,11 @@ const VolunteersPage: React.FC = () => {
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
-  // Filter and sort volunteers before rendering
-  const filteredVolunteers = volunteers
-    .filter(v => {
-      if (!selectedVolunteer) return true;
-      return v.volunteerId === selectedVolunteer.volunteerId;
+  // Filter and sort locations before rendering
+  const filteredLocations = (locations || [])
+    .filter(l => {
+      if (!selectedLocation) return true;
+      return l.locationId === selectedLocation.locationId;
     })
     .sort((a, b) => {
       const aName = a.name ? a.name.toLowerCase() : '';
@@ -89,16 +91,16 @@ const VolunteersPage: React.FC = () => {
       <Card>
         <Card.Header>
           <Row className="align-items-center">
-            <Col><strong>Volunteers</strong></Col>
+            <Col><strong>Locations</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
               <ContextSelect
-                label="Volunteer"
-                options={volunteers}
-                value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
-                onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
+                label="Location"
+                options={locations}
+                value={selectedLocation ? selectedLocation.locationId : null}
+                onSelect={id => setSelectedLocation(id ? locations.find(l => l.locationId === id) ?? null : null)}
                 loading={loading}
-                getOptionLabel={v => v.name}
-                getOptionValue={v => v.volunteerId}
+                getOptionLabel={l => l.name}
+                getOptionValue={l => l.locationId}
               />
               <Button variant="success" onClick={handleAdd} disabled={loading}>
                 {loading && (
@@ -111,7 +113,7 @@ const VolunteersPage: React.FC = () => {
                     className="me-2"
                   />
                 )}
-                Add Volunteer
+                Add Location
               </Button>
             </Col>
           </Row>
@@ -123,7 +125,7 @@ const VolunteersPage: React.FC = () => {
                 <th style={{ cursor: 'pointer' }} onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
                   Name {sortOrder === 'asc' ? '▲' : '▼'}
                 </th>
-                <th>Callsign</th>
+                <th>Description</th>
                 <th>Location</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -140,31 +142,39 @@ const VolunteersPage: React.FC = () => {
                     <td><Placeholder animation="glow"><Placeholder xs={7} /></Placeholder></td>
                   </tr>
                 ))
-              ) : filteredVolunteers.length === 0 ? (
-                <tr><td colSpan={5} className="text-center">No volunteers found.</td></tr>
+              ) : filteredLocations.length === 0 ? (
+                <tr><td colSpan={5} className="text-center">No locations found.</td></tr>
               ) : (
-                filteredVolunteers.map(v => (
-                  <tr key={v.volunteerId}>
-                    <td>{v.name}</td>
-                    <td>{v.callsign}</td>
-                    <td>{v.currentLocation}</td>
+                filteredLocations.map(l => (
+                  <tr key={l.locationId}>
+                    <td>{l.name}</td>
+                    <td>{l.description}</td>
                     <td>
-                      {v.status === VolunteerStatus.CheckedIn && (
-                        <span title="Checked In" style={{ marginRight: 6 }}>
-                          <BoxArrowInRight color="green" size={18} />
+                      {l.address ? l.address :
+                        (l.latitude && l.longitude ? `${l.latitude}, ${l.longitude}` : '')}
+                    </td>
+                    <td>
+                      {l.status === LocationStatus.Active && (
+                        <span title="Active" style={{ marginRight: 6 }}>
+                          <CheckCircleFill color="green" size={18} />
                         </span>
                       )}
-                      {v.status === VolunteerStatus.CheckedOut && (
-                        <span title="Checked Out" style={{ marginRight: 6 }}>
-                          <BoxArrowRight color="red" size={18} />
+                      {l.status === LocationStatus.Inactive && (
+                        <span title="Inactive" style={{ marginRight: 6 }}>
+                          <DashCircleFill color="red" size={18} />
+                        </span>
+                      )}
+                      {l.status === LocationStatus.Archived && (
+                        <span title="Archived" style={{ marginRight: 6 }}>
+                          <ArchiveFill color="black" size={18} />
                         </span>
                       )}
                     </td>
                     <td>
-                      <Button size="sm" variant="info" onClick={() => handleView(v)}>View</Button>{' '}
-                      <Button size="sm" variant="primary" onClick={() => handleEdit(v)}>Edit</Button>{' '}
+                      <Button size="sm" variant="info" onClick={() => handleView(l)}>View</Button>{' '}
+                      <Button size="sm" variant="primary" onClick={() => handleEdit(l)}>Edit</Button>{' '}
                       {superAdminAccess && (
-                        <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(v)}>Delete</Button>
+                        <Button size="sm" variant="danger" disabled={!superAdminAccess} onClick={() => handleDelete(l)}>Delete</Button>
                       )}
                     </td>
                   </tr>
@@ -174,19 +184,22 @@ const VolunteersPage: React.FC = () => {
           </Table>
         </Card.Body>
       </Card>
-      <VolunteerForm
+      <LocationForm
         show={showForm}
         onHide={() => setShowForm(false)}
         onSubmit={handleFormSubmit}
-        initial={editVolunteer}
+        initial={editLocation}
+        units={units}
+        unitsLoading={unitsLoading}  // Assuming unitsLoading is passed as a prop
       />
-      <VolunteerViewModal
+      <LocationViewModal
         show={showView}
         onHide={() => setShowView(false)}
-        volunteer={viewVolunteer}
+        location={viewLocation}
+        units={units} 
       />
     </Container>
   );
 }
 
-export default VolunteersPage;
+export default LocationsPage;
