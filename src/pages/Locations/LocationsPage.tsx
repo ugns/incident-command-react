@@ -30,7 +30,7 @@ const LocationsPage: React.FC = () => {
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const { units, loading: unitsLoading } = useUnit();
+  const { units, loading: unitsLoading, selectedUnit, setSelectedUnit } = useUnit();
   const { selectedIncident } = useIncident();
 
   const handleAdd = () => {
@@ -77,8 +77,11 @@ const LocationsPage: React.FC = () => {
   // Filter and sort locations before rendering
   const filteredLocations = (locations || [])
     .filter(l => {
-      if (!selectedLocation) return true;
-      return l.locationId === selectedLocation.locationId;
+      // Filter by selected unit if set
+      if (selectedUnit && l.unitId !== selectedUnit.unitId) return false;
+      // Then filter by selected location if set
+      if (selectedLocation && l.locationId !== selectedLocation.locationId) return false;
+      return true;
     })
     .sort((a, b) => {
       const aName = a.name ? a.name.toLowerCase() : '';
@@ -95,6 +98,15 @@ const LocationsPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Locations</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
+              <ContextSelect
+                label="Unit"
+                options={units}
+                value={selectedUnit ? selectedUnit.unitId : null}
+                onSelect={id => setSelectedUnit(id ? units.find(u => u.unitId === id) ?? null : null)}
+                loading={unitsLoading}
+                getOptionLabel={u => u.name}
+                getOptionValue={u => u.unitId}
+              />
               <ContextSelect
                 label="Location"
                 options={locations}

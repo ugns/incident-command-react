@@ -32,7 +32,7 @@ const PeriodsPage: React.FC = () => {
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const { incidents, loading: incidentsLoading } = useIncident();
-  const { units, loading: unitsLoading } = useUnit();
+  const { units, loading: unitsLoading, selectedUnit, setSelectedUnit } = useUnit();
 
   const handleAdd = () => {
     setEditPeriod(null);
@@ -111,8 +111,11 @@ const PeriodsPage: React.FC = () => {
   // Filter and sort periods before rendering
   const filteredPeriods = periods
     .filter(p => {
-      if (!selectedPeriod) return true;
-      return p.periodId === selectedPeriod.periodId;
+      // Filter by selected unit if set
+      if (selectedUnit && p.unitId !== selectedUnit.unitId) return false;
+      // Then filter by selected period if set
+      if (selectedPeriod && p.periodId !== selectedPeriod.periodId) return false;
+      return true;
     })
     .sort((a, b) => {
       const aTime = new Date(a.startTime).getTime();
@@ -127,6 +130,15 @@ const PeriodsPage: React.FC = () => {
           <Row className="align-items-center">
             <Col><strong>Time Periods</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
+              <ContextSelect
+                label="Unit"
+                options={units}
+                value={selectedUnit ? selectedUnit.unitId : null}
+                onSelect={id => setSelectedUnit(id ? units.find(u => u.unitId === id) ?? null : null)}
+                loading={unitsLoading}
+                getOptionLabel={u => u.name}
+                getOptionValue={u => u.unitId}
+              />
               <ContextSelect
                 label="Period"
                 options={periods}
