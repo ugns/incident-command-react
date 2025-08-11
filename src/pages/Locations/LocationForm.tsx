@@ -4,6 +4,7 @@ import DescriptorField from '../../components/fields/DescriptorField';
 import LocationField from '../../components/fields/LocationField';
 import ContextSelect from '../../components/ContextSelect';
 import { Unit } from '../../types/Unit';
+import FormField from '../../components/fields/FormField';
 
 interface LocationFormProps {
   show: boolean;
@@ -17,6 +18,7 @@ interface LocationFormProps {
 const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, initial, units, unitsLoading }) => {
   const [form, setForm] = useState({
     name: initial?.name || '',
+    label: initial?.label || '',
     description: initial?.description || '',
     latitude: initial?.latitude || '',
     longitude: initial?.longitude || '',
@@ -29,6 +31,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, ini
     if (show) {
       setForm({
         name: initial?.name || '',
+        label: initial?.label || '',
         description: initial?.description || '',
         latitude: initial?.latitude || '',
         longitude: initial?.longitude || '',
@@ -72,6 +75,11 @@ const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, ini
           <DescriptorField
             name={form.name}
             description={form.description}
+            onChange={handleChange}
+          />
+          <FormField
+            name="label"
+            value={form.label}
             onChange={handleChange}
           />
           <LocationField

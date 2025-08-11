@@ -27,11 +27,14 @@ const LocationField: React.FC<LocationFieldProps> = ({
   const hasCoords = !isNaN(latNum) && !isNaN(lngNum);
 
   const handlePick = (lat: number, lng: number) => {
+    // Round to 5 decimal places and convert to string
+    const roundedLat = lat.toFixed(5);
+    const roundedLng = lng.toFixed(5);
     // Batch update both fields in a single synthetic event if possible
     const batchEvent = {
       target: {
         name: 'latitude-longitude',
-        value: { latitude: lat.toString(), longitude: lng.toString() }
+        value: { latitude: roundedLat, longitude: roundedLng }
       }
     } as unknown as React.ChangeEvent<HTMLInputElement>;
     if (typeof onChange === 'function' && onChange.length === 1) {
@@ -39,8 +42,8 @@ const LocationField: React.FC<LocationFieldProps> = ({
       onChange(batchEvent);
     } else {
       // Fallback: update latitude then longitude
-      const latEvent = { target: { name: 'latitude', value: lat.toString() } } as React.ChangeEvent<HTMLInputElement>;
-      const lngEvent = { target: { name: 'longitude', value: lng.toString() } } as React.ChangeEvent<HTMLInputElement>;
+      const latEvent = { target: { name: 'latitude', value: roundedLat } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      const lngEvent = { target: { name: 'longitude', value: roundedLng } } as unknown as React.ChangeEvent<HTMLInputElement>;
       setTimeout(() => onChange(latEvent), 0);
       setTimeout(() => onChange(lngEvent), 0);
     }
@@ -84,7 +87,7 @@ const LocationField: React.FC<LocationFieldProps> = ({
           {!readOnly && (
             <button
               type="button"
-              className="btn btn-outline-secondary ms-2"
+              className="btn btn-outline-secondary"
               style={{ whiteSpace: 'nowrap' }}
               onClick={() => setShowPicker(true)}
             >

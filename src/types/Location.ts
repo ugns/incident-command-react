@@ -11,6 +11,7 @@ export interface Location {
   locationId: string;
   org_id: string;
   name: string;
+  label?: string; // Optional short label for map markers
   description?: string;
   latitude?: number;
   longitude?: number;

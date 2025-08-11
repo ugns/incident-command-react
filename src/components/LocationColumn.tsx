@@ -7,15 +7,35 @@ interface LocationColumnProps {
   children: React.ReactNode;
   readOnly?: boolean;
   color?: string;
+  markerLabel?: string;
 }
 
-const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, readOnly, color }) => {
+const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, readOnly, color, markerLabel }) => {
   const { setNodeRef, isOver } = useDroppable({ id: location });
+  const markerStyle: React.CSSProperties = {
+    display: 'inline-block',
+    minWidth: 28,
+    height: 28,
+    background: color || '#888',
+    color: 'white',
+    borderRadius: 6,
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: '28px',
+    marginRight: 6,
+    boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+    padding: '0 8px',
+    letterSpacing: 1,
+  };
   if (readOnly) {
     return (
       <Col md={3} sm={6} xs={12}>
         <Card>
-          <Card.Header style={{ background: color || '#1976d2', color: 'white' }}>{location}</Card.Header>
+          <Card.Header className="bg-primary text-white">
+            {markerLabel && <span style={markerStyle}>{markerLabel}</span>}
+            <span>{location}</span>
+          </Card.Header>
           <Card.Body>{children}</Card.Body>
         </Card>
       </Col>
@@ -34,7 +54,10 @@ const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, rea
       }}
     >
       <Card>
-        <Card.Header style={{ background: color || '#1976d2', color: 'white' }}>{location}</Card.Header>
+        <Card.Header className="bg-primary text-white">
+          {markerLabel && <span style={markerStyle}>{markerLabel}</span>}
+          <span>{location}</span>
+        </Card.Header>
         <Card.Body>{children}</Card.Body>
       </Card>
     </Col>

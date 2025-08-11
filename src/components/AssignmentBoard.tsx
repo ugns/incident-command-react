@@ -62,9 +62,17 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
 
   // Helper to create a colored SVG marker icon
   function markerSvg(color: string, label: string) {
-    // SVG with colored circle and location initial
-    const initial = label ? label[0].toUpperCase() : '';
-    return `data:image/svg+xml;utf8,<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='16' cy='16' r='12' fill='${encodeURIComponent(color)}' stroke='black' stroke-width='2'/><text x='16' y='21' text-anchor='middle' font-size='16' font-family='Arial' fill='white' font-weight='bold'>${initial}</text></svg>`;
+    const initial = label ? label.toUpperCase() : '';
+    const len = initial.length;
+    let width = 32, height = 28, rectX = 0, rectY = 0, rectRx = 6, fontSize = 16, textX = 16, textY = 16;
+    if (len === 2) {
+      width = 40; textX = 20;
+    } else if (len === 3) {
+      width = 48; textX = 24;
+    }
+    // Use a rounded rectangle for all cases
+    const shape = `<rect x='${rectX}' y='${rectY}' width='${width}' height='${height}' rx='${rectRx}' fill='${encodeURIComponent(color)}' stroke='black' stroke-width='2'/>`;
+    return `data:image/svg+xml;utf8,<svg width='${width}' height='${height}' viewBox='0 0 ${width} ${height}' fill='none' xmlns='http://www.w3.org/2000/svg'>${shape}<text x='${textX}' y='21' text-anchor='middle' font-size='${fontSize}' font-family='Arial' fill='white' font-weight='bold'>${initial}</text></svg>`;
   }
   // Always include 'Unassigned' as the first column
   if (!locationNames.includes('Unassigned')) {
@@ -175,13 +183,21 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
             {filteredLocations.map((loc, idx) => {
               const parsed = parseLatLng(loc);
               const color = locationColorMap[loc.name] || COLOR_PALETTE[idx % COLOR_PALETTE.length];
+              const markerLabel =
+                loc.label && loc.label.trim()
+                  ? loc.label.trim()
+                  : loc.name
+                      .split(/\s+/)
+                      .map(w => w[0])
+                      .join('')
+                      .slice(0, 2);
               return parsed ? (
                 <Marker
                   key={loc.locationId}
                   position={parsed}
                   title={loc.name}
                   icon={{
-                    url: markerSvg(color, loc.name),
+                    url: markerSvg(color, markerLabel),
                     scaledSize: typeof window !== 'undefined' && window.google && window.google.maps
                       ? new window.google.maps.Size(32, 32)
                       : undefined
@@ -200,26 +216,44 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
             {(readOnly
               ? locationNames.filter(location => grouped[location].length > 0)
               : locationNames
-            ).map((location, idx) => (
-              <LocationColumn
-                key={location}
-                location={location}
-                color={locationColorMap[location]}
-              >
-                {grouped[location].length === 0 ? (
-                  <div className="text-muted">No volunteers</div>
-                ) : (
-                  grouped[location].map(v => (
-                    <VolunteerCard
-                      key={v.volunteerId}
-                      volunteer={v}
-                      activeVolunteerId={activeVolunteerId}
-                      setActiveVolunteerId={setActiveVolunteerId}
-                    />
-                  ))
-                )}
-              </LocationColumn>
-            ))}
+            ).map((location, idx) => {
+              // Compute markerLabel as for the map marker
+              let markerLabel = location;
+              // Try to find the matching location object for label
+              const locObj = filteredLocations.find(l => l.name === location);
+              if (locObj) {
+                markerLabel = locObj.label && locObj.label.trim()
+                  ? locObj.label.trim()
+                  : locObj.name
+                      .split(/\s+/)
+                      .map(w => w[0])
+                      .join('')
+                      .slice(0, 2);
+              } else if (location === 'Unassigned') {
+                markerLabel = 'U';
+              }
+              return (
+                <LocationColumn
+                  key={location}
+                  location={location}
+                  color={locationColorMap[location]}
+                  markerLabel={markerLabel}
+                >
+                  {grouped[location].length === 0 ? (
+                    <div className="text-muted">No volunteers</div>
+                  ) : (
+                    grouped[location].map(v => (
+                      <VolunteerCard
+                        key={v.volunteerId}
+                        volunteer={v}
+                        activeVolunteerId={activeVolunteerId}
+                        setActiveVolunteerId={setActiveVolunteerId}
+                      />
+                    ))
+                  )}
+                </LocationColumn>
+              );
+            })}
           </Row>
         </div>
         <DragOverlay zIndex={2000}>
