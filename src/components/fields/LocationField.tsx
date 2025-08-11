@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Form, FloatingLabel, InputGroup } from 'react-bootstrap';
-
 import LocationPickerModal from './LocationPickerModal';
 
 interface LocationFieldProps {
@@ -9,6 +8,8 @@ interface LocationFieldProps {
   address: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
+  incidentLat?: number;
+  incidentLng?: number;
 }
 
 
@@ -18,6 +19,8 @@ const LocationField: React.FC<LocationFieldProps> = ({
   address,
   onChange,
   readOnly = false,
+  incidentLat,
+  incidentLng,
 }) => {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -102,6 +105,8 @@ const LocationField: React.FC<LocationFieldProps> = ({
         onPick={handlePick}
         initialLat={hasCoords ? latNum : undefined}
         initialLng={hasCoords ? lngNum : undefined}
+        incidentLat={incidentLat}
+        incidentLng={incidentLng}
       />
     </>
   );

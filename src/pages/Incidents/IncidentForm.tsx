@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import NoteField from '../../components/fields/NoteField';
 import DescriptorField from '../../components/fields/DescriptorField';
+import LocationField from '../../components/fields/LocationField';
 
 interface IncidentFormProps {
   show: boolean;
@@ -15,6 +16,9 @@ const IncidentForm: React.FC<IncidentFormProps> = ({ show, onHide, onSubmit, ini
     name: initial?.name || '',
     description: initial?.description || '',
     notes: initial?.notes || '',
+    latitude: initial?.latitude || '',
+    longitude: initial?.longitude || '',
+    address: initial?.address || '',
   });
 
   React.useEffect(() => {
@@ -23,12 +27,24 @@ const IncidentForm: React.FC<IncidentFormProps> = ({ show, onHide, onSubmit, ini
         name: initial?.name || '',
         description: initial?.description || '',
         notes: initial?.notes || '',
+        latitude: initial?.latitude || '',
+        longitude: initial?.longitude || '',
+        address: initial?.address || '',
       });
     }
   }, [initial, show]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
+    // Support batched lat/lng event from map picker
+    if (e.target.name === 'latitude-longitude' && e.target.value) {
+      setForm(f => ({
+        ...f,
+        latitude: e.target.value.latitude,
+        longitude: e.target.value.longitude,
+      }));
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,6 +63,14 @@ const IncidentForm: React.FC<IncidentFormProps> = ({ show, onHide, onSubmit, ini
             name={form.name}
             description={form.description}
             onChange={handleChange}
+          />
+          <LocationField
+            latitude={form.latitude}
+            longitude={form.longitude}
+            address={form.address}
+            onChange={handleChange}
+            incidentLat={form.latitude !== '' ? Number(form.latitude) : undefined}
+            incidentLng={form.longitude !== '' ? Number(form.longitude) : undefined}
           />
           <NoteField
             notes={form.notes}

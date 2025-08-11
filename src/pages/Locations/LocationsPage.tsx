@@ -7,6 +7,7 @@ import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner }
 import { ArchiveFill, CheckCircleFill, DashCircleFill } from 'react-bootstrap-icons';
 import { Location, LocationStatus } from '../../types/Location';
 import LocationForm from './LocationForm';
+import { useIncident } from '../../context/IncidentContext';
 import LocationViewModal from './LocationViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import { useUnit } from '../../context/UnitContext';
@@ -30,6 +31,7 @@ const LocationsPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const { units, loading: unitsLoading } = useUnit();
+  const { selectedIncident } = useIncident();
 
   const handleAdd = () => {
     setEditLocation(null);
@@ -190,7 +192,9 @@ const LocationsPage: React.FC = () => {
         onSubmit={handleFormSubmit}
         initial={editLocation}
         units={units}
-        unitsLoading={unitsLoading}  // Assuming unitsLoading is passed as a prop
+        unitsLoading={unitsLoading}
+        incidentLat={selectedIncident?.latitude}
+        incidentLng={selectedIncident?.longitude}
       />
       <LocationViewModal
         show={showView}

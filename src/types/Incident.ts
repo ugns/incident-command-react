@@ -4,5 +4,8 @@ export interface Incident {
   name: string;
   description?: string;
   notes?: string;
+  latitude?: number;
+  longitude?: number;
+  address?: string;
   // ...other fields as needed
 }

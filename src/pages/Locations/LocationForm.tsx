@@ -13,9 +13,11 @@ interface LocationFormProps {
   initial?: any;
   units: Unit[];
   unitsLoading?: boolean;
+  incidentLat?: number;
+  incidentLng?: number;
 }
 
-const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, initial, units, unitsLoading }) => {
+const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, initial, units, unitsLoading, incidentLat, incidentLng }) => {
   const [form, setForm] = useState({
     name: initial?.name || '',
     label: initial?.label || '',
@@ -87,6 +89,8 @@ const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, ini
             longitude={form.longitude}
             address={form.address}
             onChange={handleChange}
+            incidentLat={incidentLat}
+            incidentLng={incidentLng}
           />
           <ContextSelect
             label='Unit'

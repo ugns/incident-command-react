@@ -64,7 +64,7 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
   function markerSvg(color: string, label: string) {
     const initial = label ? label.toUpperCase() : '';
     const len = initial.length;
-    let width = 32, height = 28, rectX = 0, rectY = 0, rectRx = 6, fontSize = 16, textX = 16, textY = 16;
+    let width = 32, height = 28, rectX = 0, rectY = 0, rectRx = 6, fontSize = 16, textX = 16;
     if (len === 2) {
       width = 40; textX = 20;
     } else if (len === 3) {

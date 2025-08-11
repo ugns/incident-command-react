@@ -8,12 +8,17 @@ interface LocationPickerModalProps {
   onPick: (lat: number, lng: number) => void;
   initialLat?: number;
   initialLng?: number;
+  incidentLat?: number;
+  incidentLng?: number;
 }
 
 const mapContainerStyle = { width: '100%', height: '300px' };
-const defaultCenter = { lat: 28.5383, lng: -81.3792 }; // Orlando, FL
 
-const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ show, onHide, onPick, initialLat, initialLng }) => {
+// Default fallback center (Orlando, FL)
+const defaultCenter = { lat: 28.5383, lng: -81.3792 };
+
+
+const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ show, onHide, onPick, initialLat, initialLng, incidentLat, incidentLng }) => {
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
     initialLat != null && initialLng != null
       ? { lat: Number(initialLat), lng: Number(initialLng) }
@@ -43,6 +48,14 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ show, onHide,
     }
   };
 
+  // Determine the map center: marker > incident location > default
+  let mapCenter = defaultCenter;
+  if (marker) {
+    mapCenter = marker;
+  } else if (incidentLat != null && incidentLng != null) {
+    mapCenter = { lat: Number(incidentLat), lng: Number(incidentLng) };
+  }
+
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
@@ -51,8 +64,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ show, onHide,
       <Modal.Body>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          center={marker || defaultCenter}
-          zoom={marker ? 16 : 4}
+          center={mapCenter}
+          zoom={marker ? 18 : (incidentLat && incidentLng) ?  15 : 10}
           mapTypeId="hybrid"
           onClick={handleMapClick}
         >
