@@ -3,10 +3,12 @@ import AssignmentBoard from '../components/AssignmentBoard';
 import { AuthContext } from '../context/AuthContext';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { useFlags } from 'launchdarkly-react-client-sdk';
+import { useUnit } from '../context/UnitContext';
 
 
 const AssignmentBoardPage: React.FC = () => {
   const { token, user } = useContext(AuthContext);
+  const { selectedUnit } = useUnit();
   const flags = useFlags();
   const [readOnly, setReadOnly] = useState(true); // Default to dashboard mode
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -61,7 +63,7 @@ const AssignmentBoardPage: React.FC = () => {
             />
           </Col>
         </Row>
-        <AssignmentBoard orgId={user?.org_id} readOnly={readOnly} />
+        <AssignmentBoard orgId={user?.org_id} unitId={selectedUnit?.unitId} readOnly={readOnly} />
       </Container>
     </div>
   );

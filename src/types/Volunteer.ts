@@ -8,6 +8,7 @@ export enum VolunteerStatus {
 export interface Volunteer {
   volunteerId: string;
   org_id: string;
+  unitId?: string; // Optional unit ID for the volunteer
   name: string;
   familyName?: string;
   givenName?: string;

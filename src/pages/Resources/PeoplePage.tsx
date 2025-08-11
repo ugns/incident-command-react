@@ -6,6 +6,7 @@ import activityLogService from '../../services/activityLogService';
 import { Button, ListGroup, ListGroupItem, Alert, Card, Form, Row, Col } from 'react-bootstrap';
 import { usePeriod } from '../../context/PeriodContext';
 import { useVolunteers } from '../../context/VolunteerContext';
+import { useUnit } from '../../context/UnitContext';
 import { AuthContext } from '../../context/AuthContext';
 import AppToast from '../../components/AppToast';
 import { ALERT_NO_CONTEXT_SELECTED, ALERT_NO_VOLUNTEERS_CHECKED_IN } from '../../constants/messages';
@@ -18,6 +19,7 @@ const PeoplePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { volunteers, loading: volunteersLoading, updateVolunteer, refresh } = useVolunteers();
   const { selectedPeriod } = usePeriod();
+  const { selectedUnit, units } = useUnit();
   const { user } = useContext(AuthContext);
 
   const token = localStorage.getItem('token') || '';
@@ -34,7 +36,11 @@ const PeoplePage: React.FC = () => {
     setLoading(true);
     setMessage(null);
     try {
-      await updateVolunteer(selectedVolunteer.volunteerId, { ...selectedVolunteer, status: VolunteerStatus.CheckedIn });
+      await updateVolunteer(selectedVolunteer.volunteerId, {
+        ...selectedVolunteer,
+        unitId: selectedUnit?.unitId,
+        status: VolunteerStatus.CheckedIn
+      });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,
@@ -66,6 +72,7 @@ const PeoplePage: React.FC = () => {
       await updateVolunteer(
         selectedVolunteer.volunteerId, {
         ...selectedVolunteer,
+        unitId: '',
         status: VolunteerStatus.CheckedOut,
         currentLocation: ''
       });
@@ -92,6 +99,20 @@ const PeoplePage: React.FC = () => {
     }
   };
 
+  // Find the unit the volunteer is checked in with, if any
+  const checkedInOtherUnit = selectedVolunteer &&
+    selectedVolunteer.status === VolunteerStatus.CheckedIn &&
+    selectedVolunteer.unitId &&
+    selectedVolunteer.unitId !== selectedUnit?.unitId;
+  const checkedInUnitName = checkedInOtherUnit
+    ? (units.find(u => u.unitId === selectedVolunteer.unitId)?.name || selectedVolunteer.unitId)
+    : null;
+  const isCheckedInHere = selectedVolunteer &&
+    selectedVolunteer.status === VolunteerStatus.CheckedIn &&
+    selectedVolunteer.unitId === selectedUnit?.unitId;
+  const canCheckIn = selectedVolunteer && (!isCheckedInHere) && !checkedInOtherUnit;
+  const canCheckOut = selectedVolunteer && isCheckedInHere;
+
   return (
     <>
       <Row className="justify-content-center mt-4">
@@ -117,18 +138,25 @@ const PeoplePage: React.FC = () => {
                     </div>
                   </div>
                 </Form.Group>
+                {checkedInOtherUnit && (
+                  <div className="mb-2">
+                    <Alert variant="warning" className="p-2 mb-0">
+                      {selectedVolunteer.name} is already checked in with unit: <strong>{checkedInUnitName}</strong>.
+                    </Alert>
+                  </div>
+                )}
                 <div className="d-flex gap-2 mb-3">
                   <Button
                     variant="success"
                     onClick={handleCheckIn}
-                    disabled={!selectedVolunteer || loading || volunteersLoading || isCheckedIn}
+                    disabled={!canCheckIn || loading || volunteersLoading}
                   >
                     Check-In
                   </Button>
                   <Button
                     variant="danger"
                     onClick={handleCheckOut}
-                    disabled={!selectedVolunteer || loading || volunteersLoading || !isCheckedIn}
+                    disabled={!canCheckOut || loading || volunteersLoading}
                   >
                     Check-Out
                   </Button>
@@ -146,7 +174,11 @@ const PeoplePage: React.FC = () => {
       </Row>
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
-          <CheckedInVolunteers volunteers={volunteers} />
+          <CheckedInVolunteers
+            volunteers={volunteers}
+            selectedUnit={selectedUnit}
+            onSelect={setSelectedVolunteer}
+          />
         </Col>
       </Row>
     </>
@@ -155,8 +187,15 @@ const PeoplePage: React.FC = () => {
 
 export default PeoplePage;
 
-const CheckedInVolunteers: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
-  const checkedIn = volunteers.filter(v => v.status === VolunteerStatus.CheckedIn);
+const CheckedInVolunteers: React.FC<{
+  volunteers: Volunteer[],
+  selectedUnit: { unitId: string } | null,
+  onSelect: (v: Volunteer) => void
+}> = ({ volunteers, selectedUnit, onSelect }) => {
+  const checkedIn = volunteers.filter(v =>
+    v.status === VolunteerStatus.CheckedIn &&
+    (!selectedUnit?.unitId || v.unitId === selectedUnit.unitId)
+  );
   if (checkedIn.length === 0) {
     return <Alert variant="secondary">{ALERT_NO_VOLUNTEERS_CHECKED_IN}</Alert>;
   }
@@ -168,7 +207,12 @@ const CheckedInVolunteers: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers
       <Card.Body>
         <ListGroup>
           {checkedIn.map(v => (
-            <ListGroupItem key={v.volunteerId}>
+            <ListGroupItem
+              key={v.volunteerId}
+              action
+              style={{ cursor: 'pointer' }}
+              onClick={() => onSelect(v)}
+            >
               {v.name}{v.callsign ? ` (${v.callsign})` : ''}{' '}
               {/* Show radio icon if radio has a value */}
               {/* {v.radio && v.radioStatus === RadioStatus.Assigned && (
