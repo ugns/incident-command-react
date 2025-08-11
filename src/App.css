@@ -1,3 +1,17 @@
+/* AssignmentBoard scrollable columns: normal and fullscreen support */
+.assignment-board-scroll {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+html:fullscreen .assignment-board-scroll,
+body:fullscreen .assignment-board-scroll,
+#root:fullscreen .assignment-board-scroll {
+  max-height: 100vh !important;
+  height: 100vh !important;
+  min-height: 0;
+  overflow-y: auto;
+}
 .App {
   text-align: center;
 }

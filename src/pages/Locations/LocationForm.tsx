@@ -39,8 +39,17 @@ const LocationForm: React.FC<LocationFormProps> = ({ show, onHide, onSubmit, ini
     }
   }, [initial, show]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
+    // Support batched lat/lng event from map picker
+    if (e.target.name === 'latitude-longitude' && e.target.value) {
+      setForm(f => ({
+        ...f,
+        latitude: e.target.value.latitude,
+        longitude: e.target.value.longitude,
+      }));
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleUnitSelect = (id: string | null) => {

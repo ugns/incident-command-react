@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import { LoadScript } from '@react-google-maps/api';
 import { Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, AuthContext } from './context/AuthContext';
@@ -109,33 +110,35 @@ const App: React.FC = () => {
   const ldContext = buildLDContext(user);
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <OrganizationProvider>
-          <IncidentProvider>
-            <PeriodProvider>
-              <UnitProvider>
-                <VolunteerProvider>
-                  <RadioProvider>
-                    <LocationProvider>
-                      <LDProvider
-                        clientSideID={clientSideID}
-                        context={ldContext}
-                      >
-                        <LDContextUpdater />
-                        {/* WebSocket CNC connection for real-time updates */}
-                        <WebSocketCNCProvider />
-                        <AppContent />
-                      </LDProvider>
-                    </LocationProvider>
-                  </RadioProvider>
-                </VolunteerProvider>
-              </UnitProvider>
-            </PeriodProvider>
-          </IncidentProvider>
-        </OrganizationProvider>
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY!}>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <OrganizationProvider>
+            <IncidentProvider>
+              <PeriodProvider>
+                <UnitProvider>
+                  <VolunteerProvider>
+                    <RadioProvider>
+                      <LocationProvider>
+                        <LDProvider
+                          clientSideID={clientSideID}
+                          context={ldContext}
+                        >
+                          <LDContextUpdater />
+                          {/* WebSocket CNC connection for real-time updates */}
+                          <WebSocketCNCProvider />
+                          <AppContent />
+                        </LDProvider>
+                      </LocationProvider>
+                    </RadioProvider>
+                  </VolunteerProvider>
+                </UnitProvider>
+              </PeriodProvider>
+            </IncidentProvider>
+          </OrganizationProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </LoadScript>
   );
 };
 

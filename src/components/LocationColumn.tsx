@@ -6,16 +6,17 @@ interface LocationColumnProps {
   location: string;
   children: React.ReactNode;
   readOnly?: boolean;
+  color?: string;
 }
 
-const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, readOnly }) => {
+const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, readOnly, color }) => {
   const { setNodeRef, isOver } = useDroppable({ id: location });
   if (readOnly) {
     return (
       <Col md={3} sm={6} xs={12}>
         <Card>
-          <Card.Header className="bg-primary text-white">{location}</Card.Header>
-          <Card.Body style={{ minHeight: 200 }}>{children}</Card.Body>
+          <Card.Header style={{ background: color || '#1976d2', color: 'white' }}>{location}</Card.Header>
+          <Card.Body>{children}</Card.Body>
         </Card>
       </Col>
     );
@@ -33,8 +34,8 @@ const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, rea
       }}
     >
       <Card>
-        <Card.Header className="bg-primary text-white">{location}</Card.Header>
-        <Card.Body style={{ minHeight: 200 }}>{children}</Card.Body>
+        <Card.Header style={{ background: color || '#1976d2', color: 'white' }}>{location}</Card.Header>
+        <Card.Body>{children}</Card.Body>
       </Card>
     </Col>
   );

@@ -30,7 +30,6 @@ const VolunteerCard: React.FC<VolunteerCardProps> = ({ volunteer, readOnly, acti
       <Card className="mb-2">
         <Card.Body style={{ padding: '0.5rem' }}>
           <div><strong>{volunteer.name}</strong> {volunteer.callsign && <span>({volunteer.callsign})</span>}</div>
-          <div className="small text-muted">Shift End: TBD</div>
         </Card.Body>
       </Card>
     );
@@ -52,7 +51,7 @@ const VolunteerCard: React.FC<VolunteerCardProps> = ({ volunteer, readOnly, acti
     >
       <Card.Body style={{ padding: '0.5rem' }}>
         <div><strong>{volunteer.name}</strong> {volunteer.callsign && <span>({volunteer.callsign})</span>}</div>
-        <div className="small text-muted">Shift End: TBD</div>
+        <div className="small text-muted">{volunteer.notes}</div>
       </Card.Body>
     </Card>
   );

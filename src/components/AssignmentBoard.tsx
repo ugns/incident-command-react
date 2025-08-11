@@ -7,6 +7,7 @@ import LocationColumn from './LocationColumn';
 import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
 import { useVolunteers } from '../context/VolunteerContext';
 import { useLocation } from '../context/LocationContext';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 
 interface AssignmentBoardProps {
   unitId?: string; // For future filtering by Unit
@@ -22,6 +23,8 @@ const DEFAULT_LOCATIONS = [
   'Needs Relief',
   'Released',
 ];
+
+const mapContainerStyle = { width: '100%', height: '400px' };
 
 
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOnly = false }) => {
@@ -41,6 +44,28 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
   let locationNames = (filteredLocations && filteredLocations.length > 0)
     ? filteredLocations.map(l => l.name)
     : DEFAULT_LOCATIONS;
+
+  // Color palette for locations (extend as needed)
+  const COLOR_PALETTE = [
+    '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2', '#f57c00', '#0288d1', '#c2185b', '#455a64',
+    '#009688', '#8bc34a', '#e91e63', '#ff9800', '#3f51b5', '#00bcd4', '#9c27b0', '#ffc107', '#607d8b',
+    '#795548', '#ff5722', '#4caf50', '#673ab7', '#b71c1c', '#827717', '#1b5e20', '#01579b', '#004d40',
+    '#263238', '#e65100', '#f44336', '#aeea00', '#00e676', '#00bfae', '#d500f9', '#ff4081', '#ff1744',
+    '#c51162', '#aa00ff', '#6200ea', '#304ffe', '#0091ea', '#00b8d4', '#00bfae', '#64dd17', '#aeea00',
+    '#ffd600', '#ffab00', '#ff6d00', '#dd2c00', '#a1887f', '#90a4ae', '#b0bec5', '#cfd8dc', '#fbc02d',
+  ];
+  // Map location name to color
+  const locationColorMap: { [name: string]: string } = {};
+  locationNames.forEach((name, idx) => {
+    locationColorMap[name] = COLOR_PALETTE[idx % COLOR_PALETTE.length];
+  });
+
+  // Helper to create a colored SVG marker icon
+  function markerSvg(color: string, label: string) {
+    // SVG with colored circle and location initial
+    const initial = label ? label[0].toUpperCase() : '';
+    return `data:image/svg+xml;utf8,<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='16' cy='16' r='12' fill='${encodeURIComponent(color)}' stroke='black' stroke-width='2'/><text x='16' y='21' text-anchor='middle' font-size='16' font-family='Arial' fill='white' font-weight='bold'>${initial}</text></svg>`;
+  }
   // Always include 'Unassigned' as the first column
   if (!locationNames.includes('Unassigned')) {
     locationNames = ['Unassigned', ...locationNames];
@@ -115,51 +140,97 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
   if (loading || locationsLoading) return <Spinner animation="border" />;
   if (error) return <div className="text-danger">{error}</div>;
 
-  if (readOnly) {
-    return (
-      <Row className="g-3">
-        {locationNames.map(location => (
-          <LocationColumn key={location} location={location} readOnly>
-            {grouped[location].length === 0 ? (
-              <div className="text-muted">No volunteers</div>
-            ) : (
-              grouped[location].map(v => (
-                <VolunteerCard key={v.volunteerId} volunteer={v} readOnly />
-              ))
-            )}
-          </LocationColumn>
-        ))}
-      </Row>
-    );
+  // Find all valid locations and compute centroid for map center
+  function parseLatLng(val: any) {
+    const lat = typeof val.latitude === 'number' ? val.latitude : parseFloat(val.latitude);
+    const lng = typeof val.longitude === 'number' ? val.longitude : parseFloat(val.longitude);
+    return (!isNaN(lat) && !isNaN(lng)) ? { lat, lng } : null;
   }
+  const validLocations = filteredLocations.map(parseLatLng).filter(Boolean) as { lat: number, lng: number }[];
+  const hasValidLocations = validLocations.length > 0;
+  // Compute centroid (average lat/lng)
+  const mapCenter = hasValidLocations
+    ? {
+        lat: validLocations.reduce((sum, l) => sum + l.lat, 0) / validLocations.length,
+        lng: validLocations.reduce((sum, l) => sum + l.lng, 0) / validLocations.length,
+      }
+    : null;
+
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <Row className="g-3">
-        {locationNames.map(location => (
-          <LocationColumn key={location} location={location}>
-            {grouped[location].length === 0 ? (
-              <div className="text-muted">No volunteers</div>
-            ) : (
-              grouped[location].map(v => (
-                <VolunteerCard
-                  key={v.volunteerId}
-                  volunteer={v}
-                  activeVolunteerId={activeVolunteerId}
-                  setActiveVolunteerId={setActiveVolunteerId}
+    <>
+      {hasValidLocations && mapCenter ? (
+        <div className="g-3 row mb-4">
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={mapCenter}
+            zoom={18}
+            mapTypeId="satellite"
+            options={{
+              mapTypeControl: false,
+              rotateControl: false,
+              streetViewControl: false,
+              mapTypeId: 'satellite',
+            }}
+          >
+            {filteredLocations.map((loc, idx) => {
+              const parsed = parseLatLng(loc);
+              const color = locationColorMap[loc.name] || COLOR_PALETTE[idx % COLOR_PALETTE.length];
+              return parsed ? (
+                <Marker
+                  key={loc.locationId}
+                  position={parsed}
+                  title={loc.name}
+                  icon={{
+                    url: markerSvg(color, loc.name),
+                    scaledSize: typeof window !== 'undefined' && window.google && window.google.maps
+                      ? new window.google.maps.Size(32, 32)
+                      : undefined
+                  }}
                 />
-              ))
-            )}
-          </LocationColumn>
-        ))}
-      </Row>
-      <DragOverlay zIndex={2000}>
-        {activeVolunteerId && (() => {
-          const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
-          if (!v) return null;
-          return <VolunteerCard volunteer={v} readOnly />;
-        })()}
-      </DragOverlay>
-    </DndContext>
+              ) : null;
+            })}
+          </GoogleMap>
+        </div>
+      ) : (
+        <div className="text-muted mb-2">No map data available for these locations.</div>
+      )}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="assignment-board-scroll">
+          <Row className="g-3">
+            {(readOnly
+              ? locationNames.filter(location => grouped[location].length > 0)
+              : locationNames
+            ).map((location, idx) => (
+              <LocationColumn
+                key={location}
+                location={location}
+                color={locationColorMap[location]}
+              >
+                {grouped[location].length === 0 ? (
+                  <div className="text-muted">No volunteers</div>
+                ) : (
+                  grouped[location].map(v => (
+                    <VolunteerCard
+                      key={v.volunteerId}
+                      volunteer={v}
+                      activeVolunteerId={activeVolunteerId}
+                      setActiveVolunteerId={setActiveVolunteerId}
+                    />
+                  ))
+                )}
+              </LocationColumn>
+            ))}
+          </Row>
+        </div>
+        <DragOverlay zIndex={2000}>
+          {activeVolunteerId && (() => {
+            const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
+            if (!v) return null;
+            return <VolunteerCard volunteer={v} readOnly />;
+          })()}
+        </DragOverlay>
+      </DndContext>
+    </>
   );
 };
 
