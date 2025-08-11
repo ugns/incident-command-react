@@ -6,6 +6,7 @@ import VolunteerCard from './VolunteerCard';
 import LocationColumn from './LocationColumn';
 import { useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
 import { useVolunteers } from '../context/VolunteerContext';
+import { useLocation } from '../context/LocationContext';
 
 interface AssignmentBoardProps {
   unitId?: string; // For future filtering by Unit
@@ -24,13 +25,26 @@ const DEFAULT_LOCATIONS = [
 
 
 const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOnly = false }) => {
-
   const { volunteers, loading, error, refresh, updateVolunteer } = useVolunteers();
+  const { locations: apiLocations, loading: locationsLoading, refresh: refreshLocations } = useLocation();
   // Filtering for orgId/unitId and checked-in status
   const filteredVolunteers = volunteers
     .filter(v => (!orgId || v.org_id === orgId))
     .filter(v => (!unitId || (v as any).unitId === unitId))
     .filter(v => v.status === VolunteerStatus.CheckedIn);
+
+  // Use API locations if available, otherwise fallback to defaults
+  let filteredLocations = apiLocations;
+  if (unitId) {
+    filteredLocations = apiLocations.filter(l => l.unitId === unitId);
+  }
+  let locationNames = (filteredLocations && filteredLocations.length > 0)
+    ? filteredLocations.map(l => l.name)
+    : DEFAULT_LOCATIONS;
+  // Always include 'Unassigned' as the first column
+  if (!locationNames.includes('Unassigned')) {
+    locationNames = ['Unassigned', ...locationNames];
+  }
 
   // Group volunteers by currentLocation
   const grouped: { [location: string]: Volunteer[] } = {};
@@ -40,8 +54,8 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
     grouped[loc].push(v);
   }
 
-  // Ensure all default locations are present
-  for (const loc of DEFAULT_LOCATIONS) {
+  // Ensure all locations are present
+  for (const loc of locationNames) {
     if (!grouped[loc]) grouped[loc] = [];
   }
 
@@ -72,6 +86,11 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
     console.log('[AssignmentBoard] maxTouchPoints:', navigator.maxTouchPoints);
   }, []);
 
+  // Refresh locations when unitId changes
+  React.useEffect(() => {
+    refreshLocations();
+  }, [unitId, refreshLocations]);
+
 
 
   // Handle drag end (only if not readOnly)
@@ -93,18 +112,18 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
     }
   };
 
-  if (loading) return <Spinner animation="border" />;
+  if (loading || locationsLoading) return <Spinner animation="border" />;
   if (error) return <div className="text-danger">{error}</div>;
 
   if (readOnly) {
     return (
       <Row className="g-3">
-        {Object.entries(grouped).map(([location, vols]) => (
+        {locationNames.map(location => (
           <LocationColumn key={location} location={location} readOnly>
-            {vols.length === 0 ? (
+            {grouped[location].length === 0 ? (
               <div className="text-muted">No volunteers</div>
             ) : (
-              vols.map(v => (
+              grouped[location].map(v => (
                 <VolunteerCard key={v.volunteerId} volunteer={v} readOnly />
               ))
             )}
@@ -116,33 +135,29 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Row className="g-3">
-        {Object.entries(grouped).map(([location, vols]) => (
+        {locationNames.map(location => (
           <LocationColumn key={location} location={location}>
-            {vols.length === 0 ? (
+            {grouped[location].length === 0 ? (
               <div className="text-muted">No volunteers</div>
             ) : (
-            vols.map(v => (
-              <VolunteerCard
-                key={v.volunteerId}
-                volunteer={v}
-                activeVolunteerId={activeVolunteerId}
-                setActiveVolunteerId={setActiveVolunteerId}
-              />
-            ))
+              grouped[location].map(v => (
+                <VolunteerCard
+                  key={v.volunteerId}
+                  volunteer={v}
+                  activeVolunteerId={activeVolunteerId}
+                  setActiveVolunteerId={setActiveVolunteerId}
+                />
+              ))
             )}
           </LocationColumn>
         ))}
       </Row>
       <DragOverlay zIndex={2000}>
-        {activeVolunteerId ? (
-          (() => {
-            const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
-            if (!v) return null;
-            return (
-              <VolunteerCard volunteer={v} readOnly />
-            );
-          })()
-        ) : null}
+        {activeVolunteerId && (() => {
+          const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
+          if (!v) return null;
+          return <VolunteerCard volunteer={v} readOnly />;
+        })()}
       </DragOverlay>
     </DndContext>
   );
