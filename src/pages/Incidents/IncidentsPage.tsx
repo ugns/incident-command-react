@@ -16,8 +16,6 @@ const IncidentsPage: React.FC = () => {
     incidents, 
     loading, 
     error, 
-    selectedIncident, 
-    setSelectedIncident, 
     addIncident, 
     updateIncident, 
     deleteIncident 
@@ -26,6 +24,7 @@ const IncidentsPage: React.FC = () => {
   const [editIncident, setEditIncident] = useState<Incident | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewIncident, setViewIncident] = useState<Incident | null>(null);
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 

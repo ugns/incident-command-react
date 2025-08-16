@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
+import { Unit } from '../../types/Unit';
 import { formatLocalDateTime } from '../../utils/dateFormat';
 import { useIncident } from '../../context/IncidentContext';
 import PeriodForm from './PeriodForm';
@@ -22,17 +23,17 @@ const PeriodsPage: React.FC = () => {
     addPeriod,
     updatePeriod,
     deletePeriod,
-    selectedPeriod,
-    setSelectedPeriod,
   } = usePeriod();
+  const { incidents, loading: incidentsLoading } = useIncident();
+  const { units, loading: unitsLoading } = useUnit();
   const [showForm, setShowForm] = useState(false);
   const [editPeriod, setEditPeriod] = useState<Period | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewPeriod, setViewPeriod] = useState<Period | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const { incidents, loading: incidentsLoading } = useIncident();
-  const { units, loading: unitsLoading, selectedUnit, setSelectedUnit } = useUnit();
 
   const handleAdd = () => {
     setEditPeriod(null);

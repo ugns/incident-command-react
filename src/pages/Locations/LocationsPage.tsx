@@ -6,6 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
 import { ArchiveFill, CheckCircleFill, DashCircleFill } from 'react-bootstrap-icons';
 import { Location, LocationStatus } from '../../types/Location';
+import { Unit } from '../../types/Unit';
 import LocationForm from './LocationForm';
 import { useIncident } from '../../context/IncidentContext';
 import LocationViewModal from './LocationViewModal';
@@ -23,15 +24,16 @@ const LocationsPage: React.FC = () => {
     updateLocation, 
     deleteLocation 
   } = useLocation();
+  const { units, loading: unitsLoading } = useUnit();
+  const { selectedIncident } = useIncident();
   const [showForm, setShowForm] = useState(false);
   const [editLocation, setEditLocation] = useState<Location | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewLocation, setViewLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const { units, loading: unitsLoading, selectedUnit, setSelectedUnit } = useUnit();
-  const { selectedIncident } = useIncident();
 
   const handleAdd = () => {
     setEditLocation(null);

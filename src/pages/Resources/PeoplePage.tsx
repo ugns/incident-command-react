@@ -132,7 +132,7 @@ const PeoplePage: React.FC = () => {
                         value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
                         onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
                         loading={loading}
-                        getOptionLabel={v => v.name}
+                        getOptionLabel={v => v.callsign ? `${v.name} (${v.callsign})` : v.name}
                         getOptionValue={v => v.volunteerId}
                       />
                     </div>

@@ -22,6 +22,15 @@ const activityLogService = {
     });
   },
 
+  // List activity logs by period ID using Global Secondary Index
+  async listByPeriod(id: string, token: string, onAuthError?: () => void): Promise<ActivityLog[]> {
+    return apiFetch<ActivityLog[]>({
+      path: `${API_BASE}/period/${id}`,
+      token,
+      onAuthError,
+    });
+  },
+
   // No get method as ActivityLog is immutable
 
   async create(data: Partial<ActivityLog>, token: string, onAuthError?: () => void): Promise<ActivityLog> {

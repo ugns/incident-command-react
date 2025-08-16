@@ -8,34 +8,28 @@ import activityLogService from '../services/activityLogService';
 import ReportGeneratorButton from '../components/ReportGeneratorButton';
 import ContextSelect from '../components/ContextSelect';
 import { Volunteer } from '../types/Volunteer';
+import { Period } from '../types/Period';
 import { ActivityLog } from '../types/ActivityLog';
 import { ReportType } from '../types/Report';
-import { ALERT_NO_CONTEXT_SELECTED } from '../constants/messages';
+import { ALERT_NOT_LOGGED_IN } from '../constants/messages';
 
 
 const ActivityLogPage: React.FC = () => {
-  const { selectedPeriod } = usePeriod();
-  const { volunteers } = useVolunteers();
   const { user, token } = useContext(AuthContext);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const { volunteers, loading: volunteersLoading } = useVolunteers();
+  const { periods, loading: periodsLoading } = usePeriod();
   const [loading, setLoading] = useState(false);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
 
   useEffect(() => {
-    if (!selectedPeriod) return;
     setLoading(true);
     const fetchLogs = async () => {
       try {
         const token = localStorage.getItem('token') || '';
         let logs: ActivityLog[] = [];
-        if (selectedVolunteer) {
-          logs = await activityLogService.listByVolunteer(selectedVolunteer.volunteerId, token);
-          // Filter to current period
-          logs = logs.filter(l => l.periodId === selectedPeriod.periodId);
-        } else {
-          logs = await activityLogService.list(token);
-          logs = logs.filter(l => l.periodId === selectedPeriod.periodId);
-        }
+        logs = await activityLogService.list(token);
         logs.sort((a, b) => new Date(a.timestamp || '').getTime() - new Date(b.timestamp || '').getTime());
         setActivityLogs(logs);
       } catch (e) {
@@ -47,9 +41,22 @@ const ActivityLogPage: React.FC = () => {
     fetchLogs();
   }, [selectedPeriod, selectedVolunteer]);
 
-  if (!selectedPeriod) {
-    return <Alert variant="warning">{ALERT_NO_CONTEXT_SELECTED}</Alert>;
-  }
+  if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
+
+  // Filter and sort activity logs before rendering
+  const filteredActivityLogs = (activityLogs || [])
+    .filter(l => {
+      // Filter by selected period if set
+      if (selectedPeriod && l.periodId !== selectedPeriod.periodId) return false;
+      // Filter by selected volunteer if set
+      if (selectedVolunteer && l.volunteerId !== selectedVolunteer.volunteerId) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const aTimestamp = new Date(a.timestamp || '').getTime();
+      const bTimestamp = new Date(b.timestamp || '').getTime();
+      return aTimestamp - bTimestamp;
+    });
 
   return (
     <Container>
@@ -59,25 +66,34 @@ const ActivityLogPage: React.FC = () => {
             <Col><strong>Activity Log</strong></Col>
             <Col md="auto" className="d-flex align-items-center gap-2">
               <ContextSelect
+                label="Period"
+                options={periods}
+                value={selectedPeriod ? selectedPeriod.periodId : null}
+                onSelect={id => setSelectedPeriod(id ? periods.find(p => p.periodId === id) ?? null : null)}
+                loading={periodsLoading}
+                getOptionLabel={p => p.description}
+                getOptionValue={p => p.periodId}
+              />
+              <ContextSelect
                 label="Volunteer"
                 options={volunteers}
                 value={selectedVolunteer ? selectedVolunteer.volunteerId : null}
                 onSelect={id => setSelectedVolunteer(id ? volunteers.find(v => v.volunteerId === id) ?? null : null)}
-                loading={loading}
-                getOptionLabel={v => v.name}
+                loading={volunteersLoading}
+                getOptionLabel={v => v.callsign ? `${v.name} (${v.callsign})` : v.name}
                 getOptionValue={v => v.volunteerId}
               />
               <ReportGeneratorButton
                 requiredReportType={ReportType.ICS214}
-                token={token || ''}
+                token={token}
                 user={user}
                 buttonText="Generate ICS-214"
-                disabled={!selectedPeriod || activityLogs.length === 0}
+                disabled={filteredActivityLogs.length === 0}
                 buildReportData={({ positionTitle }) => {
                   // ICS-214 report payload builder
                   // Find referenced volunteers and count log entries per volunteer
                   const logCounts: Record<string, number> = {};
-                  for (const log of activityLogs) {
+                  for (const log of filteredActivityLogs) {
                     if (log.volunteerId) {
                       logCounts[log.volunteerId] = (logCounts[log.volunteerId] || 0) + 1;
                     }
@@ -89,7 +105,7 @@ const ActivityLogPage: React.FC = () => {
                   const referencedVolunteers = volunteers.filter(v => topVolunteerIds.includes(v.volunteerId));
                   return {
                     period: selectedPeriod,
-                    activityLogs,
+                    activityLogs: filteredActivityLogs,
                     volunteers: referencedVolunteers,
                     preparedBy: user,
                     positionTitle,
@@ -115,10 +131,10 @@ const ActivityLogPage: React.FC = () => {
                     <td><Placeholder animation="glow"><Placeholder xs={10} /></Placeholder></td>
                   </tr>
                 ))
-              ) : activityLogs.length === 0 ? (
+              ) : filteredActivityLogs.length === 0 ? (
                 <tr><td colSpan={2} className="text-center">No activity log entries found.</td></tr>
               ) : (
-                activityLogs.map(entry => (
+                filteredActivityLogs.map(entry => (
                   <tr key={entry.logId}>
                     <td>{entry.timestamp ? formatLocalDateTime(entry.timestamp) : ''}</td>
                     <td>{entry.details ? `${entry.details}` : ''}</td>

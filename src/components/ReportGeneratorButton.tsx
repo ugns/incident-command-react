@@ -22,6 +22,7 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
   buildReportData,
   onReportGenerated,
   buttonText = 'Generate Report',
+  disabled
 }) => {
   const [availableReportTypes, setAvailableReportTypes] = useState<ReportType[]>([]);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -87,7 +88,7 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
       <Button
         variant="success"
         onClick={handleGenerateReport}
-        disabled={generating || !isReportTypeAvailable}
+        disabled={generating || !isReportTypeAvailable || disabled}
         title={!isReportTypeAvailable ? 'Required report type is not available.' : undefined}
       >
         {buttonText}
