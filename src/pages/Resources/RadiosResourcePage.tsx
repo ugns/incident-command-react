@@ -59,7 +59,7 @@ const RadiosResourcePage: React.FC = () => {
     setLoading(true);
     setMessage(null);
     try {
-      await updateRadio(radio.radioId, { assignedToVolunteerId: selectedVolunteer.volunteerId, status: RadioStatus.Assigned });
+      await updateRadio(radio.radioId, { ...radio, assignedToVolunteerId: selectedVolunteer.volunteerId, status: RadioStatus.Assigned });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,
@@ -97,7 +97,7 @@ const RadiosResourcePage: React.FC = () => {
         setLoading(false);
         return;
       }
-      await updateRadio(assignedRadio.radioId, { assignedToVolunteerId: undefined, status: RadioStatus.Available });
+      await updateRadio(assignedRadio.radioId, { ...assignedRadio, assignedToVolunteerId: undefined, status: RadioStatus.Available });
       const log: ActivityLog = {
         periodId: selectedPeriod.periodId,
         org_id: selectedPeriod.org_id,
@@ -150,13 +150,13 @@ const RadiosResourcePage: React.FC = () => {
                 <Form.Group className="mb-3" controlId="radioSelect">
                   <ContextSelect
                     label="Radio"
-                    options={radios.filter(r => r.status === RadioStatus.Available || (assignedRadio && r.radioId === assignedRadio.radioId))}
+                    options={radios.filter(r => (r.status !== RadioStatus.Maintenance && r.status !== RadioStatus.Retired) || (assignedRadio && r.radioId === assignedRadio.radioId))}
                     value={selectedRadioId}
-                    onSelect={id => setSelectedRadioId(id as string)}
+                    onSelect={id => setSelectedRadioId(id ? radios.find(r => r.radioId === id)?.radioId ?? null : null)}
                     loading={loading || radiosLoading}
-                    getOptionLabel={r => r.serialNumber ? `${r.serialNumber}${r.name ? ` (${r.name})` : ''}` : r.name}
+                    getOptionLabel={r => r.name ? `${r.name} (${r.serialNumber})` : r.serialNumber}
                     getOptionValue={r => r.radioId}
-                    disabled={!selectedVolunteer || loading}
+                    disabled={!selectedVolunteer}
                   />
                 </Form.Group>
                 <div className="d-flex gap-2 mb-3">
@@ -226,10 +226,10 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
               const volunteer = volunteers.find(v => v.volunteerId === r.assignedToVolunteerId);
               return (
                 <ListGroupItem key={r.radioId}>
-                  {r.serialNumber || r.name} {' '}
                   <span title="Assigned">
                     <Broadcast color="#007bff" size={18} />
                   </span>
+                  {r.serialNumber || r.name} {' '}
                   {volunteer && (
                     <span style={{ marginLeft: 8 }}>
                       Assigned to: {volunteer.name}{volunteer.callsign ? ` (${volunteer.callsign})` : ''}

@@ -55,6 +55,12 @@ function ContextSelect<T>({
           isSearchable
           placeholder={`Type to filter ${label.toLowerCase()}s...`}
           isDisabled={disabled}
+          styles={{
+            menu: (provided) => ({
+              ...provided,
+              zIndex: 2000,
+            })
+          }}
         />
       )}
     </div>

@@ -5,6 +5,7 @@ import { useVolunteers } from '../context/VolunteerContext';
 import { useUnit } from '../context/UnitContext';
 import { usePeriod } from '../context/PeriodContext';
 import { useIncident } from '../context/IncidentContext';
+import { useRadios } from './RadioContext';
 
 // This component wires up the WebSocket CNC connection at the app root
 // and logs connection status and all incoming messages for now.
@@ -14,6 +15,7 @@ const WebSocketCNCProvider: React.FC = () => {
   const { refresh: refreshUnits } = useUnit();
   const { refresh: refreshPeriods } = usePeriod();
   const { refresh: refreshIncidents } = useIncident();
+  const { refresh: refreshRadios } = useRadios();
 
   useWebSocketCNC(token, (msg) => {
     switch (msg.type || msg.action) {
@@ -23,6 +25,9 @@ const WebSocketCNCProvider: React.FC = () => {
         break;
       case 'unitsUpdated':
         refreshUnits();
+        break;
+      case 'radiosUpdated':
+        refreshRadios();
         break;
       case 'periodsUpdated':
         refreshPeriods();

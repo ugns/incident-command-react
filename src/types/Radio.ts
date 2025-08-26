@@ -11,8 +11,8 @@ export enum RadioStatus {
 export interface Radio {
   org_id: string; // Organization ID for ownership context
   radioId: string;
-  name: string;
-  serialNumber?: string;
+  name?: string;
+  serialNumber: string;
   assignedToVolunteerId?: string;
   status?: RadioStatus;
   hostAgency?: string; // Agency that owns/loans the radio

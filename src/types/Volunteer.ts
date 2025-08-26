@@ -18,7 +18,6 @@ export interface Volunteer {
   homeAgency?: string;
   status?: VolunteerStatus;
   callsign?: string;
-  radio?: string; // radioId
   currentLocation?: string;
   notes?: string;
 }
