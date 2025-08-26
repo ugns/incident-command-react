@@ -1,4 +1,3 @@
-export const AUTH_BASE ='/auth';
 export const ACTIVITYLOGS_BASE ='/activitylogs';
 export const AGENCY_BASE ='/agency';
 export const INCIDENTS_BASE ='/incidents';
