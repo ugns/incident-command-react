@@ -14,8 +14,7 @@ import AppNavbar from './components/AppNavbar';
 import WebSocketCNCProvider from './context/WebSocketCNCProvider';
 import LoginPage from './pages/LoginPage';
 import { routesConfig } from './routesConfig';
-import { useFlags } from 'launchdarkly-react-client-sdk';
-import { LDProvider, useLDClient } from 'launchdarkly-react-client-sdk';
+import { LDProvider, useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 import type { RouteConfigNav, RouteConfigSeparator } from './routesConfig';
 import type { FeatureFlags } from './types/FeatureFlags';
 
@@ -123,6 +122,7 @@ const App: React.FC = () => {
                         <LDProvider
                           clientSideID={clientSideID}
                           context={ldContext}
+                          timeout={5}
                         >
                           <LDContextUpdater />
                           {/* WebSocket CNC connection for real-time updates */}
