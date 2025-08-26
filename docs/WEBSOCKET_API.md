@@ -1,4 +1,4 @@
-# WebSocket Command & Control (CNC) API Design
+# WebSocket API Design
 
 ## Overview
 This document describes the WebSocket-based CNC API for real-time updates in the incident-command system. It is designed to work alongside the existing REST API, using AWS API Gateway (WebSocket), Lambda, and DynamoDB.
