@@ -1,28 +1,37 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { CrudService } from '../services/types';
 
+type UseCrudResourceOptions<T> = {
+  onList?: (items: T[]) => void;
+  skipIfNoToken?: boolean;
+};
+
 export function useCrudResource<T>(
   service: CrudService<T>,
   token: string | null,
-  onAuthError?: () => void
+  onAuthError?: () => void,
+  options?: UseCrudResourceOptions<T>
 ) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { onList, skipIfNoToken } = options ?? {};
 
   const refresh = useCallback(async () => {
+    if (!token && skipIfNoToken) return;
     setLoading(true);
     setError(null);
     try {
       if (!token) throw new Error('No auth token');
       const data = await service.list(token, onAuthError);
       setItems(data);
+      if (onList) onList(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
-  }, [service, token, onAuthError]);
+  }, [service, token, onAuthError, onList, skipIfNoToken]);
 
   const add = useCallback(async (data: Partial<T>) => {
     setLoading(true);

@@ -1,7 +1,8 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { Period } from '../types/Period';
 import periodService from '../services/periodService';
 import { AuthContext } from './AuthContext';
+import { useCrudResource } from '../hooks/useCrudResource';
 
 interface PeriodContextType {
   periods: Period[];
@@ -22,108 +23,39 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { token, logout } = useContext(AuthContext);
 
   // State
-  const [periods, setPeriods] = useState<Period[]>([]);
   const [selectedPeriod, setSelectedPeriodState] = useState<Period | null>(() => {
     const stored = localStorage.getItem('selectedPeriod');
     return stored ? JSON.parse(stored) : null;
   });
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const handleList = useCallback((data: Period[]) => {
+    // Validate selectedPeriod after fetching
+    setSelectedPeriodState(prev => {
+      if (!prev) return null;
+      const found = data.find(p => p.periodId === prev.periodId);
+      return found || null;
+    });
+  }, []);
 
-  // Callbacks
-  const fetchPeriods = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await periodService.list(token);
-      setPeriods(data);
-      // Validate selectedPeriod after fetching
-      setSelectedPeriodState(prev => {
-        if (!prev) return null;
-        const found = data.find(p => p.periodId === prev.periodId);
-        return found || null;
-      });
-    } catch (e: any) {
-      setError(e.message || 'Failed to fetch periods');
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  const crudOptions = useMemo(() => ({
+    skipIfNoToken: true,
+    onList: handleList,
+  }), [handleList]);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const data = await periodService.list(token, logout);
-      setPeriods(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch periods');
-    } finally {
-      setLoading(false);
-    }
-  }, [token, logout]);
-
-  const addPeriod = async (data: Partial<Period>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const newPeriod = await periodService.create(data, token, logout);
-      await refresh();
-      return newPeriod;
-    } catch (err: any) {
-      setError(err.message || 'Failed to add period');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updatePeriod = async (id: string, data: Partial<Period>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const updated = await periodService.update(id, data, token, logout);
-      await refresh();
-      return updated;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update period');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deletePeriod = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      await periodService.delete(id, token, logout);
-      await refresh();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete period');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effects
-  useEffect(() => {
-    fetchPeriods();
-  }, [fetchPeriods]);
+  const { items, loading, error, refresh, add, update, remove } = useCrudResource<Period>(
+    periodService,
+    token,
+    logout,
+    crudOptions
+  );
 
   useEffect(() => {
     // Only persist if selectedPeriod is in periods
-    if (selectedPeriod && periods.some(p => p.periodId === selectedPeriod.periodId)) {
+    if (selectedPeriod && items.some(p => p.periodId === selectedPeriod.periodId)) {
       localStorage.setItem('selectedPeriod', JSON.stringify(selectedPeriod));
     } else {
       localStorage.removeItem('selectedPeriod');
     }
-  }, [selectedPeriod, periods]);
+  }, [selectedPeriod, items]);
 
   // Provider
   const setSelectedPeriod = (period: Period | null) => {
@@ -132,15 +64,15 @@ export const PeriodProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   return (
     <PeriodContext.Provider value={{
-      periods,
+      periods: items,
       loading,
       error,
       selectedPeriod,
       setSelectedPeriod,
       refresh,
-      addPeriod,
-      updatePeriod,
-      deletePeriod,
+      addPeriod: add,
+      updatePeriod: update,
+      deletePeriod: remove,
     }}>
       {children}
     </PeriodContext.Provider>

@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Incident } from '../types/Incident';
 import incidentService from '../services/incidentService';
 import { AuthContext } from './AuthContext';
+import { useCrudResource } from '../hooks/useCrudResource';
 
 interface IncidentContextType {
   incidents: Incident[];
@@ -9,7 +10,7 @@ interface IncidentContextType {
   error: string | null;
   selectedIncident: Incident | null;
   setSelectedIncident: (incident: Incident | null) => void;
-  refresh: () => void;
+  refresh: () => Promise<void>;
   addIncident: (data: Partial<Incident>) => Promise<Incident | null>;
   updateIncident: (id: string, data: Partial<Incident>) => Promise<Incident | null>;
   deleteIncident: (id: string) => Promise<void>;
@@ -22,108 +23,40 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { token, logout } = useContext(AuthContext);
 
   // State
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedIncident, setSelectedIncidentState] = useState<Incident | null>(() => {
     const stored = localStorage.getItem('selectedIncident');
     return stored ? JSON.parse(stored) : null;
   });
 
-  // Callbacks
-  const fetchIncidents = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await incidentService.list(token);
-      setIncidents(data);
-      // Validate selectedIncident after fetching
-      setSelectedIncidentState(prev => {
-        if (!prev) return null;
-        const found = data.find(i => i.incidentId === prev.incidentId);
-        return found || null;
-      });
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch incidents');
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  const handleList = useCallback((data: Incident[]) => {
+    // Validate selectedIncident after fetching
+    setSelectedIncidentState(prev => {
+      if (!prev) return null;
+      const found = data.find(i => i.incidentId === prev.incidentId);
+      return found || null;
+    });
+  }, []);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const data = await incidentService.list(token, logout);
-      setIncidents(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch incidents');
-    } finally {
-      setLoading(false);
-    }
-  }, [token, logout]);
+  const crudOptions = useMemo(() => ({
+    skipIfNoToken: true,
+    onList: handleList,
+  }), [handleList]);
 
-  const addIncident = async (data: Partial<Incident>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const newIncident = await incidentService.create(data, token, logout);
-      await refresh();
-      return newIncident;
-    } catch (err: any) {
-      setError(err.message || 'Failed to add incident');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateIncident = async (id: string, data: Partial<Incident>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const updated = await incidentService.update(id, data, token, logout);
-      await refresh();
-      return updated;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update incident');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteIncident = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      await incidentService.delete(id, token, logout);
-      await refresh();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete incident');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effects
-  useEffect(() => {
-    fetchIncidents();
-  }, [fetchIncidents]);
+  const { items, loading, error, refresh, add, update, remove } = useCrudResource<Incident>(
+    incidentService,
+    token,
+    logout,
+    crudOptions
+  );
 
   useEffect(() => {
     // Only persist if selectedIncident is in incidents
-    if (selectedIncident && incidents.some(i => i.incidentId === selectedIncident.incidentId)) {
+    if (selectedIncident && items.some(i => i.incidentId === selectedIncident.incidentId)) {
       localStorage.setItem('selectedIncident', JSON.stringify(selectedIncident));
     } else {
       localStorage.removeItem('selectedIncident');
     }
-  }, [selectedIncident, incidents]);
+  }, [selectedIncident, items]);
 
   // Provider
   const setSelectedIncident = (incident: Incident | null) => {
@@ -132,15 +65,15 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return (
     <IncidentContext.Provider value={{
-      incidents,
+      incidents: items,
       loading,
       error,
       selectedIncident,
       setSelectedIncident,
       refresh,
-      addIncident,
-      updateIncident,
-      deleteIncident
+      addIncident: add,
+      updateIncident: update,
+      deleteIncident: remove
     }}>
       {children}
     </IncidentContext.Provider>
