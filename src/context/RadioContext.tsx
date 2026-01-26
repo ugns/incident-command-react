@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { Radio } from '../types/Radio';
 import radioService from '../services/radioService';
 import { AuthContext } from './AuthContext';
+import { useCrudResource } from '../hooks/useCrudResource';
 
 interface RadioContextType {
   radios: Radio[];
@@ -19,87 +20,22 @@ export const RadioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Context
   const { token, logout } = useContext(AuthContext);
 
-  // State
-  const [radios, setRadios] = useState<Radio[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Callbacks
-  const refresh = React.useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const data = await radioService.list(token, logout);
-      setRadios(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch radios');
-    } finally {
-      setLoading(false);
-    }
-  }, [token, logout]);
-
-  const addRadio = async (data: Partial<Radio>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const newRadio = await radioService.create(data, token, logout);
-      await refresh();
-      return newRadio;
-    } catch (err: any) {
-      setError(err.message || 'Failed to add radio');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const updateRadio = async (id: string, data: Partial<Radio>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const updated = await radioService.update(id, data, token, logout);
-      await refresh();
-      return updated;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update radio');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteRadio = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      await radioService.delete(id, token, logout);
-      await refresh();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete radio');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effects
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { items, loading, error, refresh, add, update, remove } = useCrudResource<Radio>(
+    radioService,
+    token,
+    logout
+  );
 
   // Provider
   return (
     <RadioContext.Provider value={{
-      radios,
+      radios: items,
       loading,
       error,
       refresh,
-      addRadio,
-      updateRadio,
-      deleteRadio
+      addRadio: add,
+      updateRadio: update,
+      deleteRadio: remove
     }}>
       {children}
     </RadioContext.Provider>

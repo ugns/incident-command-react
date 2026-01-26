@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext } from 'react';
 import { Organization } from '../types/Organization';
 import organizationService from '../services/organizationService';
 import { AuthContext } from './AuthContext';
+import { useCrudResource } from '../hooks/useCrudResource';
 
 interface OrganizationContextType {
   organizations: Organization[];
@@ -19,87 +20,22 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Context
   const { token, logout } = useContext(AuthContext);
 
-  // State
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Callbacks
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const data = await organizationService.list(token, logout);
-      setOrganizations(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch organizations');
-    } finally {
-      setLoading(false);
-    }
-  }, [token, logout]);
-
-  const addOrganization = async (data: Partial<Organization>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const newOrganization = await organizationService.create(data, token, logout);
-      await refresh();
-      return newOrganization;
-    } catch (err: any) {
-      setError(err.message || 'Failed to add organization');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateOrganization = async (id: string, data: Partial<Organization>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      const updated = await organizationService.update(id, data, token, logout);
-      await refresh();
-      return updated;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update organization');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteOrganization = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!token) throw new Error('No auth token');
-      await organizationService.delete(id, token, logout);
-      await refresh();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete organization');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effects
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { items, loading, error, refresh, add, update, remove } = useCrudResource<Organization>(
+    organizationService,
+    token,
+    logout
+  );
 
   // Provider
   return (
     <OrganizationContext.Provider value={{ 
-      organizations, 
+      organizations: items, 
       loading, 
       error, 
       refresh, 
-      addOrganization, 
-      updateOrganization, 
-      deleteOrganization 
+      addOrganization: add, 
+      updateOrganization: update, 
+      deleteOrganization: remove 
     }}>
       {children}
     </OrganizationContext.Provider>
