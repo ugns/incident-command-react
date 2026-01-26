@@ -41,7 +41,7 @@ const radioService = {
     });
   },
 
-  async remove(id: string, token: string, onAuthError?: () => void): Promise<void> {
+  async delete(id: string, token: string, onAuthError?: () => void): Promise<void> {
     return apiFetch<void>({ 
       path: `${API_BASE}/${id}`, 
       method: 'DELETE', 

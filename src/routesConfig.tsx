@@ -13,6 +13,7 @@ import LocationsPage from './pages/Locations/LocationsPage';
 import RadiosPage from './pages/Radios/RadiosPage';
 import AgenciesPage from './pages/Agencies/AgenciesPage';
 import ActivityLogPage from './pages/ActivityLogPage';
+import type { FeatureFlags } from './types/FeatureFlags';
 
 // Route config type
 export interface RouteConfigNav {
@@ -23,7 +24,7 @@ export interface RouteConfigNav {
   nav?: boolean;
   admin?: boolean;
   disabled?: boolean;
-  show?: string;
+  show?: keyof FeatureFlags;
 };
 export interface RouteConfigSeparator {
   separator: true;

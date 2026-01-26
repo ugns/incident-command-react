@@ -13,7 +13,7 @@ interface LocationContextType {
   deleteLocation: (id: string) => Promise<void>;
 }
 
-const LocationContext = createContext<LocationContextType>({} as LocationContextType);
+const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Context
@@ -105,4 +105,8 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
-export const useLocation = () => useContext(LocationContext);
+export const useLocation = () => {
+  const ctx = useContext(LocationContext);
+  if (!ctx) throw new Error('useLocation must be used within a LocationProvider');
+  return ctx;
+};

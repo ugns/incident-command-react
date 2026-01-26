@@ -19,9 +19,9 @@ export async function apiFetch<T>(options: {
     onAuthError,
   } = options;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     'Accept': accept ? accept : 'application/json',
   };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const resp = await fetch(`${API_BASE_URL}${path}`, {
     method,
@@ -32,7 +32,10 @@ export async function apiFetch<T>(options: {
     if (resp.status === 403 && onAuthError) {
       onAuthError();
     }
-    throw new Error(await resp.text());
+    const errorBody = await resp.text();
+    const message = errorBody || resp.statusText || 'Request failed';
+    const error = new Error(`${resp.status}: ${message}`);
+    throw error;
   }
   if (resp.status === 204) return null as T; // No content
   if (responseType === 'blob') {

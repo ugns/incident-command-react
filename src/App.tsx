@@ -52,12 +52,7 @@ const AppContent: React.FC = () => {
         <Routes>
           {routesConfig
             .filter(isNav)
-            .filter(route => {
-              if (route.show && typeof route.show === 'string') {
-                return !!featureFlags[route.show as keyof typeof featureFlags];
-              }
-              return true;
-            })
+            .filter(route => (route.show ? !!featureFlags[route.show] : true))
             .map(route => (
               <Route key={route.key} path={route.path ?? `/${route.key}`} element={route.element} />
             ))}

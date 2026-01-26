@@ -76,7 +76,7 @@ export const RadioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
     try {
       if (!token) throw new Error('No auth token');
-      await radioService.remove(id, token, logout);
+      await radioService.delete(id, token, logout);
       await refresh();
     } catch (err: any) {
       setError(err.message || 'Failed to delete radio');
