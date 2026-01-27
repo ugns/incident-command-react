@@ -27,6 +27,8 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   const { selectedPeriod } = usePeriod();
   const { selectedUnit } = useUnit();
 
+  const sortOrder = 'asc';
+  
   // Wait for context to be ready before initializing modal state
   // If all context arrays are empty, consider context ready (no data to wait for)
   const contextReady =
@@ -57,12 +59,18 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   }, [show, contextReady]);
 
   // Filter periods by selected incident and unit
-  const filteredPeriods = periods.filter(p => {
-    if (incidentId && p.incidentId !== incidentId) return false;
-    if (unitId && p.unitId !== unitId) return false;
-    return true;
-  });
-  const filteredUnits = units;
+  const filteredPeriods = periods
+    .filter(p => {
+      if (incidentId && p.incidentId !== incidentId) return false;
+      if (unitId && p.unitId !== unitId) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.startTime).getTime();
+      const bTime = new Date(b.startTime).getTime();
+      return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+    const filteredUnits = units;
 
   const handleConfirm = () => {
     onSelect(incidentId, periodId, unitId);
