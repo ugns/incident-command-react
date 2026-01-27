@@ -17,7 +17,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   const { units, loading: loadingUnits } = useUnit();
 
 
-  const [incidentId, setIncidentIdState] = useState<string | null>(null);
+  const [incidentId, setIncidentId] = useState<string | null>(null);
   const [periodId, setPeriodId] = useState<string | null>(null);
   const [unitId, setUnitId] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
 
   useEffect(() => {
     if (show && contextReady) {
-      setIncidentIdState(selectedIncident ? selectedIncident.incidentId : null);
+      setIncidentId(selectedIncident ? selectedIncident.incidentId : null);
       setPeriodId(selectedPeriod ? selectedPeriod.periodId : null);
       setUnitId(selectedUnit ? selectedUnit.unitId : null);
     }
@@ -70,7 +70,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
   };
 
   const handleReset = () => {
-    setIncidentIdState(null);
+    setIncidentId(null);
     setPeriodId(null);
     setUnitId(null);
     onSelect(null, null, null);
@@ -101,7 +101,7 @@ const ContextSelectModal: React.FC<ContextSelectModalProps> = ({ show, onHide, o
           options={incidents}
           value={incidentId}
           onSelect={id => {
-            setIncidentIdState(id);
+            setIncidentId(id);
             setUnitId(null);
             setPeriodId(null);
           }}
