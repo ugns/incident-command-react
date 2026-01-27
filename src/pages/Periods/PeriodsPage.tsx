@@ -172,9 +172,9 @@ const PeriodsPage: React.FC = () => {
               />
               <ContextSelect
                 label="Period"
-                options={periods}
+                options={filteredPeriods}
                 value={selectedPeriod ? selectedPeriod.periodId : null}
-                onSelect={id => setSelectedPeriod(id ? periods.find(p => p.periodId === id) ?? null : null)}
+                onSelect={id => setSelectedPeriod(id ? filteredPeriods.find(p => p.periodId === id) ?? null : null)}
                 loading={loading}
                 getOptionLabel={p => p.description}
                 getOptionValue={p => p.periodId}
