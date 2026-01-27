@@ -8,15 +8,18 @@ import ContextSelect from '../../components/ContextSelect';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { AuthContext } from '../../context/AuthContext';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import unitService from '../../services/unitService';
+import { downloadBlob } from '../../utils/download';
 
 const UnitsPage: React.FC = () => {
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { superAdminAccess } = useFlags();
   const { units, loading, error, refresh, addUnit, updateUnit, deleteUnit } = useUnit();
   const [showForm, setShowForm] = useState(false);
   const [editUnit, setEditUnit] = useState<Unit | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewUnit, setViewUnit] = useState<Unit | null>(null);
+  const [exporting, setExporting] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -59,6 +62,19 @@ const UnitsPage: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (!token) return;
+    setExporting(true);
+    try {
+      const { blob, filename } = await unitService.export(token, logout);
+      downloadBlob(blob, filename || 'units.csv');
+    } catch (e) {
+      // Optionally handle error locally
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -87,6 +103,19 @@ const UnitsPage: React.FC = () => {
                 getOptionLabel={v => v.name}
                 getOptionValue={v => v.unitId}
               />
+              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
+                {exporting && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Export
+              </Button>
               <Button variant="success" onClick={handleAdd} disabled={loading}>
                 {loading && (
                   <Spinner

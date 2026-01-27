@@ -8,9 +8,11 @@ import { Incident } from '../../types/Incident';
 import IncidentForm from './IncidentForm';
 import IncidentViewModal from './IncidentViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import incidentService from '../../services/incidentService';
+import { downloadBlob } from '../../utils/download';
 
 const IncidentsPage: React.FC = () => {
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { superAdminAccess } = useFlags();
   const { 
     incidents, 
@@ -25,6 +27,7 @@ const IncidentsPage: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewIncident, setViewIncident] = useState<Incident | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [exporting, setExporting] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -65,6 +68,19 @@ const IncidentsPage: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (!token) return;
+    setExporting(true);
+    try {
+      const { blob, filename } = await incidentService.export(token, logout);
+      downloadBlob(blob, filename || 'incidents.csv');
+    } catch (e) {
+      // Optionally handle error locally if needed
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -98,6 +114,19 @@ const IncidentsPage: React.FC = () => {
                 getOptionLabel={o => o.name}
                 getOptionValue={o => o.incidentId}
               />
+              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
+                {exporting && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Export
+              </Button>
               <Button variant="success" onClick={handleAdd} disabled={loading}>
                 {loading && (
                   <Spinner

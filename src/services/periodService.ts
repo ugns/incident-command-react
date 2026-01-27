@@ -1,6 +1,7 @@
 import { Period } from '../types/Period';
 import { apiFetch } from '../api/api';
 import { PERIODS_BASE } from '../constants/apis';
+import type { ExportResult } from './types';
 
 const API_BASE = PERIODS_BASE;
 
@@ -43,6 +44,16 @@ const periodService = {
       method: 'DELETE',
       token,
       onAuthError,
+    });
+  },
+
+  async export(token: string, onAuthError?: () => void): Promise<ExportResult> {
+    return apiFetch<ExportResult>({
+      path: `${API_BASE}/export`,
+      token,
+      onAuthError,
+      responseType: 'blob',
+      accept: 'text/csv',
     });
   },
 };

@@ -1,6 +1,7 @@
 import { apiFetch } from '../api/api';
 import { Location } from '../types/Location';
 import { LOCATIONS_BASE } from '../constants/apis';
+import type { ExportResult } from './types';
 
 const locationService = {
   async list(token: string, onAuthError?: () => void): Promise<Location[]> {
@@ -45,6 +46,16 @@ const locationService = {
       method: 'DELETE',
       token,
       onAuthError,
+    });
+  },
+
+  async export(token: string, onAuthError?: () => void): Promise<ExportResult> {
+    return apiFetch<ExportResult>({
+      path: `${LOCATIONS_BASE}/export`,
+      token,
+      onAuthError,
+      responseType: 'blob',
+      accept: 'text/csv',
     });
   },
 };

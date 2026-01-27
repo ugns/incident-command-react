@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
 import { Unit } from '../../types/Unit';
@@ -12,9 +12,11 @@ import PeriodViewModal from './PeriodViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import { useUnit } from '../../context/UnitContext';
 import { usePeriod } from '../../context/PeriodContext';
+import periodService from '../../services/periodService';
+import { downloadBlob } from '../../utils/download';
 
 const PeriodsPage: React.FC = () => {
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { adminAccess, superAdminAccess } = useFlags();
   const {
     periods,
@@ -32,6 +34,7 @@ const PeriodsPage: React.FC = () => {
   const [viewPeriod, setViewPeriod] = useState<Period | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
+  const [exporting, setExporting] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -70,6 +73,19 @@ const PeriodsPage: React.FC = () => {
       setShowForm(false);
     } catch (e: any) {
       // error is now handled by context
+    }
+  };
+
+  const handleExport = async () => {
+    if (!token) return;
+    setExporting(true);
+    try {
+      const { blob, filename } = await periodService.export(token, logout);
+      downloadBlob(blob, filename || 'periods.csv');
+    } catch (e: any) {
+      // Optionally handle error locally if needed
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -149,6 +165,19 @@ const PeriodsPage: React.FC = () => {
                 getOptionLabel={p => p.description}
                 getOptionValue={p => p.periodId}
               />
+              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
+                {exporting && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Export
+              </Button>
               <Button variant="success" onClick={handleAdd}>Add Period</Button>
             </Col>
           </Row>

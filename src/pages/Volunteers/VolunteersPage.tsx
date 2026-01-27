@@ -9,9 +9,11 @@ import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';
 import VolunteerViewModal from './VolunteerViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import volunteerService from '../../services/volunteerService';
+import { downloadBlob } from '../../utils/download';
 
 const VolunteersPage: React.FC = () => {
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { adminAccess, superAdminAccess } = useFlags();
   const { 
     volunteers, 
@@ -25,6 +27,7 @@ const VolunteersPage: React.FC = () => {
   const [editVolunteer, setEditVolunteer] = useState<Volunteer | null>(null);
   const [showView, setShowView] = useState(false);
   const [viewVolunteer, setViewVolunteer] = useState<Volunteer | null>(null);
+  const [exporting, setExporting] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
@@ -67,6 +70,19 @@ const VolunteersPage: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (!token) return;
+    setExporting(true);
+    try {
+      const { blob, filename } = await volunteerService.export(token, logout);
+      downloadBlob(blob, filename || 'volunteers.csv');
+    } catch (e: any) {
+      // Optionally handle error locally if needed
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -100,6 +116,19 @@ const VolunteersPage: React.FC = () => {
                 getOptionLabel={v => v.callsign ? `${v.name} (${v.callsign})` : v.name}
                 getOptionValue={v => v.volunteerId}
               />
+              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
+                {exporting && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Export
+              </Button>
               <Button variant="success" onClick={handleAdd} disabled={loading}>
                 {loading && (
                   <Spinner

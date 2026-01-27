@@ -9,9 +9,11 @@ import { Radio, RadioStatus } from '../../types/Radio';
 import RadioForm from './RadioForm';
 import RadioViewModal from './RadioViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import radioService from '../../services/radioService';
+import { downloadBlob } from '../../utils/download';
 
 const RadiosPage: React.FC = () => {
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { adminAccess, superAdminAccess } = useFlags();
   const { 
     radios, 
@@ -26,6 +28,7 @@ const RadiosPage: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewRadio, setViewRadio] = useState<Radio | null>(null);
   const [selectedRadio, setSelectedRadio] = useState<Radio | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const handleAdd = () => {
     setEditRadio(null);
@@ -65,6 +68,19 @@ const RadiosPage: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (!token) return;
+    setExporting(true);
+    try {
+      const { blob, filename } = await radioService.export(token, logout);
+      downloadBlob(blob, filename || 'radios.csv');
+    } catch (e: any) {
+      // Optionally handle error locally if needed
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -84,6 +100,19 @@ const RadiosPage: React.FC = () => {
                 getOptionLabel={r => r.name ? `${r.name} (${r.serialNumber})` : r.serialNumber}
                 getOptionValue={r => r.radioId}
               />
+              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
+                {exporting && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                )}
+                Export
+              </Button>
               <Button variant="success" onClick={handleAdd} disabled={loading}>
                 {loading && (
                   <Spinner

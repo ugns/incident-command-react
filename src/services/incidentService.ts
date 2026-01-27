@@ -1,6 +1,7 @@
 import { Incident } from '../types/Incident';
 import { apiFetch } from '../api/api';
 import { INCIDENTS_BASE } from '../constants/apis';
+import type { ExportResult } from './types';
 
 const API_BASE = INCIDENTS_BASE;
 
@@ -47,6 +48,16 @@ const incidentService = {
       method: 'DELETE',
       token,
       onAuthError,
+    });
+  },
+
+  async export(token: string, onAuthError?: () => void): Promise<ExportResult> {
+    return apiFetch<ExportResult>({
+      path: `${API_BASE}/export`,
+      token,
+      onAuthError,
+      responseType: 'blob',
+      accept: 'text/csv',
     });
   },
 };
