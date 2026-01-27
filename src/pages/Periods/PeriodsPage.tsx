@@ -14,6 +14,7 @@ import { useUnit } from '../../context/UnitContext';
 import { usePeriod } from '../../context/PeriodContext';
 import periodService from '../../services/periodService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const PeriodsPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -35,6 +36,8 @@ const PeriodsPage: React.FC = () => {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -86,6 +89,17 @@ const PeriodsPage: React.FC = () => {
       // Optionally handle error locally if needed
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await periodService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -174,6 +188,9 @@ const PeriodsPage: React.FC = () => {
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
                 </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
+                </Dropdown.Item>
               </SplitButton>
             </Col>
           </Row>
@@ -229,6 +246,13 @@ const PeriodsPage: React.FC = () => {
         period={viewPeriod}
         incidents={incidents}
         units={units}
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Periods"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
     </Container>
   );

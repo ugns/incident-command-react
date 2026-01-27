@@ -39,7 +39,6 @@ export function useCrudResource<T>(
     try {
       if (!token) throw new Error('No auth token');
       const created = await service.create(data, token, onAuthError);
-      await refresh();
       return created;
     } catch (err: any) {
       setError(err.message || 'Failed to create');
@@ -55,7 +54,6 @@ export function useCrudResource<T>(
     try {
       if (!token) throw new Error('No auth token');
       const updated = await service.update(id, data, token, onAuthError);
-      await refresh();
       return updated;
     } catch (err: any) {
       setError(err.message || 'Failed to update');
@@ -71,7 +69,6 @@ export function useCrudResource<T>(
     try {
       if (!token) throw new Error('No auth token');
       await service.delete(id, token, onAuthError);
-      await refresh();
     } catch (err: any) {
       setError(err.message || 'Failed to delete');
     } finally {

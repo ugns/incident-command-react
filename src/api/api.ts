@@ -8,6 +8,8 @@ export async function apiFetch<T>(options: {
   responseType?: 'json' | 'blob';
   accept?: string;
   onAuthError?: () => void;
+  json?: boolean;
+  contentType?: string;
 }): Promise<T> {
   const {
     path,
@@ -17,16 +19,22 @@ export async function apiFetch<T>(options: {
     responseType = 'json',
     accept,
     onAuthError,
+    json = true,
+    contentType,
   } = options;
   const headers: Record<string, string> = {
     'Accept': accept ? accept : 'application/json',
   };
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (contentType) {
+    headers['Content-Type'] = contentType;
+  } else if (body !== undefined && json) {
+    headers['Content-Type'] = 'application/json';
+  }
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const resp = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : (json ? JSON.stringify(body) : body),
   });
   if (!resp.ok) {
     if (resp.status === 403 && onAuthError) {

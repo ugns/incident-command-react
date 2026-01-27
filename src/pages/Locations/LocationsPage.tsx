@@ -14,6 +14,7 @@ import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import { useUnit } from '../../context/UnitContext';
 import locationService from '../../services/locationService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const LocationsPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -35,6 +36,8 @@ const LocationsPage: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -86,6 +89,17 @@ const LocationsPage: React.FC = () => {
       // Optionally handle error locally if needed
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await locationService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -142,6 +156,9 @@ const LocationsPage: React.FC = () => {
               >
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
                 </Dropdown.Item>
               </SplitButton>
             </Col>
@@ -228,6 +245,13 @@ const LocationsPage: React.FC = () => {
         onHide={() => setShowView(false)}
         location={viewLocation}
         units={units} 
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Locations"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
     </Container>
   );

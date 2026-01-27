@@ -1,7 +1,7 @@
 import { apiFetch } from '../api/api';
 import { Location } from '../types/Location';
 import { LOCATIONS_BASE } from '../constants/apis';
-import type { ExportResult } from './types';
+import type { ExportResult, ImportResult } from './types';
 
 const locationService = {
   async list(token: string, onAuthError?: () => void): Promise<Location[]> {
@@ -56,6 +56,18 @@ const locationService = {
       onAuthError,
       responseType: 'blob',
       accept: 'text/csv',
+    });
+  },
+
+  async import(file: File, token: string, onAuthError?: () => void): Promise<ImportResult> {
+    return apiFetch<ImportResult>({
+      path: `${LOCATIONS_BASE}/import`,
+      method: 'POST',
+      body: file,
+      token,
+      onAuthError,
+      json: false,
+      contentType: 'text/csv',
     });
   },
 };

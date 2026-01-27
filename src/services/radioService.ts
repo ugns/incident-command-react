@@ -1,7 +1,7 @@
 import { apiFetch } from '../api/api';
 import { Radio } from '../types/Radio';
 import { RADIOS_BASE } from '../constants/apis';
-import type { ExportResult } from './types';
+import type { ExportResult, ImportResult } from './types';
 
 const API_BASE = RADIOS_BASE;
 
@@ -58,6 +58,18 @@ const radioService = {
       onAuthError,
       responseType: 'blob',
       accept: 'text/csv',
+    });
+  },
+
+  async import(file: File, token: string, onAuthError?: () => void): Promise<ImportResult> {
+    return apiFetch<ImportResult>({ 
+      path: `${API_BASE}/import`, 
+      method: 'POST',
+      body: file,
+      token,
+      onAuthError,
+      json: false,
+      contentType: 'text/csv',
     });
   },
 };

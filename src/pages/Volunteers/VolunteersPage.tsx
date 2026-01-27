@@ -11,6 +11,7 @@ import VolunteerViewModal from './VolunteerViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import volunteerService from '../../services/volunteerService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const VolunteersPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -28,6 +29,8 @@ const VolunteersPage: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewVolunteer, setViewVolunteer] = useState<Volunteer | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
@@ -83,6 +86,17 @@ const VolunteersPage: React.FC = () => {
     }
   };
 
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await volunteerService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -124,6 +138,9 @@ const VolunteersPage: React.FC = () => {
               >
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
                 </Dropdown.Item>
               </SplitButton>
             </Col>
@@ -197,6 +214,13 @@ const VolunteersPage: React.FC = () => {
         show={showView}
         onHide={() => setShowView(false)}
         volunteer={viewVolunteer}
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Volunteers"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
     </Container>
   );

@@ -10,6 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import unitService from '../../services/unitService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const UnitsPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -20,6 +21,8 @@ const UnitsPage: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [viewUnit, setViewUnit] = useState<Unit | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -42,7 +45,6 @@ const UnitsPage: React.FC = () => {
   const handleDelete = async (unit: Unit) => {
     try {
       await deleteUnit(unit.unitId);
-      await refresh();
     } catch (e) {
       // Optionally handle error locally
     }
@@ -72,6 +74,17 @@ const UnitsPage: React.FC = () => {
       // Optionally handle error locally
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await unitService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -111,6 +124,9 @@ const UnitsPage: React.FC = () => {
               >
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
                 </Dropdown.Item>
               </SplitButton>
             </Col>
@@ -164,6 +180,13 @@ const UnitsPage: React.FC = () => {
         show={showView}
         onHide={() => setShowView(false)}
         unit={viewUnit}
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Units"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
       {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
     </Container>

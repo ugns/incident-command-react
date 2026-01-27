@@ -10,17 +10,18 @@ import IncidentViewModal from './IncidentViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import incidentService from '../../services/incidentService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const IncidentsPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
   const { superAdminAccess } = useFlags();
-  const { 
-    incidents, 
-    loading, 
-    error, 
-    addIncident, 
-    updateIncident, 
-    deleteIncident 
+  const {
+    incidents,
+    loading,
+    error,
+    addIncident,
+    updateIncident,
+    deleteIncident,
   } = useIncident();
   const [showForm, setShowForm] = useState(false);
   const [editIncident, setEditIncident] = useState<Incident | null>(null);
@@ -28,6 +29,8 @@ const IncidentsPage: React.FC = () => {
   const [viewIncident, setViewIncident] = useState<Incident | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   // Sorting and filtering state
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -81,6 +84,17 @@ const IncidentsPage: React.FC = () => {
     }
   };
 
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await incidentService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -122,6 +136,9 @@ const IncidentsPage: React.FC = () => {
               >
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
                 </Dropdown.Item>
               </SplitButton>
             </Col>
@@ -176,6 +193,13 @@ const IncidentsPage: React.FC = () => {
         show={showView}
         onHide={() => setShowView(false)}
         incident={viewIncident}
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Incidents"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
     </Container>
   );
