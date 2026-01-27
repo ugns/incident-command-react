@@ -11,6 +11,7 @@ import RadioViewModal from './RadioViewModal';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 import radioService from '../../services/radioService';
 import { downloadBlob } from '../../utils/download';
+import ImportModal from '../../components/ImportModal';
 
 const RadiosPage: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -29,6 +30,8 @@ const RadiosPage: React.FC = () => {
   const [viewRadio, setViewRadio] = useState<Radio | null>(null);
   const [selectedRadio, setSelectedRadio] = useState<Radio | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   const handleAdd = () => {
     setEditRadio(null);
@@ -81,6 +84,17 @@ const RadiosPage: React.FC = () => {
     }
   };
 
+  const handleImport = async (file: File) => {
+    if (!token) throw new Error('Not authenticated');
+    setImporting(true);
+    try {
+      const result = await radioService.import(file, token, logout);
+      return result;
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -108,6 +122,9 @@ const RadiosPage: React.FC = () => {
               >
                 <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
                   {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowImport(true)} disabled={loading || importing}>
+                  Import…
                 </Dropdown.Item>
               </SplitButton>
             </Col>
@@ -181,6 +198,13 @@ const RadiosPage: React.FC = () => {
         show={showView}
         onHide={() => setShowView(false)}
         radio={viewRadio}
+      />
+      <ImportModal
+        show={showImport}
+        title="Import Radios"
+        busy={importing}
+        onHide={() => setShowImport(false)}
+        onImport={handleImport}
       />
     </Container>
   );
