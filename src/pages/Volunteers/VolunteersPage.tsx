@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useVolunteers } from '../../context/VolunteerContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, SplitButton, Dropdown } from 'react-bootstrap';
 import { BoxArrowInRight, BoxArrowRight } from 'react-bootstrap-icons';
 import { Volunteer, VolunteerStatus } from '../../types/Volunteer';
 import VolunteerForm from './VolunteerForm';

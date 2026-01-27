@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useUnit } from '../../context/UnitContext';
-import { Button, Card, Table, Container, Row, Col, Placeholder, Alert, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
+import { Button, Card, Table, Container, Row, Col, Placeholder, Alert, SplitButton, Dropdown } from 'react-bootstrap';
 import UnitForm from './UnitForm';
 import UnitViewModal from './UnitViewModal';
 import { Unit } from '../../types/Unit';

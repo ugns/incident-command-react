@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useIncident } from '../../context/IncidentContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, SplitButton, Dropdown } from 'react-bootstrap';
 import { Incident } from '../../types/Incident';
 import IncidentForm from './IncidentForm';
 import IncidentViewModal from './IncidentViewModal';

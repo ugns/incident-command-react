@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useLocation } from '../../context/LocationContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, SplitButton, Dropdown } from 'react-bootstrap';
 import { ArchiveFill, CheckCircleFill, DashCircleFill } from 'react-bootstrap-icons';
 import { Location, LocationStatus } from '../../types/Location';
 import { Unit } from '../../types/Unit';

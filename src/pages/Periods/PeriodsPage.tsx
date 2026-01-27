@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, SplitButton, Dropdown } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
 import { Unit } from '../../types/Unit';
