@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
 import ContextSelect from '../../components/ContextSelect';
 import { Period } from '../../types/Period';
 import { Unit } from '../../types/Unit';
@@ -165,20 +165,16 @@ const PeriodsPage: React.FC = () => {
                 getOptionLabel={p => p.description}
                 getOptionValue={p => p.periodId}
               />
-              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
-                {exporting && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-                )}
-                Export
-              </Button>
-              <Button variant="success" onClick={handleAdd}>Add Period</Button>
+              <SplitButton
+                variant="success"
+                title="Add Period"
+                onClick={handleAdd}
+                disabled={loading}
+              >
+                <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
+                  {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+              </SplitButton>
             </Col>
           </Row>
         </Card.Header>

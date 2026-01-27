@@ -3,7 +3,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { useLocation } from '../../context/LocationContext';
 import ContextSelect from '../../components/ContextSelect';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
+import { Container, Card, Table, Button, Alert, Placeholder, Row, Col, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
 import { ArchiveFill, CheckCircleFill, DashCircleFill } from 'react-bootstrap-icons';
 import { Location, LocationStatus } from '../../types/Location';
 import { Unit } from '../../types/Unit';
@@ -134,32 +134,16 @@ const LocationsPage: React.FC = () => {
                 getOptionLabel={l => l.name}
                 getOptionValue={l => l.locationId}
               />
-              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
-                {exporting && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-                )}
-                Export
-              </Button>
-              <Button variant="success" onClick={handleAdd} disabled={loading}>
-                {loading && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-                )}
-                Add Location
-              </Button>
+              <SplitButton
+                variant="success"
+                title="Add Location"
+                onClick={handleAdd}
+                disabled={loading}
+              >
+                <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
+                  {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+              </SplitButton>
             </Col>
           </Row>
         </Card.Header>

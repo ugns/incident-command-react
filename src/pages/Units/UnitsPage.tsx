@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useUnit } from '../../context/UnitContext';
-import { Button, Card, Table, Container, Row, Col, Placeholder, Alert, Spinner } from 'react-bootstrap';
+import { Button, Card, Table, Container, Row, Col, Placeholder, Alert, Spinner, SplitButton, Dropdown } from 'react-bootstrap';
 import UnitForm from './UnitForm';
 import UnitViewModal from './UnitViewModal';
 import { Unit } from '../../types/Unit';
@@ -103,32 +103,16 @@ const UnitsPage: React.FC = () => {
                 getOptionLabel={v => v.name}
                 getOptionValue={v => v.unitId}
               />
-              <Button variant="outline-secondary" onClick={handleExport} disabled={loading || exporting}>
-                {exporting && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-                )}
-                Export
-              </Button>
-              <Button variant="success" onClick={handleAdd} disabled={loading}>
-                {loading && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                    className="me-2"
-                  />
-                )}
-                Add Unit
-              </Button>
+              <SplitButton
+                variant="success"
+                title="Add Unit"
+                onClick={handleAdd}
+                disabled={loading}
+              >
+                <Dropdown.Item onClick={handleExport} disabled={loading || exporting}>
+                  {exporting ? 'Exporting…' : 'Export'}
+                </Dropdown.Item>
+              </SplitButton>
             </Col>
           </Row>
         </Card.Header>
