@@ -5,16 +5,21 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import PeoplePage from './PeoplePage';
 import RadiosResourcePage from './RadiosResourcePage';
 import AgencyResourcePage from './AgencyResourcePage';
+import PrizeInfoPage from './PrizeInfoPage';
+import type { FeatureFlags } from '../../types/FeatureFlags';
 
 const ResourcesPage: React.FC = () => {
 
   const [key, setKey] = useState<string>('people');
-  const { showRadioResources, showAgencyResources } = useFlags();
+  const flags = useFlags<FeatureFlags>();
+  const { showRadioResources, showAgencyResources } = flags;
+  const { showPrizeinfoResources: showPrizeInfo } = flags;
 
   const resourceTabs = [
     { eventKey: 'people', title: 'People', component: <PeoplePage /> },
     { eventKey: 'radios', title: 'Radios', component: <RadiosResourcePage />, show: showRadioResources },
     { eventKey: 'agencies', title: 'Agencies', component: <AgencyResourcePage />, show: showAgencyResources },
+    { eventKey: 'prize-info', title: 'Prize Info', component: <PrizeInfoPage />, show: showPrizeInfo },
   ];
 
   return (

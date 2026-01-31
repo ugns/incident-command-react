@@ -25,10 +25,14 @@ export type ImportResult = {
 export type ReportService = {
   list: (token: string, onAuthError?: () => void) => Promise<{ reports: ReportType[] }>;
   generate: (
-    data: Report,
+    data: Report | File | FormData,
     token: string,
     reportType: string,
     mediaType: string,
-    onAuthError?: () => void
+    onAuthError?: () => void,
+    options?: {
+      json?: boolean;
+      contentType?: string;
+    }
   ) => Promise<ExportResult>;
 };

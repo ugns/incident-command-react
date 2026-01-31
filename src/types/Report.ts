@@ -5,6 +5,7 @@ import { User } from './User';
 
 export enum ReportType {
   ICS214 = 'ics214',
+  PKEY = 'pkey',
 }
 
 export interface Report {

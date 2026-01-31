@@ -17,7 +17,14 @@ const reportService: ReportService = {
 
   // No get, create, update, or delete methods for reports
 
-  async generate(data: Report, token: string, reportType: string, mediaType: string, onAuthError?: () => void): Promise<ExportResult> {
+  async generate(
+    data: Report | File | FormData,
+    token: string,
+    reportType: string,
+    mediaType: string,
+    onAuthError?: () => void,
+    options?: { json?: boolean; contentType?: string }
+  ): Promise<ExportResult> {
     return apiFetch<ExportResult>({
       path: `${API_BASE}/${reportType}`,
       method: 'POST',
@@ -26,6 +33,8 @@ const reportService: ReportService = {
       responseType: 'blob',
       accept: mediaType,
       onAuthError,
+      json: options?.json ?? true,
+      contentType: options?.contentType,
     });
   },
 };
