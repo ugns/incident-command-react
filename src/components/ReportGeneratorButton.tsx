@@ -6,28 +6,63 @@ import reportService from '../services/reportService';
 import AppToast from './AppToast';
 import { downloadBlob } from '../utils/download';
 
-interface ReportGeneratorButtonProps {
+type ReportGeneratorModalProps<FormData> = {
+  show: boolean;
+  onHide: () => void;
+  onSubmit: (formData: FormData) => void;
+  initialFormData?: FormData;
+  disableSubmit?: boolean;
+  user: any;
+};
+
+type DefaultFormData = { positionTitle: string };
+
+type BaseReportGeneratorButtonProps<FormData> = {
   requiredReportType: string;
   token: string;
   user: any;
-  buildReportData: (formData: { positionTitle: string }) => any;
+  buildReportData: (formData: FormData) => any;
+  getGenerateOptions?: (formData: FormData) => { json?: boolean; contentType?: string };
   onReportGenerated?: (blob: Blob) => void;
   buttonText?: string;
   disabled?: boolean;
-}
+  defaultFormData?: FormData;
+};
 
-const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
-  requiredReportType,
-  token,
-  user,
-  buildReportData,
-  onReportGenerated,
-  buttonText = 'Generate Report',
-  disabled
-}) => {
+type DefaultModalProps = BaseReportGeneratorButtonProps<DefaultFormData> & {
+  renderModal?: undefined;
+  modalEnabled?: true;
+};
+
+type CustomModalProps<FormData> = BaseReportGeneratorButtonProps<FormData> & {
+  renderModal: (props: ReportGeneratorModalProps<FormData>) => React.ReactNode;
+  modalEnabled?: true;
+};
+
+type NoModalProps<FormData> = BaseReportGeneratorButtonProps<FormData> & {
+  modalEnabled: false;
+  defaultFormData: FormData;
+  renderModal?: undefined;
+};
+
+type ReportGeneratorButtonProps<FormData> =
+  | DefaultModalProps
+  | CustomModalProps<FormData>
+  | NoModalProps<FormData>;
+
+function useReportGenerator<FormData>(props: BaseReportGeneratorButtonProps<FormData>) {
+  const {
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    defaultFormData,
+  } = props;
   const [availableReportTypes, setAvailableReportTypes] = useState<ReportType[]>([]);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [lastPositionTitle, setLastPositionTitle] = useState<string>('');
+  const [lastFormData, setLastFormData] = useState<FormData | undefined>(defaultFormData);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string; bg: 'info' | 'danger' | 'success' }>({ show: false, message: '', bg: 'info' });
 
@@ -47,12 +82,8 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
     fetchReportTypes();
   }, [token, requiredReportType]);
 
-  const handleGenerateReport = () => {
-    setShowReportModal(true);
-  };
-
-  const handleReportModalSubmit = async (formData: { positionTitle: string }) => {
-    setLastPositionTitle(formData.positionTitle);
+  const handleGenerate = async (formData: FormData) => {
+    setLastFormData(formData);
     setShowReportModal(false);
     if (!user || !token) {
       setToast({ show: true, message: 'Missing required information to generate report.', bg: 'danger' });
@@ -65,8 +96,9 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
     setGenerating(true);
     try {
       const report = buildReportData(formData);
-      const mediaType = availableTypeObj.mediaType || 'application/pdf';
-      const { blob, filename } = await reportService.generate(report, token, requiredReportType, mediaType);
+      const generateOptions = getGenerateOptions ? getGenerateOptions(formData) : undefined;
+      const mediaType = availableTypeObj?.mediaType || 'application/pdf';
+      const { blob, filename } = await reportService.generate(report, token, requiredReportType, mediaType, undefined, generateOptions);
       if (onReportGenerated) onReportGenerated(blob);
       downloadBlob(blob, filename || `${requiredReportType}.pdf`);
       setToast({ show: true, message: 'Report generated and downloaded successfully.', bg: 'success' });
@@ -77,11 +109,70 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
     }
   };
 
+  return {
+    availableTypeObj,
+    isReportTypeAvailable,
+    showReportModal,
+    setShowReportModal,
+    lastFormData,
+    setLastFormData,
+    generating,
+    toast,
+    setToast,
+    handleGenerate,
+  };
+}
+
+function ReportGeneratorButton(props: DefaultModalProps): React.ReactElement;
+function ReportGeneratorButton<FormData>(props: CustomModalProps<FormData> | NoModalProps<FormData>): React.ReactElement;
+function ReportGeneratorButton<FormData>(props: ReportGeneratorButtonProps<FormData>): React.ReactElement {
+  if (props.modalEnabled === false) {
+    return <NoModalReportGenerator {...props} />;
+  }
+  if (props.renderModal) {
+    return <CustomModalReportGenerator {...props} />;
+  }
+  return <DefaultModalReportGenerator {...props} />;
+}
+
+function DefaultModalReportGenerator(props: DefaultModalProps) {
+  const {
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    buttonText = 'Generate Report',
+    disabled,
+    defaultFormData,
+  } = props;
+  const {
+    isReportTypeAvailable,
+    showReportModal,
+    setShowReportModal,
+    lastFormData,
+    generating,
+    toast,
+    setToast,
+    handleGenerate,
+  } = useReportGenerator<DefaultFormData>({
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    defaultFormData,
+    buttonText,
+    disabled,
+  });
+
   return (
     <>
       <Button
         variant="success"
-        onClick={handleGenerateReport}
+        onClick={() => setShowReportModal(true)}
         disabled={generating || !isReportTypeAvailable || disabled}
         title={!isReportTypeAvailable ? 'Required report type is not available.' : undefined}
       >
@@ -90,8 +181,8 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
       <ReportModal
         show={showReportModal}
         onHide={() => setShowReportModal(false)}
-        onSubmit={handleReportModalSubmit}
-        initialPositionTitle={lastPositionTitle}
+        onSubmit={handleGenerate}
+        initialPositionTitle={lastFormData?.positionTitle || ''}
         preparedByName={'' + (user?.name || '')}
         disableSubmit={!isReportTypeAvailable}
       />
@@ -103,6 +194,118 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
       />
     </>
   );
-};
+}
+
+function CustomModalReportGenerator<FormData>(props: CustomModalProps<FormData>) {
+  const {
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    buttonText = 'Generate Report',
+    disabled,
+    defaultFormData,
+    renderModal,
+  } = props;
+  const {
+    isReportTypeAvailable,
+    showReportModal,
+    setShowReportModal,
+    lastFormData,
+    generating,
+    toast,
+    setToast,
+    handleGenerate,
+  } = useReportGenerator<FormData>({
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    defaultFormData,
+    buttonText,
+    disabled,
+  });
+
+  return (
+    <>
+      <Button
+        variant="success"
+        onClick={() => setShowReportModal(true)}
+        disabled={generating || !isReportTypeAvailable || disabled}
+        title={!isReportTypeAvailable ? 'Required report type is not available.' : undefined}
+      >
+        {buttonText}
+      </Button>
+      {renderModal({
+        show: showReportModal,
+        onHide: () => setShowReportModal(false),
+        onSubmit: handleGenerate,
+        initialFormData: lastFormData ?? defaultFormData,
+        disableSubmit: !isReportTypeAvailable,
+        user,
+      })}
+      <AppToast
+        show={toast.show}
+        message={toast.message}
+        bg={toast.bg}
+        onClose={() => setToast(t => ({ ...t, show: false }))}
+      />
+    </>
+  );
+}
+
+function NoModalReportGenerator<FormData>(props: NoModalProps<FormData>) {
+  const {
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    buttonText = 'Generate Report',
+    disabled,
+    defaultFormData,
+  } = props;
+  const {
+    isReportTypeAvailable,
+    generating,
+    toast,
+    setToast,
+    handleGenerate,
+  } = useReportGenerator<FormData>({
+    requiredReportType,
+    token,
+    user,
+    buildReportData,
+    getGenerateOptions,
+    onReportGenerated,
+    defaultFormData,
+    buttonText,
+    disabled,
+  });
+
+  return (
+    <>
+      <Button
+        variant="success"
+        onClick={() => handleGenerate(defaultFormData)}
+        disabled={generating || !isReportTypeAvailable || disabled}
+        title={!isReportTypeAvailable ? 'Required report type is not available.' : undefined}
+      >
+        {buttonText}
+      </Button>
+      <AppToast
+        show={toast.show}
+        message={toast.message}
+        bg={toast.bg}
+        onClose={() => setToast(t => ({ ...t, show: false }))}
+      />
+    </>
+  );
+}
 
 export default ReportGeneratorButton;
