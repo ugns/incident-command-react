@@ -5,7 +5,6 @@ import ReportGeneratorButton from '../../components/ReportGeneratorButton';
 import { ReportType } from '../../types/Report';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 
-const REQUIRED_REPORT_TYPE = ReportType.PKEY;
 
 const PrizeInfoPage: React.FC = () => {
   const { token, user } = useContext(AuthContext);
@@ -30,15 +29,15 @@ const PrizeInfoPage: React.FC = () => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.currentTarget.files?.[0] ?? null)}
                 />
                 <Form.Text className="text-muted">
-                  Select the prize info CSV file to generate the PKEY report.
+                  Select the prize info CSV file to generate the Prize Tickets report.
                 </Form.Text>
               </Form.Group>
               <div className="d-flex gap-2">
                 <ReportGeneratorButton<File>
-                  requiredReportType={REQUIRED_REPORT_TYPE}
+                  requiredReportType={ReportType.PKEY}
                   token={token}
                   user={user}
-                  buttonText="Generate PKEY Sheets"
+                  buttonText="Generate Prize Tickets"
                   disabled={!file}
                   modalEnabled={false}
                   defaultFormData={file as File}
