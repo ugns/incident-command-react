@@ -6,6 +6,7 @@ import reportService from '../../services/reportService';
 import type { ReportType } from '../../types/ReportType';
 import { ReportType as ReportTypeEnum } from '../../types/Report';
 import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
+import { downloadBlob } from '../../utils/download';
 
 const REQUIRED_REPORT_TYPE = ReportTypeEnum.PKEY;
 
@@ -63,14 +64,7 @@ const PrizeInfoPage: React.FC = () => {
           contentType: file.type || 'text/csv',
         }
       );
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || `${REQUIRED_REPORT_TYPE}.bin`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      downloadBlob(blob, filename || `${REQUIRED_REPORT_TYPE}.pdf`);
       setToast({ show: true, message: 'Prize info report generated and downloaded.', bg: 'success' });
       setFile(null);
     } catch (err: any) {

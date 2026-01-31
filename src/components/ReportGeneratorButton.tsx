@@ -4,6 +4,7 @@ import ReportModal from './ReportModal';
 import { ReportType } from '../types/ReportType';
 import reportService from '../services/reportService';
 import AppToast from './AppToast';
+import { downloadBlob } from '../utils/download';
 
 interface ReportGeneratorButtonProps {
   requiredReportType: string;
@@ -67,14 +68,7 @@ const ReportGeneratorButton: React.FC<ReportGeneratorButtonProps> = ({
       const mediaType = availableTypeObj.mediaType || 'application/pdf';
       const { blob, filename } = await reportService.generate(report, token, requiredReportType, mediaType);
       if (onReportGenerated) onReportGenerated(blob);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || `${requiredReportType}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      downloadBlob(blob, filename || `${requiredReportType}.pdf`);
       setToast({ show: true, message: 'Report generated and downloaded successfully.', bg: 'success' });
     } catch (err: any) {
       setToast({ show: true, message: 'Failed to generate report: ' + (err.message || err), bg: 'danger' });
