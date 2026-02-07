@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import ContextSelectModal from './ContextSelectModal';
 import { useIncident } from '../context/IncidentContext';
 import { usePeriod } from '../context/PeriodContext';
@@ -16,6 +16,114 @@ import type { FeatureFlags } from '../types/FeatureFlags';
 interface AppNavbarProps {
   featureFlags?: FeatureFlags;
 }
+
+const AVATAR_CACHE_PREFIX = 'avatar_cache_v1:';
+
+function getInitials(name?: string) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function getAvatarCacheKey(user: { email?: string; sub?: string }) {
+  return `${AVATAR_CACHE_PREFIX}${user.email || user.sub || 'anonymous'}`;
+}
+
+const UserAvatar: React.FC<{ user: any }> = ({ user }) => {
+  const cacheKey = useMemo(() => getAvatarCacheKey(user || {}), [user]);
+  const [src, setSrc] = useState<string | null>(null);
+  const [useInitials, setUseInitials] = useState(false);
+
+  useEffect(() => {
+    let cached: string | null = null;
+    try {
+      cached = localStorage.getItem(cacheKey);
+    } catch {
+      cached = null;
+    }
+
+    if (user?.picture) {
+      setSrc(user.picture);
+      setUseInitials(false);
+      return;
+    }
+
+    if (cached) {
+      setSrc(cached);
+      setUseInitials(false);
+      return;
+    }
+
+    setSrc(null);
+    setUseInitials(true);
+  }, [cacheKey, user?.picture]);
+
+  const handleError = () => {
+    let cached: string | null = null;
+    try {
+      cached = localStorage.getItem(cacheKey);
+    } catch {
+      cached = null;
+    }
+
+    if (cached && cached !== src) {
+      setSrc(cached);
+      setUseInitials(false);
+      return;
+    }
+
+    setSrc(null);
+    setUseInitials(true);
+  };
+
+  const handleLoad = () => {
+    if (!src) return;
+    try {
+      localStorage.setItem(cacheKey, src);
+    } catch {
+      // ignore storage failures (private mode, quota, etc.)
+    }
+  };
+
+  if (useInitials) {
+    return (
+      <div
+        aria-label={user?.name || 'User'}
+        title={user?.name}
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          background: '#6c757d',
+          color: '#fff',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 12,
+          fontWeight: 600,
+          marginRight: 8,
+          userSelect: 'none',
+        }}
+      >
+        {getInitials(user?.name)}
+      </div>
+    );
+  }
+
+  if (!src) return null;
+
+  return (
+    <img
+      src={src}
+      alt={user?.name || 'User'}
+      onError={handleError}
+      onLoad={handleLoad}
+      style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', marginRight: 8 }}
+    />
+  );
+};
 
 const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
   const { user, logout } = useContext(AuthContext);
@@ -65,13 +173,7 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ featureFlags = {} }) => {
                   </Button>
                 )}
                 <Navbar.Text className="me-2">{user.name}</Navbar.Text>
-                {user.picture && (
-                  <img
-                    src={user.picture}
-                    alt={user.name}
-                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', marginRight: 8 }}
-                  />
-                )}
+                <UserAvatar user={user} />
                 <Button variant="outline-light" onClick={logout}>Logout</Button>
               </div>
             </>
