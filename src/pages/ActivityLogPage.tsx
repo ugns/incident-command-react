@@ -58,6 +58,10 @@ const ActivityLogPage: React.FC = () => {
       return aTimestamp - bTimestamp;
     });
 
+  const sortedPeriods = (periods || [])
+    .slice()
+    .sort((a, b) => new Date(a.startTime || '').getTime() - new Date(b.startTime || '').getTime());
+
   return (
     <Container>
       <Card>
@@ -67,9 +71,9 @@ const ActivityLogPage: React.FC = () => {
             <Col md="auto" className="d-flex align-items-center gap-2">
               <ContextSelect
                 label="Period"
-                options={periods}
+                options={sortedPeriods}
                 value={selectedPeriod ? selectedPeriod.periodId : null}
-                onSelect={id => setSelectedPeriod(id ? periods.find(p => p.periodId === id) ?? null : null)}
+                onSelect={id => setSelectedPeriod(id ? sortedPeriods.find(p => p.periodId === id) ?? null : null)}
                 loading={periodsLoading}
                 getOptionLabel={p => p.description}
                 getOptionValue={p => p.periodId}

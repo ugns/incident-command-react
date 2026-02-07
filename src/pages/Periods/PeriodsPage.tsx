@@ -139,18 +139,24 @@ const PeriodsPage: React.FC = () => {
   );
   if (error) return <Alert variant="danger">{error}</Alert>;
 
-  // Filter and sort periods before rendering
-  const filteredPeriods = periods
+  const periodOptions = periods
     .filter(p => {
-      // Filter by selected unit if set
       if (selectedUnit && p.unitId !== selectedUnit.unitId) return false;
-      // Then filter by selected period if set
+      return true;
+    })
+    .slice()
+    .sort((a, b) => new Date(a.startTime || '').getTime() - new Date(b.startTime || '').getTime());
+
+  // Filter and sort periods before rendering table
+  const filteredPeriods = periodOptions
+    .filter(p => {
       if (selectedPeriod && p.periodId !== selectedPeriod.periodId) return false;
       return true;
     })
+    .slice()
     .sort((a, b) => {
-      const aTime = new Date(a.startTime).getTime();
-      const bTime = new Date(b.startTime).getTime();
+      const aTime = new Date(a.startTime || '').getTime();
+      const bTime = new Date(b.startTime || '').getTime();
       return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
     });
 
@@ -172,9 +178,9 @@ const PeriodsPage: React.FC = () => {
               />
               <ContextSelect
                 label="Period"
-                options={filteredPeriods}
+                options={periodOptions}
                 value={selectedPeriod ? selectedPeriod.periodId : null}
-                onSelect={id => setSelectedPeriod(id ? filteredPeriods.find(p => p.periodId === id) ?? null : null)}
+                onSelect={id => setSelectedPeriod(id ? periodOptions.find(p => p.periodId === id) ?? null : null)}
                 loading={loading}
                 getOptionLabel={p => p.description}
                 getOptionValue={p => p.periodId}
