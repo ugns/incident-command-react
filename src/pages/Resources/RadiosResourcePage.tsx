@@ -228,8 +228,8 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
                 <ListGroupItem key={r.radioId}>
                   <span title="Assigned">
                     <Broadcast color="#007bff" size={18} />
-                  </span>
-                  {r.serialNumber || r.name} {' '}
+                  </span>&nbsp;
+                  {r.name}{r.serialNumber ? ` (${r.serialNumber})` : ''}{' '}
                   {volunteer && (
                     <span style={{ marginLeft: 8 }}>
                       Assigned to: {volunteer.name}{volunteer.callsign ? ` (${volunteer.callsign})` : ''}
