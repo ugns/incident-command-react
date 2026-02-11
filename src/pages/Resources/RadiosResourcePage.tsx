@@ -206,7 +206,17 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
   const [showModal, setShowModal] = useState(false);
   const [searchSerial, setSearchSerial] = useState('');
   // Only show radios that are assigned
-  const assigned = radios.filter(r => r.status === RadioStatus.Assigned && r.assignedToVolunteerId);
+  const assigned = radios
+    .filter(r => r.status === RadioStatus.Assigned && r.assignedToVolunteerId)
+    .slice()
+    .sort((a, b) => {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      if (aName && bName) return aName.localeCompare(bName);
+      if (aName) return -1;
+      if (bName) return 1;
+      return (a.serialNumber || '').toLowerCase().localeCompare((b.serialNumber || '').toLowerCase());
+    });
   const searchValue = searchSerial.trim().toLowerCase();
   const found = searchValue
     ? assigned.find(r => {

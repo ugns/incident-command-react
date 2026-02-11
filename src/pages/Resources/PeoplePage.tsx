@@ -192,10 +192,15 @@ const CheckedInVolunteers: React.FC<{
   selectedUnit: { unitId: string } | null,
   onSelect: (v: Volunteer) => void
 }> = ({ volunteers, selectedUnit, onSelect }) => {
-  const checkedIn = volunteers.filter(v =>
-    v.status === VolunteerStatus.CheckedIn &&
-    (!selectedUnit?.unitId || v.unitId === selectedUnit.unitId)
-  );
+  const checkedIn = volunteers
+    .filter(v => v.status === VolunteerStatus.CheckedIn &&
+    (!selectedUnit?.unitId || v.unitId === selectedUnit.unitId))
+    .slice()
+    .sort((a, b) => {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      return aName.localeCompare(bName);
+    });
   if (checkedIn.length === 0) {
     return <Alert variant="secondary">{ALERT_NO_VOLUNTEERS_CHECKED_IN}</Alert>;
   }
