@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Alert, Card, Col, Form, Row } from 'react-bootstrap';
+import React, { useContext, useRef, useState } from 'react';
+import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
 import ReportGeneratorButton from '../../components/ReportGeneratorButton';
 import { ReportType } from '../../types/Report';
@@ -9,6 +9,14 @@ import { ALERT_NOT_LOGGED_IN } from '../../constants/messages';
 const PrizeInfoPage: React.FC = () => {
   const { token, user } = useContext(AuthContext);
   const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const clearFile = () => {
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   if (!token) return <Alert variant="warning">{ALERT_NOT_LOGGED_IN}</Alert>;
 
@@ -26,6 +34,7 @@ const PrizeInfoPage: React.FC = () => {
                 <Form.Control
                   type="file"
                   accept=".csv,text/csv"
+                  ref={fileInputRef}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.currentTarget.files?.[0] ?? null)}
                 />
                 <Form.Text className="text-muted">
@@ -46,8 +55,11 @@ const PrizeInfoPage: React.FC = () => {
                     json: false,
                     contentType: selectedFile.type || 'text/csv',
                   })}
-                  onReportGenerated={() => setFile(null)}
+                  onReportGenerated={clearFile}
                 />
+                <Button variant="secondary" onClick={clearFile} disabled={!file}>
+                  Reset
+                </Button>
               </div>
             </Form>
           </Card.Body>
