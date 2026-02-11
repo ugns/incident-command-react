@@ -164,106 +164,117 @@ const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ unitId, orgId, readOn
       }
     : null;
 
+  const boardContent = (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <div className="assignment-board-scroll">
+        <Row className="g-3">
+          {(readOnly
+            ? locationNames.filter(location => grouped[location].length > 0)
+            : locationNames
+          ).map((location, idx) => {
+            // Compute markerLabel as for the map marker
+            let markerLabel = location;
+            // Try to find the matching location object for label
+            const locObj = filteredLocations.find(l => l.name === location);
+            if (locObj) {
+              markerLabel = locObj.label && locObj.label.trim()
+                ? locObj.label.trim()
+                : locObj.name
+                    .split(/\s+/)
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2);
+            } else if (location === 'Unassigned') {
+              markerLabel = 'U';
+            }
+            return (
+              <LocationColumn
+                key={location}
+                location={location}
+                color={locationColorMap[location]}
+                markerLabel={markerLabel}
+              >
+                {grouped[location].length === 0 ? (
+                  <div className="text-muted">No volunteers</div>
+                ) : (
+                  grouped[location].map(v => (
+                    <VolunteerCard
+                      key={v.volunteerId}
+                      volunteer={v}
+                      activeVolunteerId={activeVolunteerId}
+                      setActiveVolunteerId={setActiveVolunteerId}
+                    />
+                  ))
+                )}
+              </LocationColumn>
+            );
+          })}
+        </Row>
+      </div>
+      <DragOverlay zIndex={2000}>
+        {activeVolunteerId && (() => {
+          const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
+          if (!v) return null;
+          return <VolunteerCard volunteer={v} readOnly />;
+        })()}
+      </DragOverlay>
+    </DndContext>
+  );
+
   return (
     <>
       {hasValidLocations && mapCenter ? (
-        <div className="g-3 row mb-4">
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={mapCenter}
-            zoom={18}
-            mapTypeId="satellite"
-            options={{
-              mapTypeControl: false,
-              rotateControl: false,
-              streetViewControl: false,
-              mapTypeId: 'satellite',
-            }}
-          >
-            {filteredLocations.map((loc, idx) => {
-              const parsed = parseLatLng(loc);
-              const color = locationColorMap[loc.name] || COLOR_PALETTE[idx % COLOR_PALETTE.length];
-              const markerLabel =
-                loc.label && loc.label.trim()
-                  ? loc.label.trim()
-                  : loc.name
-                      .split(/\s+/)
-                      .map(w => w[0])
-                      .join('')
-                      .slice(0, 2);
-              return parsed ? (
-                <Marker
-                  key={loc.locationId}
-                  position={parsed}
-                  title={loc.name}
-                  icon={{
-                    url: markerSvg(color, markerLabel),
-                    scaledSize: typeof window !== 'undefined' && window.google && window.google.maps
-                      ? new window.google.maps.Size(32, 32)
-                      : undefined
-                  }}
-                />
-              ) : null;
-            })}
-          </GoogleMap>
-        </div>
+        <Row className="g-3 mb-4">
+          <div className="col-12 col-lg-6">
+            <GoogleMap
+              mapContainerStyle={mapContainerStyle}
+              center={mapCenter}
+              zoom={18}
+              mapTypeId="satellite"
+              options={{
+                mapTypeControl: false,
+                rotateControl: false,
+                streetViewControl: false,
+                mapTypeId: 'satellite',
+              }}
+            >
+              {filteredLocations.map((loc, idx) => {
+                const parsed = parseLatLng(loc);
+                const color = locationColorMap[loc.name] || COLOR_PALETTE[idx % COLOR_PALETTE.length];
+                const markerLabel =
+                  loc.label && loc.label.trim()
+                    ? loc.label.trim()
+                    : loc.name
+                        .split(/\s+/)
+                        .map(w => w[0])
+                        .join('')
+                        .slice(0, 2);
+                return parsed ? (
+                  <Marker
+                    key={loc.locationId}
+                    position={parsed}
+                    title={loc.name}
+                    icon={{
+                      url: markerSvg(color, markerLabel),
+                      scaledSize: typeof window !== 'undefined' && window.google && window.google.maps
+                        ? new window.google.maps.Size(32, 32)
+                        : undefined
+                    }}
+                  />
+                ) : null;
+              })}
+            </GoogleMap>
+          </div>
+          <div className="col-12 col-lg-6">
+            {boardContent}
+          </div>
+        </Row>
       ) : (
-        <div className="text-muted mb-2">No map data available for these locations.</div>
+        <>
+          <div className="text-muted mb-2">No map data available for these locations.</div>
+          {boardContent}
+        </>
       )}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="assignment-board-scroll">
-          <Row className="g-3">
-            {(readOnly
-              ? locationNames.filter(location => grouped[location].length > 0)
-              : locationNames
-            ).map((location, idx) => {
-              // Compute markerLabel as for the map marker
-              let markerLabel = location;
-              // Try to find the matching location object for label
-              const locObj = filteredLocations.find(l => l.name === location);
-              if (locObj) {
-                markerLabel = locObj.label && locObj.label.trim()
-                  ? locObj.label.trim()
-                  : locObj.name
-                      .split(/\s+/)
-                      .map(w => w[0])
-                      .join('')
-                      .slice(0, 2);
-              } else if (location === 'Unassigned') {
-                markerLabel = 'U';
-              }
-              return (
-                <LocationColumn
-                  key={location}
-                  location={location}
-                  color={locationColorMap[location]}
-                  markerLabel={markerLabel}
-                >
-                  {grouped[location].length === 0 ? (
-                    <div className="text-muted">No volunteers</div>
-                  ) : (
-                    grouped[location].map(v => (
-                      <VolunteerCard
-                        key={v.volunteerId}
-                        volunteer={v}
-                        activeVolunteerId={activeVolunteerId}
-                        setActiveVolunteerId={setActiveVolunteerId}
-                      />
-                    ))
-                  )}
-                </LocationColumn>
-              );
-            })}
-          </Row>
-        </div>
-        <DragOverlay zIndex={2000}>
-          {activeVolunteerId && (() => {
-            const v = filteredVolunteers.find(vol => vol.volunteerId === activeVolunteerId);
-            if (!v) return null;
-            return <VolunteerCard volunteer={v} readOnly />;
-          })()}
-        </DragOverlay>
-      </DndContext>
     </>
   );
 };

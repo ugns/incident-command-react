@@ -30,7 +30,7 @@ const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, rea
   };
   if (readOnly) {
     return (
-      <Col md={3} sm={6} xs={12}>
+      <Col lg={6} md={6} sm={12} xs={12}>
         <Card>
           <Card.Header className="bg-primary text-white">
             {markerLabel && <span style={markerStyle}>{markerLabel}</span>}
@@ -44,8 +44,9 @@ const LocationColumn: React.FC<LocationColumnProps> = ({ location, children, rea
   return (
     <Col
       ref={setNodeRef}
-      md={3}
-      sm={6}
+      lg={6}
+      md={6}
+      sm={12}
       xs={12}
       style={{
         background: isOver ? '#e3f2fd' : undefined,
