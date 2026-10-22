@@ -206,8 +206,25 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
   const [showModal, setShowModal] = useState(false);
   const [searchSerial, setSearchSerial] = useState('');
   // Only show radios that are assigned
-  const assigned = radios.filter(r => r.status === RadioStatus.Assigned && r.assignedToVolunteerId);
-  const found = assigned.find(r => r.serialNumber === searchSerial);
+  const assigned = radios
+    .filter(r => r.status === RadioStatus.Assigned && r.assignedToVolunteerId)
+    .slice()
+    .sort((a, b) => {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      if (aName && bName) return aName.localeCompare(bName);
+      if (aName) return -1;
+      if (bName) return 1;
+      return (a.serialNumber || '').toLowerCase().localeCompare((b.serialNumber || '').toLowerCase());
+    });
+  const searchValue = searchSerial.trim().toLowerCase();
+  const found = searchValue
+    ? assigned.find(r => {
+        const serial = (r.serialNumber || '').toLowerCase();
+        const name = (r.name || '').toLowerCase();
+        return serial.includes(searchValue) || name.includes(searchValue);
+      })
+    : undefined;
   if (assigned.length === 0) {
     return <Alert variant="secondary">{ALERT_NO_RADIOS_ASSIGNED}</Alert>;
   }
@@ -228,8 +245,8 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
                 <ListGroupItem key={r.radioId}>
                   <span title="Assigned">
                     <Broadcast color="#007bff" size={18} />
-                  </span>
-                  {r.serialNumber || r.name} {' '}
+                  </span>&nbsp;
+                  {r.name}{r.serialNumber ? ` (${r.serialNumber})` : ''}{' '}
                   {volunteer && (
                     <span style={{ marginLeft: 8 }}>
                       Assigned to: {volunteer.name}{volunteer.callsign ? ` (${volunteer.callsign})` : ''}
@@ -247,12 +264,12 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlId="searchSerial">
-            <Form.Label>Enter Radio Serial Number</Form.Label>
+            <Form.Label>Enter Radio Name or Serial Number</Form.Label>
             <Form.Control
               type="text"
               value={searchSerial}
               onChange={e => setSearchSerial(e.target.value)}
-              placeholder="Serial number"
+              placeholder="Name or serial number"
             />
           </Form.Group>
           {searchSerial && (
@@ -265,7 +282,7 @@ const AssignedRadios: React.FC<AssignedRadiosProps> = ({ radios, volunteers }) =
               </Alert>
             ) : (
               <Alert variant="danger" className="mt-3">
-                No radio found with that serial number.
+                No radio found with that name or serial number.
               </Alert>
             )
           )}
